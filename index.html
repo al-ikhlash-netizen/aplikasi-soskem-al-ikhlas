@@ -24,7 +24,7 @@
     * { box-sizing:border-box; }
     html,body { margin:0; padding:0; font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg); color:var(--text); }
     body { min-height:100vh; }
-    button,input,select { font:inherit; }
+    button,input,select,textarea { font:inherit; }
     button { cursor:pointer; }
     .statusbar {
       height:42px; background:linear-gradient(180deg,#0d7d55,#0a6e4a);
@@ -76,7 +76,7 @@
     .nav button.active {
       background:#1e9d6e; color:#fff; border-color:#1e9d6e; box-shadow: inset 0 -2px 0 rgba(0,0,0,.08);
     }
-    .card { background:var(--panel); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); padding:18px 16px; }
+    .card { background:var(--panel); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); padding:18px 16px; overflow-x: auto; }
     .page-title { margin:0 0 14px; font-size:28px; line-height:1.2; font-weight:800; }
     .field { margin-bottom:14px; }
     .field label { display:block; font-size:15px; font-weight:700; margin-bottom:8px; }
@@ -90,15 +90,16 @@
     }
     .actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
     .btn {
-      border:none; border-radius:12px; padding:12px 18px; background:var(--green); color:#fff; font-weight:700; font-size:15px;
+      border:none; border-radius:12px; padding:12px 18px; background:var(--green); color:#fff; font-weight:700; font-size:15px; display:inline-flex; align-items:center; gap:6px;
     }
     .btn.secondary { background:#edf4f1; color:var(--green-dark); }
-    .btn.danger { background:#d9544c; color:#fff; }
+    .btn.danger { background:#fbeae8; color:var(--danger); border:1px solid #f5c2c0; }
     .muted { color:var(--muted); }
-    .table { width:100%; border-collapse:collapse; margin-top:8px; }
+    .table { width:100%; border-collapse:collapse; margin-top:8px; min-width: 600px; }
     .table th, .table td { text-align:left; padding:10px 8px; border-bottom:1px solid var(--line); font-size:14px; }
     .table th { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
-    .pill { display:inline-flex; align-items:center; border:1px solid var(--line); border-radius:999px; padding:6px 10px; background:#f7faf8; color:var(--muted); font-size:12px; }
+    .pill { display:inline-flex; align-items:center; border:1px solid var(--line); border-radius:999px; padding:6px 10px; background:#f7faf8; color:var(--muted); font-size:12px; font-weight:bold; }
+    .pill.rw { background:#e8f4f0; color:#0b6d4d; border-color:#bce0d2; }
     .notice { border-radius:12px; padding:12px 14px; margin-bottom:12px; }
     .notice.success { background:var(--success); border:1px solid #bfdcc8; }
     .notice.warn { background:var(--warning); border:1px solid #ebd89d; }
@@ -135,7 +136,7 @@
     </div>
 
     <div class="app-brand">
-      <div class="logo"><img src="./logomasjid.png" alt="Logo" /></div>
+      <div class="logo"><img src="./logomasjid.png" alt="Logo" onerror="this.style.display='none'" /></div>
       <div class="brand-text">
         <h1>SOSKEM DKM Jami Al-Ikhlash</h1>
         <p>Administrasi iuran warga • PWA offline</p>
@@ -171,7 +172,7 @@
   </div>
 
   <div id="modal" class="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.35); align-items:center; justify-content:center; z-index:20;">
-    <div id="modalContent" style="width:min(420px,92vw); background:#fff; border-radius:18px; padding:18px; box-shadow:0 16px 32px rgba(0,0,0,.18);"></div>
+    <div id="modalContent" style="width:min(420px,92vw); max-height: 90vh; overflow-y: auto; background:#fff; border-radius:18px; padding:18px; box-shadow:0 16px 32px rgba(0,0,0,.18);"></div>
   </div>
 
   <script>
@@ -183,9 +184,10 @@
       payments: [],
       notifications: [],
       queue: [],
-      settings: { fee: 10000 }
+      settings: { fee: 25000 }
     };
-    let activePage = 'payments';
+    let activePage = 'reports'; // Set default view
+    let reportFilterRw = 'SEMUA'; // Variabel filter wilayah untuk laporan
     const state = loadData();
 
     function loadData() {
@@ -198,7 +200,8 @@
     }
 
     function saveData() {
-      state.role = document.getElementById('roleSelect').value || state.role;
+      const roleSel = document.getElementById('roleSelect');
+      if(roleSel) state.role = roleSel.value || state.role;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       updateQueueLabel();
     }
@@ -230,7 +233,7 @@
       const nav = document.getElementById('nav');
       const items = [
         { id: 'residents', label: 'KK & Warga' },
-        { id: 'payments', label: 'Catat iuran' },
+        { id: 'payments', label: 'Catat Iuran' },
         { id: 'reports', label: 'Laporan' },
         { id: 'notifications', label: 'Notifikasi' }
       ];
@@ -248,32 +251,43 @@
         <div class="card">
           <h2 class="page-title">Master KK & Warga</h2>
           <form id="residentForm">
-            <div class="field"><label>Nomor KK *</label><input name="kk" required placeholder="32xxxxxxxxxx" /></div>
-            <div class="field"><label>Nama kepala keluarga *</label><input name="name" required /></div>
+            <div class="field"><label>Nomor KK *</label><input name="kk" required placeholder="16 Digit No KK..." /></div>
+            <div class="field"><label>Nama Kepala Keluarga *</label><input name="name" required /></div>
+            <div class="field"><label>Wilayah (RW) *</label>
+              <select name="rw" required>
+                <option value="RW 18">RW 18</option>
+                <option value="RW 19">RW 19</option>
+                <option value="RW 20">RW 20</option>
+              </select>
+            </div>
             <div class="field"><label>Nomor WhatsApp *</label><input name="wa" required placeholder="62812xxxxxxx" /></div>
-            <div class="field"><label>Alamat</label><input name="address" /></div>
-            <div class="field"><label>PIN warga (opsional)</label><input name="pin" inputmode="numeric" maxlength="6" placeholder="4-6 digit" /></div>
-            <div class="actions"><button type="submit" class="btn">Simpan data warga</button></div>
+            <div class="field"><label>Alamat Lengkap</label><input name="address" /></div>
+            <div class="actions"><button type="submit" class="btn">💾 Simpan Data Warga</button></div>
           </form>
         </div>
         <div class="card" style="margin-top:16px;">
-          <h3 style="margin:0 0 10px; font-size:22px;">Daftar warga</h3>
+          <h3 style="margin:0 0 10px; font-size:22px;">Daftar Warga Terdaftar</h3>
           ${state.residents.length ? `
             <table class="table">
-              <thead><tr><th>KK</th><th>Nama</th><th>WhatsApp</th><th>Alamat</th><th>Aksi</th></tr></thead>
+              <thead><tr><th>No KK</th><th>Nama</th><th>Wilayah</th><th>WhatsApp</th><th>Aksi</th></tr></thead>
               <tbody>
                 ${state.residents.map(r => `
                   <tr>
-                    <td>${esc(r.kk)}</td>
+                    <td><strong>${esc(r.kk)}</strong></td>
                     <td>${esc(r.name)}</td>
+                    <td><span class="pill rw">${esc(r.rw || '-')}</span></td>
                     <td>${esc(r.wa)}</td>
-                    <td>${esc(r.address || '-')}</td>
-                    <td><button class="btn secondary" type="button" data-edit="${r.id}">Edit</button></td>
+                    <td>
+                      <div class="actions" style="margin-top:0;">
+                        <button class="btn secondary" type="button" data-edit="${r.id}">✏️ Edit</button>
+                        <button class="btn danger" type="button" data-delete="${r.id}">🗑️ Hapus</button>
+                      </div>
+                    </td>
                   </tr>
                 `).join('')}
               </tbody>
             </table>
-          ` : '<div class="empty">Belum ada data warga.</div>'}
+          ` : '<div class="empty">Belum ada data warga terdaftar.</div>'}
         </div>
       `;
     }
@@ -282,22 +296,22 @@
       const defaultPeriod = monthNow();
       return `
         <div class="card">
-          <h2 class="page-title">Catat iuran</h2>
+          <h2 class="page-title">Catat Setoran Iuran</h2>
           <form id="paymentForm">
             <div class="field">
-              <label>Warga/KK *</label>
+              <label>Warga / KK *</label>
               <select name="residentId" required>
-                <option value="">Pilih warga</option>
-                ${state.residents.map(r => `<option value="${r.id}">${esc(r.name)} • ${esc(r.kk)}</option>`).join('')}
+                <option value="">-- Pilih Warga --</option>
+                ${state.residents.map(r => `<option value="${r.id}">${esc(r.name)} • ${esc(r.kk)} •${esc(r.rw || '')}</option>`).join('')}
               </select>
             </div>
             <div class="field">
-              <label>Periode *</label>
+              <label>Periode Pembayaran *</label>
               <input type="month" name="period" value="${defaultPeriod}" required />
             </div>
             <div class="field">
               <label>Nominal (Rp) *</label>
-              <input type="number" name="amount" value="${state.settings.fee || 10000}" min="0" required />
+              <input type="number" name="amount" value="${state.settings.fee || 25000}" min="0" required />
             </div>
             <div class="field">
               <label>Metode</label>
@@ -308,71 +322,102 @@
               </select>
             </div>
             <div class="field">
-              <label class="checkbox-wrap">
-                <input type="checkbox" name="otp" />
-                <span>Minta konfirmasi PIN/OTP warga (opsional)</span>
-              </label>
-            </div>
-            <div class="field">
-              <label>Tanda tangan warga *</label>
+              <label>Tanda Tangan Warga *</label>
               <canvas id="signatureCanvas" class="signature-box" width="900" height="200"></canvas>
               <input type="hidden" name="signature" />
             </div>
             <div class="actions">
-              <button type="submit" class="btn">Simpan bukti pembayaran</button>
-              <button type="button" class="btn secondary" id="clearSignatureBtn">Hapus tanda tangan</button>
+              <button type="submit" class="btn">💾 Simpan Bukti Pembayaran</button>
+              <button type="button" class="btn secondary" id="clearSignatureBtn">🧹 Hapus Tanda Tangan</button>
             </div>
           </form>
         </div>
         <div class="card" style="margin-top:18px;">
-          <h3 style="margin:0 0 10px; font-size:22px;">Transaksi</h3>
+          <h3 style="margin:0 0 10px; font-size:22px;">Riwayat Transaksi Terbaru</h3>
           ${state.payments.length ? `
             <table class="table">
-              <thead><tr><th>Waktu</th><th>Warga</th><th>Periode</th><th>Nominal</th><th>Status</th><th>Bukti</th></tr></thead>
+              <thead><tr><th>Waktu</th><th>Warga</th><th>Wilayah</th><th>Periode</th><th>Nominal</th><th>Bukti</th></tr></thead>
               <tbody>
                 ${state.payments.slice().reverse().map(p => {
                   const resident = state.residents.find(r => r.id === p.residentId);
                   return `
                     <tr>
                       <td>${new Date(p.createdAt).toLocaleString('id-ID')}</td>
-                      <td>${esc(resident ? resident.name : '-')}</td>
+                      <td><strong>${esc(resident ? resident.name : '-')}</strong></td>
+                      <td><span class="pill rw">${esc(resident ? resident.rw : '-')}</span></td>
                       <td>${esc(p.period)}</td>
                       <td>${money(p.amount)}</td>
-                      <td><span class="pill">Terverifikasi</span></td>
-                      <td><button type="button" class="btn secondary" data-show-receipt="${p.id}">Bukti</button></td>
+                      <td><button type="button" class="btn secondary" data-show-receipt="${p.id}">Lihat</button></td>
                     </tr>
                   `;
                 }).join('')}
               </tbody>
             </table>
-          ` : '<div class="empty">Belum ada transaksi.</div>'}
+          ` : '<div class="empty">Belum ada transaksi tercatat.</div>'}
         </div>
       `;
     }
 
     function renderReports() {
+      // Filter Pembayaran berdasarkan Wilayah
+      const filteredPayments = state.payments.filter(p => {
+        if (reportFilterRw === 'SEMUA') return true;
+        const res = state.residents.find(r => r.id === p.residentId);
+        return res && res.rw === reportFilterRw;
+      });
+
       const totals = {};
-      for (const p of state.payments) {
+      let grandTotal = 0;
+      for (const p of filteredPayments) {
         totals[p.period] = (totals[p.period] || 0) + Number(p.amount || 0);
+        grandTotal += Number(p.amount || 0);
       }
+
       return `
         <div class="card">
-          <h2 class="page-title">Laporan</h2>
-          <div class="actions" style="margin-bottom:14px;">
-            <button type="button" class="btn" id="exportJsonBtn">Export backup JSON</button>
-            <button type="button" class="btn secondary" id="exportCsvBtn">Export CSV</button>
+          <h2 class="page-title">Rekapitulasi Iuran</h2>
+          
+          <div class="field">
+            <label>Filter Wilayah:</label>
+            <select id="reportRwFilter" style="max-width: 300px; font-weight: bold; border-color: var(--green);">
+              <option value="SEMUA" ${reportFilterRw === 'SEMUA' ? 'selected' : ''}>Semua Wilayah</option>
+              <option value="RW 18" ${reportFilterRw === 'RW 18' ? 'selected' : ''}>Hanya RW 18</option>
+              <option value="RW 19" ${reportFilterRw === 'RW 19' ? 'selected' : ''}>Hanya RW 19</option>
+              <option value="RW 20" ${reportFilterRw === 'RW 20' ? 'selected' : ''}>Hanya RW 20</option>
+            </select>
           </div>
+
+          <div class="actions" style="margin-bottom:14px; padding-bottom: 14px; border-bottom: 1px solid var(--line);">
+            <button type="button" class="btn" id="printReportBtn">🖨️ Cetak Laporan Rapi</button>
+            <button type="button" class="btn secondary" id="exportCsvBtn">📊 Export CSV</button>
+          </div>
+          
+          <div class="actions" style="margin-bottom:14px;">
+            <button type="button" class="btn secondary" id="exportJsonBtn">💾 Export Backup JSON</button>
+            <button type="button" class="btn secondary" onclick="document.getElementById('importJsonFile').click()">📂 Pulihkan JSON</button>
+            <input type="file" id="importJsonFile" style="display:none" accept=".json" />
+          </div>
+
+          <h3 style="font-size: 18px; margin-top: 10px;">Statistik: ${reportFilterRw}</h3>
           <table class="table">
-            <thead><tr><th>Periode</th><th>Jumlah transaksi</th><th>Total</th></tr></thead>
+            <thead><tr><th>Periode</th><th>Jumlah Transaksi</th><th>Total Terkumpul</th></tr></thead>
             <tbody>
               ${Object.entries(totals).map(([period, total]) => `
                 <tr>
-                  <td>${esc(period)}</td>
-                  <td>${state.payments.filter(p => p.period === period).length}</td>
-                  <td>${money(total)}</td>
+                  <td><strong>${esc(period)}</strong></td>
+                  <td>${filteredPayments.filter(p => p.period === period).length} setoran</td>
+                  <td style="color: var(--green-dark); font-weight: bold;">${money(total)}</td>
                 </tr>
-              `).join('') || '<tr><td colspan="3" class="empty">Belum ada laporan.</td></tr>'}
+              `).join('') || '<tr><td colspan="3" class="empty">Belum ada data untuk wilayah ini.</td></tr>'}
             </tbody>
+            ${Object.keys(totals).length > 0 ? `
+              <tfoot>
+                <tr>
+                  <td colspan="2" style="text-align:right; font-weight:bold;">TOTAL KESELURUHAN:</td>
+                  <td style="font-weight:bold; font-size:16px; color: var(--green);">${money(grandTotal)}</td>
+                </tr>
+              </tfoot>
+            ` : ''}
           </table>
         </div>
       `;
@@ -383,7 +428,7 @@
         <div class="card">
           <h2 class="page-title">Notifikasi</h2>
           <div class="actions" style="margin-bottom:14px;">
-            <button type="button" class="btn" id="generateNotifyBtn">Periksa pengingat & tunggakan</button>
+            <button type="button" class="btn" id="generateNotifyBtn">Periksa Pengingat & Tunggakan</button>
           </div>
           ${state.notifications.length ? state.notifications.slice().reverse().map(n => `
             <div class="notice ${n.type === 'paid' ? 'success' : n.type === 'overdue' ? 'danger' : 'warn'}">
@@ -415,30 +460,24 @@
           <h3 style="margin:0 0 12px; font-size:24px;">Bukti Pembayaran</h3>
           <div style="margin-bottom:12px; color:#4e5b56; line-height:1.7; font-size:14px;">
             <div><strong>DKM Jami Al-Ikhlash</strong></div>
-            <div>No. transaksi: <strong>${esc(payment.id)}</strong></div>
+            <div>No. Transaksi: <strong>${esc(payment.id)}</strong></div>
             <div>Warga: <strong>${esc(resident ? resident.name : '-')}</strong></div>
+            <div>Wilayah: <strong>${esc(resident ? resident.rw : '-')}</strong></div>
             <div>Periode: <strong>${esc(payment.period)}</strong></div>
             <div>Nominal: <strong>${money(payment.amount)}</strong></div>
             <div>Metode: <strong>${esc(payment.method)}</strong></div>
-            <div>Dicatat: <strong>${new Date(payment.createdAt).toLocaleString('id-ID')}</strong></div>
+            <div>Dicatat Pada: <strong>${new Date(payment.createdAt).toLocaleString('id-ID')}</strong></div>
           </div>
           <div style="margin:14px 0; border:1px solid var(--line); border-radius:10px; padding:10px; background:#fbfffc;">
             <img src="${payment.signature || ''}" alt="Tanda tangan" style="max-width:100%; max-height:120px; display:block; margin:0 auto;" />
           </div>
           <div class="actions">
-            <button type="button" class="btn" id="printReceiptBtn">Unduh / Cetak</button>
             <button type="button" class="btn secondary" id="closeReceiptBtn">Tutup</button>
           </div>
         </div>
       `;
       openModal(html);
       document.getElementById('closeReceiptBtn').onclick = closeModal;
-      document.getElementById('printReceiptBtn').onclick = () => {
-        const w = window.open('', '_blank');
-        w.document.write('<html><body style="font-family:sans-serif;padding:30px;">' + html.replace(/<button.*?>.*?<\/button>/g, '').replace(/<script.*?<\/script>/g, '') + '</body></html>');
-        w.document.close();
-        setTimeout(() => w.print(), 300);
-      };
     }
 
     function renderApp() {
@@ -450,7 +489,7 @@
         reports: renderReports,
         notifications: renderNotifications
       };
-      app.innerHTML = (views[activePage] || renderPayments)();
+      app.innerHTML = (views[activePage] || renderReports)();
       bindEvents();
       updateQueueLabel();
     }
@@ -462,6 +501,14 @@
         roleSelect.onchange = () => {
           state.role = roleSelect.value;
           saveData();
+        };
+      }
+
+      // Event Laporan (Ganti Filter Wilayah)
+      const reportRwFilter = document.getElementById('reportRwFilter');
+      if(reportRwFilter) {
+        reportRwFilter.onchange = (e) => {
+          reportFilterRw = e.target.value;
           renderApp();
         };
       }
@@ -475,9 +522,9 @@
             id: 'w-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7),
             kk: String(form.get('kk') || '').trim(),
             name: String(form.get('name') || '').trim(),
+            rw: String(form.get('rw') || '').trim(),
             wa: normalizeWA(form.get('wa')),
             address: String(form.get('address') || '').trim(),
-            pin: String(form.get('pin') || '').trim(),
             createdAt: new Date().toISOString()
           };
           state.residents.push(entry);
@@ -529,13 +576,40 @@
         };
       }
 
+      // Restore JSON Handler
+      const importJsonFile = document.getElementById('importJsonFile');
+      if(importJsonFile) {
+        importJsonFile.onchange = (e) => {
+          const file = e.target.files[0];
+          if(!file) return;
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            try {
+              const importedData = JSON.parse(ev.target.result);
+              if(importedData.residents && importedData.payments) {
+                Object.assign(state, importedData);
+                saveData();
+                alert('Berhasil! Data sistem telah dipulihkan.');
+                renderApp();
+              } else {
+                alert('Format file JSON tidak sesuai dengan sistem ini.');
+              }
+            } catch(err) {
+              alert('Gagal membaca file JSON.');
+            }
+          };
+          reader.readAsText(file);
+          e.target.value = ''; // reset input
+        };
+      }
+
       const exportJsonBtn = document.getElementById('exportJsonBtn');
       if (exportJsonBtn) {
         exportJsonBtn.onclick = () => {
           const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
           const a = document.createElement('a');
           a.href = URL.createObjectURL(blob);
-          a.download = 'backup-soskem.json';
+          a.download = `Backup_Soskem_${new Date().toISOString().slice(0,10)}.json`;
           a.click();
         };
       }
@@ -543,17 +617,119 @@
       const exportCsvBtn = document.getElementById('exportCsvBtn');
       if (exportCsvBtn) {
         exportCsvBtn.onclick = () => {
-          const rows = [['No Transaksi', 'Nama', 'Periode', 'Nominal', 'Metode', 'Tanggal']];
+          const rows = [['No Transaksi', 'No KK', 'Nama', 'Wilayah', 'Periode', 'Nominal', 'Metode', 'Tanggal']];
           for (const p of state.payments) {
             const resident = state.residents.find(r => r.id === p.residentId);
-            rows.push([p.id, resident ? resident.name : '', p.period, p.amount, p.method, p.createdAt]);
+            if (reportFilterRw !== 'SEMUA' && (!resident || resident.rw !== reportFilterRw)) continue;
+            rows.push([
+              p.id, resident ? resident.kk : '', resident ? resident.name : '', 
+              resident ? resident.rw : '', p.period, p.amount, p.method, p.createdAt
+            ]);
           }
           const csv = rows.map(r => r.map(cell => '"' + String(cell).replace(/"/g, '""') + '"').join(',')).join('\n');
           const blob = new Blob([csv], { type: 'text/csv' });
           const a = document.createElement('a');
           a.href = URL.createObjectURL(blob);
-          a.download = 'laporan-soskem.csv';
+          a.download = `Laporan_Soskem_${reportFilterRw.replace(/\s/g, '')}.csv`;
           a.click();
+        };
+      }
+
+      // Print Report Laporan Cantik
+      const printReportBtn = document.getElementById('printReportBtn');
+      if (printReportBtn) {
+        printReportBtn.onclick = () => {
+          const filteredPayments = state.payments.filter(p => {
+            if (reportFilterRw === 'SEMUA') return true;
+            const res = state.residents.find(r => r.id === p.residentId);
+            return res && res.rw === reportFilterRw;
+          });
+
+          if(filteredPayments.length === 0) {
+            alert('Tidak ada data transaksi untuk dicetak pada wilayah ini.');
+            return;
+          }
+
+          let tableHtml = '';
+          let grandTotal = 0;
+          filteredPayments.slice().reverse().forEach((p, idx) => {
+            const res = state.residents.find(r => r.id === p.residentId);
+            grandTotal += Number(p.amount);
+            tableHtml += `
+              <tr>
+                <td style="text-align:center;">${idx + 1}</td>
+                <td>${esc(res ? res.kk : '-')}</td>
+                <td><strong>${esc(res ? res.name : '-')}</strong></td>
+                <td>${esc(res ? res.rw : '-')}</td>
+                <td>${esc(p.period)}</td>
+                <td style="text-align:right;">${money(p.amount)}</td>
+              </tr>
+            `;
+          });
+
+          const printWindow = window.open('', '_blank');
+          printWindow.document.write(`
+            <html>
+            <head>
+              <title>Cetak Laporan - ${reportFilterRw}</title>
+              <style>
+                body { font-family: 'Segoe UI', Arial, sans-serif; color: #1d2e29; padding: 30px; background: #fff; }
+                .header { text-align: center; border-bottom: 4px double #0a8b5e; padding-bottom: 15px; margin-bottom: 20px; }
+                .header h1 { margin: 0; font-size: 24px; color: #0b6d4d; text-transform: uppercase; }
+                .header p { margin: 5px 0 0; font-size: 14px; color: #5f6c68; }
+                .info-box { background: #f2f8f5; border-left: 5px solid #0a8b5e; padding: 10px 15px; margin-bottom: 20px; font-size: 14px; border-radius: 4px; }
+                table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px; }
+                th, td { border: 1px solid #d6e0db; padding: 10px; text-align: left; }
+                th { background-color: #0a8b5e; color: #ffffff; text-transform: uppercase; letter-spacing: 0.5px; }
+                tr:nth-child(even) { background-color: #f9fbf9; }
+                .total-row td { background-color: #e6f2ec; font-weight: bold; font-size: 14px; color: #0b6d4d; }
+                .footer-sign { margin-top: 40px; display: flex; justify-content: space-between; }
+                .sign-box { width: 200px; text-align: center; font-size: 14px; }
+                .sign-box .space { height: 70px; }
+                @media print { body { padding: 0; } }
+              </style>
+            </head>
+            <body>
+              <div class="header">
+                <h1>DEWAN KEMAKMURAN MASJID (DKM) JAMI AL-IKHLASH</h1>
+                <p>Laporan Rekapitulasi Pembayaran Iuran SOSKEM</p>
+              </div>
+              <div class="info-box">
+                <strong>Filter Wilayah:</strong> ${reportFilterRw}<br>
+                <strong>Tanggal Cetak:</strong> ${new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width:40px; text-align:center;">No</th>
+                    <th>Nomor KK</th>
+                    <th>Nama Kepala Keluarga</th>
+                    <th>Wilayah</th>
+                    <th>Periode</th>
+                    <th style="text-align:right;">Nominal</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${tableHtml}
+                  <tr class="total-row">
+                    <td colspan="5" style="text-align:right;">TOTAL KESELURUHAN</td>
+                    <td style="text-align:right;">${money(grandTotal)}</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div class="footer-sign">
+                <div class="sign-box">
+                  Penyetor / Petugas,<br><div class="space"></div>(________________________)
+                </div>
+                <div class="sign-box">
+                  Bendahara SOSKEM,<br><div class="space"></div>(________________________)
+                </div>
+              </div>
+            </body>
+            </html>
+          `);
+          printWindow.document.close();
+          setTimeout(() => printWindow.print(), 300);
         };
       }
 
@@ -564,13 +740,13 @@
           for (const resident of state.residents) {
             const paid = state.payments.some(p => p.residentId === resident.id && p.period === period);
             if (!paid) {
-              const message = `${resident.name} belum tercatat membayar iuran periode ${period}.`;
+              const message = `${resident.name} (${resident.rw || '-'}) belum tercatat membayar iuran periode ${period}.`;
               const exists = state.notifications.some(n => n.message === message);
               if (!exists) {
                 state.notifications.push({
                   id: 'n-' + Date.now() + '-' + Math.random().toString(36).slice(2, 5),
                   type: 'overdue',
-                  title: 'Pengingat iuran / tunggakan',
+                  title: 'Pengingat Tunggakan',
                   message,
                   createdAt: new Date().toISOString()
                 });
@@ -579,22 +755,34 @@
           }
           saveData();
           renderApp();
+          alert('Pengecekan selesai, lihat tab notifikasi.');
         };
       }
 
+      // HAPUS Tombol Nonaktifkan -> Ganti Logika Delete & Edit Master KK
       document.querySelectorAll('[data-edit]').forEach(el => {
         el.onclick = () => {
           const id = el.dataset.edit;
           const person = state.residents.find(r => r.id === id);
           if (!person) return;
           const html = `
-            <h3 style="margin:0 0 14px;">Edit warga</h3>
+            <h3 style="margin:0 0 14px;">Edit Data Warga</h3>
             <form id="editResidentForm">
               <div class="field"><label>Nomor KK</label><input name="kk" value="${esc(person.kk)}" required /></div>
               <div class="field"><label>Nama</label><input name="name" value="${esc(person.name)}" required /></div>
+              <div class="field"><label>Wilayah (RW)</label>
+                <select name="rw" required>
+                  <option value="RW 18" ${person.rw === 'RW 18' ? 'selected' : ''}>RW 18</option>
+                  <option value="RW 19" ${person.rw === 'RW 19' ? 'selected' : ''}>RW 19</option>
+                  <option value="RW 20" ${person.rw === 'RW 20' ? 'selected' : ''}>RW 20</option>
+                </select>
+              </div>
               <div class="field"><label>WhatsApp</label><input name="wa" value="${esc(person.wa)}" required /></div>
               <div class="field"><label>Alamat</label><input name="address" value="${esc(person.address || '')}" /></div>
-              <div class="actions"><button type="submit" class="btn">Simpan</button><button type="button" class="btn secondary" id="closeEditModal">Batal</button></div>
+              <div class="actions">
+                <button type="submit" class="btn">💾 Simpan Perubahan</button>
+                <button type="button" class="btn secondary" id="closeEditModal">Batal</button>
+              </div>
             </form>
           `;
           openModal(html);
@@ -604,12 +792,27 @@
             const form = new FormData(e.target);
             person.kk = String(form.get('kk') || '').trim();
             person.name = String(form.get('name') || '').trim();
+            person.rw = String(form.get('rw') || '').trim();
             person.wa = normalizeWA(form.get('wa'));
             person.address = String(form.get('address') || '').trim();
             saveData();
             closeModal();
             renderApp();
           };
+        };
+      });
+
+      document.querySelectorAll('[data-delete]').forEach(el => {
+        el.onclick = () => {
+          const id = el.dataset.delete;
+          const person = state.residents.find(r => r.id === id);
+          if(confirm(`Yakin ingin MENGHAPUS PERMANEN data warga bernama ${person.name}?`)) {
+            state.residents = state.residents.filter(r => r.id !== id);
+            // Opsional: Hapus riwayat iurannya juga jika dibutuhkan
+            // state.payments = state.payments.filter(p => p.residentId !== id);
+            saveData();
+            renderApp();
+          }
         };
       });
 
