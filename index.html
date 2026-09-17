@@ -45,7 +45,7 @@
 
         .container { width: 100%; max-width: 600px; margin: 0 auto; padding: 15px; }
 
-        /* BOTTOM NAVIGATION BAR (3 MENU) */
+        /* BOTTOM NAVIGATION BAR */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; width: 100%; background: #ffffff;
             display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--border-color);
@@ -131,7 +131,7 @@
         .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 15px; }
 
         /* PRINT STYLES */
-        #kop-buku-penagihan, #form-sk-print-area, #box-lampiran-cetak-kk { display: none; }
+        #kop-buku-penagihan, #form-sk-print-area, #print-area-header { display: none; }
         .kolom-cetak-lap { display: none; }
         .kolom-layar-normal { display: table-cell; }
 
@@ -140,16 +140,23 @@
             .app-bar, .panel-backup-native, .bottom-nav, .card-native:not(.printable-panel), form, .btn-group-action, .filter-select, .live-search-input, .modal, .pagination-container { display: none !important; }
             .container { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
             
+            /* PRINT MASTER KK */
             body.mode-cetak-buku-aktif #kop-buku-penagihan { display: block !important; text-align: center; border-bottom: 3px double #000; padding-bottom: 10px; margin-bottom: 10px; }
             body.mode-cetak-buku-aktif .card-native.printable-panel { display: block !important; border: none !important; box-shadow: none !important; padding: 0 !important; }
             body.mode-cetak-buku-aktif .kolom-layar-normal { display: none !important; }
             body.mode-cetak-buku-aktif .kolom-cetak-lap { display: table-cell !important; text-align: center !important; vertical-align: middle !important; border: 1px solid #000 !important; color: #000 !important; }
             
+            /* PRINT LOG IURAN */
+            body.mode-cetak-log-aktif #print-area-header { display: block !important; }
+            body.mode-cetak-log-aktif .card-native.printable-panel { display: block !important; border: none !important; box-shadow: none !important; padding: 0 !important; }
+            body.mode-cetak-log-aktif .kolom-layar-normal { display: none !important; }
+
             table { width: 100% !important; border-collapse: collapse !important; border: 1px solid #000 !important; }
             th, td { padding: 6px !important; border: 1px solid #000 !important; color: #000 !important; font-size: 11px !important; }
             th { background: #f0f0f0 !important; font-weight: bold !important; text-align: center !important; }
             .kotak-kecil { font-size: 12px; } .gari-bawah { font-size: 10px; letter-spacing: 0.5px; }
 
+            /* PRINT SK */
             body.mode-cetak-sk-aktif { background: white !important; padding: 10px !important; }
             body.mode-cetak-sk-aktif .container, body.mode-cetak-sk-aktif .app-bar, body.mode-cetak-sk-aktif .bottom-nav { display: none !important; }
             body.mode-cetak-sk-aktif #form-sk-print-area { display: block !important; width: 100% !important; position: absolute; left: 0; top: 0; padding: 20px; }
@@ -304,7 +311,7 @@
                 </div>
                 <div class="form-group">
                     <label>Nomor WhatsApp</label>
-                    <input type="text" id="kk-wa" class="form-control" placeholder="Contoh: 08123456789" required>
+                    <input type="text" id="kk-wa" class="form-control" placeholder="Contoh: 08123456789">
                 </div>
                 <div class="form-group">
                     <label>No. Kartu Keluarga (16 Digit)</label>
@@ -345,7 +352,6 @@
             <div class="btn-group-action">
                 <button onclick="unduhLaporanExcel('MASTER')" class="btn-action-sm bg-excel">📊 Export CSV</button>
                 <button onclick="cetakBukuPenagihanMassal()" class="btn-action-sm bg-print">🖨️ Cetak Buku</button>
-                <button onclick="cetakTagihanBerikutnya()" class="btn-action-sm bg-warning">🖨️ Tagihan Berikut</button>
             </div>
 
             <div class="table-responsive">
@@ -427,7 +433,7 @@
 
         <!-- Log Aliran Kas Masuk -->
         <div class="card-native printable-panel">
-            <div id="print-area-header" style="text-align: center; margin-bottom: 15px; display: none; border-bottom: 3px double #000; padding-bottom: 8px;">
+            <div id="print-area-header" style="text-align: center; margin-bottom: 15px; border-bottom: 3px double #000; padding-bottom: 8px;">
                 <h2 style="font-size: 15px; font-weight: bold;">REKAPITULASI SETORAN IURAN SOSKEM</h2>
                 <p style="font-size: 12px;" id="nama-wilayah-terpilih">-</p>
             </div>
@@ -475,7 +481,6 @@
 
 </div> <!-- End Container -->
 
-
 <!-- BOTTOM NAVIGATION BAR (3 MENU UTAMA) -->
 <nav class="bottom-nav">
     <button class="nav-item active" onclick="pindahTabNative(0, this)">
@@ -491,24 +496,6 @@
         <span>Setor Iuran</span>
     </button>
 </nav>
-
-
-<!-- LAMPIRAN CETAK KODE KK SEMENTARA -->
-<div id="box-lampiran-cetak-kk" style="page-break-before: auto; margin-top: 20px; padding-top: 10px; border-top: 1px dashed #000;">
-    <h3 style="font-size: 13px; color: #000; text-transform: uppercase; margin-bottom: 5px;">📌 LAMPIRAN PETUGAS: Konfirmasi No. KK Asli (16 Digit)</h3>
-    <table style="width: 100%; border-collapse: collapse; font-size: 11px; border: 1px solid #000;">
-        <thead>
-            <tr>
-                <th style="width: 30px; text-align: center; border: 1px solid #000; padding: 6px;">No</th>
-                <th style="width: 90px; text-align: center; border: 1px solid #000; padding: 6px;">Kode Buku</th>
-                <th style="border: 1px solid #000; padding: 6px; text-align: left;">Nama KK</th>
-                <th style="width: 60px; text-align: center; border: 1px solid #000; padding: 6px;">RW</th>
-                <th style="width: 240px; text-align: center; border: 1px solid #000; padding: 6px;">TULIS TANGAN NO KK ASLI</th>
-            </tr>
-        </thead>
-        <tbody id="tabel-lampiran-kk-body"></tbody>
-    </table>
-</div>
 
 <!-- SURAT KEPUTUSAN (SK) PRINT AREA -->
 <div id="form-sk-print-area">
@@ -564,7 +551,7 @@
     </div>
 </div>
 
-<!-- MODAL PILIHAN WHATSAPP (BARU) -->
+<!-- MODAL PILIHAN WHATSAPP -->
 <div id="modalWA" class="modal">
     <div class="modal-content">
         <div class="modal-header">Pilih Jenis Pesan WhatsApp</div>
@@ -787,7 +774,7 @@
     });
 
     // ==========================================
-    // LOGIKA MODAL WHATSAPP BROADCAST (BARU)
+    // LOGIKA MODAL WHATSAPP BROADCAST
     // ==========================================
     function bukaModalWA(index) {
         wargaWATerpilih = databaseKK[index];
@@ -1004,7 +991,6 @@
 
         currentPageMaster = 1;
         renderTabelMasterPagination();
-        sinkronisasiLampiranKKSaatCetak(filterRW);
         renderDashboardChart();
     }
 
@@ -1019,7 +1005,10 @@
         if(currentPageMaster > totalPages && totalPages > 0) currentPageMaster = totalPages;
 
         let startInd = (currentPageMaster - 1) * rowsPerPage;
-        let paginatedItems = document.body.classList.contains('mode-cetak-buku-aktif') ? globalDataMasterFiltered : globalDataMasterFiltered.slice(startInd, startInd + rowsPerPage);
+        
+        // PENTING: Pengecekan jika sedang mode print, muat SEMUA data, jangan dipotong (slice).
+        let isSedangPrint = document.body.classList.contains('mode-cetak-buku-aktif');
+        let paginatedItems = isSedangPrint ? globalDataMasterFiltered : globalDataMasterFiltered.slice(startInd, startInd + rowsPerPage);
 
         paginatedItems.forEach((warga) => {
             let status = warga.statusKalkulasi;
@@ -1030,7 +1019,6 @@
             let infoRtCetak = warga.rt ? `RT ${warga.rt}` : '';
 
             let waButtonHTML = '';
-            // Perubahan Tombol WA Menjadi Modal Popup
             if (warga.wa) {
                 waButtonHTML = `<button class="btn-wa" onclick="bukaModalWA(${indexAsli})">WA</button>`;
             }
@@ -1055,32 +1043,15 @@
             tbody.appendChild(tr);
         });
 
-        if(!document.body.classList.contains('mode-cetak-buku-aktif')) {
+        if(!isSedangPrint) {
             document.getElementById('info-hal-master').innerText = `${totalData} Data`;
             document.getElementById('teks-hal-master').innerText = `${currentPageMaster}/${totalPages || 1}`;
             document.getElementById('btn-prev-master').disabled = currentPageMaster === 1;
             document.getElementById('btn-next-master').disabled = currentPageMaster === totalPages || totalPages === 0;
         }
     }
+    
     function ubahHalamanMaster(arah) { currentPageMaster += arah; renderTabelMasterPagination(); }
-
-    function sinkronisasiLampiranKKSaatCetak(rwTerpilih) {
-        const tbodyLampiran = document.getElementById('tabel-lampiran-kk-body');
-        const boxLampiran = document.getElementById('box-lampiran-cetak-kk');
-        if (!tbodyLampiran || !boxLampiran) return;
-        tbodyLampiran.innerHTML = '';
-        
-        let nomorUrut = 1; let adaTemp = false;
-        databaseKK.forEach(warga => {
-            if (rwTerpilih !== 'SEMUA' && warga.rw !== rwTerpilih) return;
-            let isSementaran = Object.values(warga).some(val => String(val).startsWith("0000") || String(val).includes("000000000000"));
-            if (isSementaran) {
-                adaTemp = true;
-                tbodyLampiran.innerHTML += `<tr><td style="text-align: center; padding: 4px;">${nomorUrut++}</td><td style="padding: 4px; font-weight:bold;">${warga.kode}</td><td style="padding: 4px;">${warga.nama || warga.kode}</td><td style="text-align:center; padding:4px;">${warga.rw}</td><td style="padding: 4px; color:#ccc;">.......................................</td></tr>`;
-            }
-        });
-        boxLampiran.style.display = adaTemp ? 'block' : 'none';
-    }
 
     function muatTabelLogIuran() {
         const filterRW = document.getElementById('filter-cetak-rw-iuran').value;
@@ -1112,7 +1083,10 @@
         if(currentPageIuran > totalPages && totalPages > 0) currentPageIuran = totalPages;
 
         let startInd = (currentPageIuran - 1) * rowsPerPage;
-        let paginatedItems = globalDataIuranFiltered.slice(startInd, startInd + rowsPerPage);
+
+        // PENTING: Pengecekan cetak full data
+        let isSedangPrint = document.body.classList.contains('mode-cetak-log-aktif');
+        let paginatedItems = isSedangPrint ? globalDataIuranFiltered : globalDataIuranFiltered.slice(startInd, startInd + rowsPerPage);
 
         paginatedItems.forEach((item, index) => {
             let urutAsli = startInd + index + 1;
@@ -1129,10 +1103,12 @@
             `;
         });
 
-        document.getElementById('info-hal-iuran').innerText = `${totalData} Data`;
-        document.getElementById('teks-hal-iuran').innerText = `${currentPageIuran}/${totalPages || 1}`;
-        document.getElementById('btn-prev-iuran').disabled = currentPageIuran === 1;
-        document.getElementById('btn-next-iuran').disabled = currentPageIuran === totalPages || totalPages === 0;
+        if(!isSedangPrint){
+            document.getElementById('info-hal-iuran').innerText = `${totalData} Data`;
+            document.getElementById('teks-hal-iuran').innerText = `${currentPageIuran}/${totalPages || 1}`;
+            document.getElementById('btn-prev-iuran').disabled = currentPageIuran === 1;
+            document.getElementById('btn-next-iuran').disabled = currentPageIuran === totalPages || totalPages === 0;
+        }
     }
     function ubahHalamanIuran(arah) { currentPageIuran += arah; renderTabelIuranPagination(); }
 
@@ -1263,17 +1239,51 @@
         }
     }
 
+    // ==========================================
+    // FUNGSI PRINT YANG SUDAH DIPERBAIKI
+    // ==========================================
     function cetakRekapKasMasukPerWilayah() {
-        window.print();
+        // Beri tahu sistem bahwa mode print aktif
+        document.body.classList.add('mode-cetak-log-aktif');
+        
+        // Atur judul wilayah pada hasil print
+        let namaWilayah = document.getElementById('filter-cetak-rw-iuran').value;
+        if(namaWilayah === "SEMUA") namaWilayah = "Seluruh Wilayah (RW 18, 19, 20)";
+        document.getElementById('nama-wilayah-terpilih').innerText = "Area: " + namaWilayah;
+        
+        // Panggil fungsi render tabel, sekarang sistem akan merender FULL semua data tanpa pagination
+        renderTabelIuranPagination();
+
+        // Beri jeda 500ms agar browser selesai menggambar tabel yang panjang sebelum memanggil Print
+        setTimeout(() => { 
+            window.print(); 
+            // Setelah selesai print, matikan mode cetak
+            document.body.classList.remove('mode-cetak-log-aktif'); 
+            // Kembalikan tabel ke mode pagination (12 data per halaman)
+            renderTabelIuranPagination(); 
+        }, 500);
     }
 
     function cetakBukuPenagihanMassal() {
+        // Beri tahu sistem bahwa mode print aktif
         document.body.classList.add('mode-cetak-buku-aktif');
-        setTimeout(() => { window.print(); document.body.classList.remove('mode-cetak-buku-aktif'); }, 300);
-    }
+        
+        // Atur judul wilayah pada hasil print
+        let namaWilayah = document.getElementById('filter-rw-master').value;
+        if(namaWilayah === "SEMUA") namaWilayah = "Seluruh Wilayah (RW 18, 19, 20)";
+        document.getElementById('kop-wilayah-kerja').innerText = "Lingkup Area: " + namaWilayah;
 
-    function cetakTagihanBerikutnya() {
-        cetakBukuPenagihanMassal();
+        // Panggil fungsi render tabel, sekarang sistem akan merender FULL semua data tanpa pagination
+        renderTabelMasterPagination(); 
+
+        // Beri jeda 500ms agar browser selesai menggambar tabel yang panjang sebelum memanggil Print
+        setTimeout(() => { 
+            window.print(); 
+            // Setelah selesai print, matikan mode cetak
+            document.body.classList.remove('mode-cetak-buku-aktif'); 
+            // Kembalikan tabel ke mode pagination (12 data per halaman)
+            renderTabelMasterPagination(); 
+        }, 500);
     }
 
     function eksporBackupDataSistem() {
