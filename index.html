@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#087f5b"><meta name="description" content="Sistem Aplikasi SOSKEM DKM Jami Al-Ikhlash"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="SOSKEM Al-Ikhlash"><link rel="apple-touch-icon" href="assets/icon-192.png"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="assets/logomasjid.png"><title>SOSKEM DKM Jami Al-Ikhlash</title><style>
 :root{--green:#087f5b;--green2:#0aa06e;--gold:#d6a84f;--bg:#f4f7f6;--card:#fff;--ink:#16322b;--muted:#6d7c77;--red:#c0392b;--blue:#1769aa;--shadow:0 8px 28px #12352a12}*{box-sizing:border-box}body{margin:0;background:var(--bg);font:14px system-ui,-apple-system,Segoe UI,Roboto,Arial;color:var(--ink)}button,input,select,textarea{font:inherit}button{cursor:pointer}.app{min-height:100vh}.top{position:sticky;top:0;z-index:10;background:linear-gradient(135deg,#056b4c,#0a9068);color:#fff;padding:14px 16px;box-shadow:0 3px 18px #0002}.brand{display:flex;align-items:center;gap:12px;max-width:1180px;margin:auto}.brand img{width:46px;height:46px;border-radius:50%;background:#fff;padding:3px}.brand h1{font-size:17px;margin:0}.brand p{font-size:11px;margin:3px 0 0;opacity:.82}.wrap{max-width:1180px;margin:auto;padding:18px 14px 92px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.card{background:var(--card);border-radius:16px;padding:15px;box-shadow:var(--shadow);border:1px solid #e4ebe8}.stat b{display:block;font-size:23px;margin-top:6px}.stat small,.muted{color:var(--muted)}.section{margin-top:16px}.section h2{font-size:16px;margin:0 0 10px}.actions{display:flex;gap:8px;flex-wrap:wrap}.btn{border:0;border-radius:10px;padding:10px 13px;background:var(--green);color:white;font-weight:650}.btn.gold{background:#b88925}.btn.red{background:var(--red)}.btn.gray{background:#e8eeec;color:var(--ink)}.btn.blue{background:var(--blue)}.tablewrap{overflow:auto}.table{width:100%;border-collapse:collapse;min-width:760px}.table th,.table td{padding:10px 8px;border-bottom:1px solid #e9eeec;text-align:left;vertical-align:top}.table th{font-size:11px;text-transform:uppercase;color:var(--muted);background:#f7faf9}.badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:11px;background:#e4f5ee;color:#08704f;font-weight:700}.badge.red{background:#fde9e6;color:#a62e24}.bottom{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #dfe8e4;display:flex;justify-content:center;z-index:20}.nav{width:min(1180px,100%);display:grid;grid-template-columns:repeat(5,1fr)}.nav button{background:none;border:0;padding:8px 4px;color:#71807b;font-size:11px}.nav button.active{color:var(--green);font-weight:800}.nav i{display:block;font-style:normal;font-size:19px}.toolbar{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}.search{width:min(330px,100%);padding:10px 12px;border:1px solid #d9e3df;border-radius:10px;background:#fff}.modal{position:fixed;inset:0;background:#0007;display:none;align-items:flex-end;justify-content:center;z-index:30}.modal.show{display:flex}.modalbox{background:#fff;width:min(700px,100%);max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:18px}.modalbox h3{margin:0 0 14px}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field{display:flex;flex-direction:column;gap:5px}.field.full{grid-column:1/-1}.field label{font-size:11px;font-weight:700;color:var(--muted)}.field input,.field select,.field textarea{border:1px solid #d7e1de;border-radius:9px;padding:10px;background:#fff}.footer-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}.quarter{display:flex;gap:6px;flex-wrap:wrap}.q{border:1px solid #ccd9d4;border-radius:999px;padding:7px 10px;background:#fff}.q.on{background:#dff5ec;border-color:#8dd4b9;color:#08704f;font-weight:700}.empty{text-align:center;padding:28px;color:var(--muted)}.rwgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.rw{padding:13px;border-radius:12px;background:#f0f7f4;text-align:center}.rw b{font-size:20px;display:block}.notice{padding:12px;border-radius:12px;background:#fff8e6;border:1px solid #f1dc9b;color:#6c5317}.hidden{display:none!important}@media(max-width:700px){.grid{grid-template-columns:repeat(2,1fr)}.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}.rwgrid{grid-template-columns:1fr 1fr}.stat b{font-size:19px}.wrap{padding-top:14px}.brand h1{font-size:15px}}
-</style></head><body><div class="app"><header class="top"><button id="installBtn" class="btn gold" style="display:none;position:absolute;right:12px;top:12px;z-index:5" type="button">⬇ Instal App</button><div class="brand"><img src="assets/logomasjid.png"><div><h1>SOSKEM DKM Jami Al-Ikhlash</h1><p>Sistem Administrasi Sosial Kematian • RW 18, RW 19, RW 20</p></div></div></header><main class="wrap" id="content"></main><div class="bottom"><nav class="nav"><button data-page="home"><i>⌂</i>Dashboard</button><button data-page="kk"><i>▣</i>Master KK</button><button data-page="iuran"><i>✓</i>Iuran</button><button data-page="santunan"><i>♥</i>Santunan</button><button data-page="lainnya"><i>☷</i>Lainnya</button></nav></div></div>
+</style></head><body><div class="app"><header class="top"><div id="pwaStatus" style="display:none"></div><button id="installBtn" class="btn gold" style="display:none;position:absolute;right:12px;top:12px;z-index:5" type="button">⬇ Instal App</button><div class="brand"><img src="assets/logomasjid.png"><div><h1>SOSKEM DKM Jami Al-Ikhlash</h1><p>Sistem Administrasi Sosial Kematian • RW 18, RW 19, RW 20</p></div></div></header><main class="wrap" id="content"></main><div class="bottom"><nav class="nav"><button data-page="home"><i>⌂</i>Dashboard</button><button data-page="kk"><i>▣</i>Master KK</button><button data-page="iuran"><i>✓</i>Iuran</button><button data-page="santunan"><i>♥</i>Santunan</button><button data-page="lainnya"><i>☷</i>Lainnya</button></nav></div></div>
 <div class="modal" id="modal"><div class="modalbox" id="modalbox"></div></div><input id="fileRestore" type="file" accept="application/json" class="hidden"><script>
 const KEY='SOSKEM_JAMI_AL_IKHLASH_WEB_V2';let db=JSON.parse(localStorage.getItem(KEY)||'null')||{masterKk:[],iuran:[],santunan:[],kas:[],settings:{saldoAwal:0}};let page='home';let editing=null;
 const save=()=>localStorage.setItem(KEY,JSON.stringify(db));const rupiah=n=>new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(Number(n)||0);const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));const uid=()=>Date.now()+Math.floor(Math.random()*999);const today=()=>new Date().toISOString().slice(0,10);const kode=(rw,no)=>`ISK${rw}/${no}`;
@@ -22,29 +22,89 @@ function formKas(){modal('Tambah Mutasi Kas',`<form id="form"><div class="formgr
 function settings(){modal('Pengaturan Sistem',`<form id="form"><div class="field"><label>Saldo Awal Kas</label><input name="saldo" type="number" value="${db.settings.saldoAwal||0}"></div><p class="muted">Data aplikasi disimpan lokal pada perangkat/browser ini.</p><div class="footer-actions"><button type="button" class="btn gray" data-close>Batal</button><button class="btn">Simpan</button></div></form>`);document.getElementById('form').onsubmit=e=>{e.preventDefault();db.settings.saldoAwal=+new FormData(e.target).get('saldo');save();closeModal();render()}}
 function backup(){let blob=new Blob([JSON.stringify({appName:'SOSKEM Jami Al-Ikhlash',organization:'DKM MASJID JAMI AL-IKHLASH',location:'KP. CIBORERANG, BANDUNG',coverage:'RW 18, RW 19, RW 20',version:2,...db},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`BACKUP_SOSKEM_JAMI_AL_IKHLASH_${today()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 function report(){let s=stats();modal('Laporan Ringkas',`<div class="card"><h2>SOSKEM DKM Jami Al-Ikhlash</h2><p>RW 18 • RW 19 • RW 20</p><hr><p>Total KK Aktif: <b>${s.kk}</b></p><p>Total Iuran: <b>${rupiah(s.iuran)}</b></p><p>Total Santunan: <b>${rupiah(s.santunan)}</b></p><p>Saldo Kas: <b>${rupiah(s.saldo)}</b></p><div class="footer-actions"><button class="btn" onclick="window.print()">Cetak</button><button class="btn gray" data-close>Tutup</button></div></div>`)}
-function bind(){document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>{page=b.dataset.page;render()});document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{page=b.dataset.go;render()});let s=document.getElementById('search');if(s)s.oninput=()=>render();document.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>b.dataset.add==='kk'?formKK():b.dataset.add==='iuran'?formIuran():b.dataset.add==='santunan'?formSantunan():formKas());document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>formKK(db.masterKk.find(x=>x.id==b.dataset.edit)));document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{let x=db.masterKk.find(x=>x.id==b.dataset.del);if(confirm(`Hapus data ${x?.namaKepalaKeluarga}?`)){db.masterKk=db.masterKk.filter(x=>x.id!=b.dataset.del);save();render()}});document.querySelectorAll('[data-kasdel]').forEach(b=>b.onclick=()=>{if(confirm('Hapus mutasi kas ini?')){db.kas=db.kas.filter(x=>x.id!=b.dataset.kasdel);save();render()}});document.querySelectorAll('[data-close]').forEach(b=>b.onclick=closeModal);document.querySelectorAll('[data-backup]').forEach(b=>b.onclick=backup);document.querySelectorAll('[data-report]').forEach(b=>b.onclick=report);document.querySelectorAll('[data-settings]').forEach(b=>b.onclick=settings);document.querySelectorAll('[data-restore]').forEach(b=>b.onclick=()=>document.getElementById('fileRestore').click())}
-document.getElementById('fileRestore').onchange=e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(confirm('Pulihkan data JSON dan mengganti data lokal saat ini?')){db={masterKk:x.masterKk||[],iuran:x.iuran||[],santunan:x.santunan||[],kas:x.kas||[],settings:x.settings||{saldoAwal:0}};save();render();alert('Restore berhasil.')}}catch(err){alert('File JSON tidak valid.')}};r.readAsText(f);e.target.value='' };
+function bind(){document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>{page=b.dataset.page;render()});document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{page=b.dataset.go;render()});let s=document.getElementById('search');if(s)s.oninput=()=>render();document.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>b.dataset.add==='kk'?formKK():b.dataset.add==='iuran'?formIuran():b.dataset.add==='santunan'?formSantunan():formKas());document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>formKK(db.masterKk.find(x=>x.id==b.dataset.edit)));document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{let x=db.masterKk.find(x=>x.id==b.dataset.del);if(confirm(`Hapus data ${x?.namaKepalaKeluarga}?`)){db.masterKk=db.masterKk.filter(x=>x.id!=b.dataset.del);save();render()}});document.querySelectorAll('[data-kasdel]').forEach(b=>b.onclick=()=>{if(confirm('Hapus mutasi kas ini?')){db.kas=db.kas.filter(x=>x.id!=b.dataset.kasdel);save();render()}});document.querySelectorAll('[data-close]').forEach(b=>b.onclick=closeModal);document.querySelectorAll('[data-backup]').forEach(b=>b.onclick=backup);document.querySelectorAll('[data-report]').forEach(b=>b.onclick=report);document.querySelectorAll('[data-settings]').forEach(b=>b.onclick=settings);document.querySelectorAll('[data-restore]').forEach(b=>b.onclick=restore)}
+function normalizeRestore(raw){
+  // Accept this app's own backup format, a wrapped {data:...} format,
+  // or a common export containing arrays under data/database/state.
+  let x=raw;
+  if(x && x.data && typeof x.data==='object') x=x.data;
+  if(x && x.database && typeof x.database==='object') x=x.database;
+  if(x && x.state && typeof x.state==='object') x=x.state;
 
-let deferredInstallPrompt=null;
-window.addEventListener('beforeinstallprompt',e=>{
-  e.preventDefault();
-  deferredInstallPrompt=e;
-  const b=document.getElementById('installBtn');
-  if(b)b.style.display='inline-flex';
-});
-window.addEventListener('appinstalled',()=>{
-  deferredInstallPrompt=null;
-  const b=document.getElementById('installBtn');
-  if(b)b.style.display='none';
-});
-document.addEventListener('click',async e=>{
-  if(e.target && e.target.id==='installBtn' && deferredInstallPrompt){
-    deferredInstallPrompt.prompt();
-    try{await deferredInstallPrompt.userChoice;}catch(_){}
-    deferredInstallPrompt=null;
-    e.target.style.display='none';
-  }
-});
+  const arr=(...keys)=>{
+    for(const k of keys){
+      if(Array.isArray(x?.[k])) return x[k];
+    }
+    return [];
+  };
+  const obj=(...keys)=>{
+    for(const k of keys){
+      if(x?.[k] && typeof x[k]==='object' && !Array.isArray(x[k])) return x[k];
+    }
+    return {};
+  };
+
+  const masterKk=arr('masterKk','masterKK','master_kk','kk','keluarga','masterKeluarga');
+  const iuran=arr('iuran','Iuran','pembayaranIuran','payments');
+  const santunan=arr('santunan','Santunan','klaimSantunan','claims');
+  const kas=arr('kas','Kas','transaksiKas','transactions','mutasiKas');
+  const settings=obj('settings','pengaturan','config');
+
+  return {
+    masterKk, iuran, santunan, kas,
+    settings:{saldoAwal:Number(settings.saldoAwal ?? settings.saldo_awal ?? 0) || 0}
+  };
+}
+
+function restore(){
+  const input=document.getElementById('fileRestore');
+  input.value='';
+  input.click();
+}
+
+document.getElementById('fileRestore').onchange=e=>{
+  const f=e.target.files?.[0];
+  if(!f) return;
+
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const raw=JSON.parse(String(r.result||''));
+      const imported=normalizeRestore(raw);
+      const total=imported.masterKk.length+imported.iuran.length+imported.santunan.length+imported.kas.length;
+
+      if(total===0){
+        alert('File JSON terbaca, tetapi tidak ditemukan data SOSKEM yang dapat dipulihkan. Data lama tidak diubah.');
+        return;
+      }
+
+      const ok=confirm(
+        `Data ditemukan:\\n\\n`+
+        `Master KK: ${imported.masterKk.length}\\n`+
+        `Iuran: ${imported.iuran.length}\\n`+
+        `Santunan: ${imported.santunan.length}\\n`+
+        `Mutasi Kas: ${imported.kas.length}\\n\\n`+
+        `Lanjutkan restore dan mengganti data lokal saat ini?`
+      );
+      if(!ok) return;
+
+      db=imported;
+      save();
+      render();
+
+      const check=JSON.parse(localStorage.getItem(KEY)||'null')||{};
+      const savedTotal=(check.masterKk?.length||0)+(check.iuran?.length||0)+(check.santunan?.length||0)+(check.kas?.length||0);
+      alert(`Restore berhasil. ${savedTotal} data tersimpan di perangkat.`);
+    }catch(err){
+      console.error(err);
+      alert('File JSON tidak valid atau formatnya tidak dapat dibaca.');
+    }finally{
+      e.target.value='';
+    }
+  };
+  r.onerror=()=>alert('File JSON tidak dapat dibaca dari perangkat.');
+  r.readAsText(f,'utf-8');
+};
 
 if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(()=>{});render();
 </script></body></html>
