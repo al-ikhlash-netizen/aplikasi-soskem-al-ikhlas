@@ -185,15 +185,15 @@
       queue: [],
       settings: { fee: 10000 }
     };
-    const state = loadData();
     let activePage = 'payments';
+    const state = loadData();
 
     function loadData() {
       try {
         const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
         return Object.assign({}, defaultData, raw || {});
       } catch (e) {
-        return JSON.assign ? Object.assign({}, defaultData) : JSON.parse(JSON.stringify(defaultData));
+        return Object.assign({}, defaultData);
       }
     }
 
@@ -627,6 +627,7 @@
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       let drawing = false;
+
       const point = (event) => {
         const rect = canvas.getBoundingClientRect();
         const clientX = event.touches ? event.touches[0].clientX : event.clientX;
@@ -636,6 +637,7 @@
           y: ((clientY - rect.top) / rect.height) * canvas.height
         };
       };
+
       const start = (event) => {
         drawing = true;
         const p = point(event);
@@ -643,6 +645,7 @@
         ctx.moveTo(p.x, p.y);
         event.preventDefault();
       };
+
       const move = (event) => {
         if (!drawing) return;
         const p = point(event);
@@ -650,10 +653,12 @@
         ctx.stroke();
         event.preventDefault();
       };
+
       const stop = () => {
         drawing = false;
         input.value = canvas.toDataURL('image/png');
       };
+
       canvas.onpointerdown = start;
       canvas.onpointermove = move;
       canvas.onpointerup = stop;
@@ -668,7 +673,8 @@
     }
 
     function boot() {
-      document.getElementById('roleSelect').value = state.role || 'admin';
+      const roleSelect = document.getElementById('roleSelect');
+      if (roleSelect) roleSelect.value = state.role || 'admin';
       renderApp();
       updateQueueLabel();
       if ('serviceWorker' in navigator) {
