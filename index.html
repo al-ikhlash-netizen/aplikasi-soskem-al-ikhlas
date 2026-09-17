@@ -2,8 +2,8 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Aplikasi SOSKEM - Jami Al-Ikhlash (PRO)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SOSKEM Mobile - Jami Al-Ikhlash</title>
     
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -13,541 +13,513 @@
             --primary-dark: #0f2c23;
             --primary-emerald: #134e38;
             --accent-gold: #d4af37;
-            --accent-light: #f4f7f5;
+            --bg-native: #f4f7f6;
+            --card-bg: #ffffff;
             --text-main: #2b3a35;
-            --border-color: #d1ded6;
+            --border-color: #e2e8f0;
         }
 
-        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
-        body { background-color: var(--accent-light); color: var(--text-main); padding: 20px 30px; min-height: 100vh; }
-        .container { width: 100%; max-width: 100%; margin: 0 auto; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-native); color: var(--text-main); padding-bottom: 90px; min-height: 100vh; }
         
-        header { 
-            text-align: center; margin-bottom: 25px; 
-            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-emerald) 100%); 
-            padding: 30px 20px; border-radius: 16px; 
-            box-shadow: 0 10px 25px rgba(15, 44, 35, 0.15); border-bottom: 5px solid var(--accent-gold); color: #ffffff;
+        /* TOP APP BAR (NATIVE STYLE) */
+        .app-bar {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-emerald) 100%);
+            color: white; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 12px rgba(15, 44, 35, 0.15); position: sticky; top: 0; z-index: 100; border-bottom: 3px solid var(--accent-gold);
         }
-        header h1 { font-size: 28px; font-weight: 800; letter-spacing: 0.8px; margin-bottom: 8px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-        header .sub { color: #f3e5ab; font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; box-sizing: border-box; }
-        header .sub span { display: inline-block; padding-left: 100%; animation: jalanHalus 28s linear infinite; }
-        @keyframes jalanHalus { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
+        .app-bar-title h1 { font-size: 16px; font-weight: 700; letter-spacing: 0.5px; }
+        .app-bar-title p { font-size: 11px; color: #f3e5ab; margin-top: 2px; }
+        .btn-quick-backup { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; }
 
-        .panel-backup { background: #fffdf0; border: 1px solid #f9e8a2; padding: 14px 20px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
-        .panel-backup p { font-size: 13px; font-weight: 600; color: #8a6d0b; }
-        .btn-backup-group { display: flex; gap: 8px; }
-        .btn-ekspor { padding: 8px 14px; background-color: #166534; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; transition: 0.2s; }
-        .btn-ekspor:hover { background-color: #14532d; }
-        .btn-impor { padding: 8px 14px; background-color: #047857; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; transition: 0.2s; }
-        
-        .rekap-dashboard { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
-        @media (max-width: 768px) { .rekap-dashboard { grid-template-columns: 1fr; } }
-        .card-rekap { background: #fff; padding: 18px 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); border-left: 6px solid #ccc; border-top: 1px solid var(--border-color); }
-        .card-rekap.masuk { border-left-color: #059669; }
-        .card-rekap.keluar { border-left-color: #dc2626; }
-        .card-rekap.saldo { border-left-color: #2563eb; }
-        .card-rekap.warga { border-left-color: #d97706; }
-        .card-rekap h3 { font-size: 11px; text-transform: uppercase; color: #64748b; margin-bottom: 6px; letter-spacing: 0.5px; }
-        .card-rekap p { font-size: 22px; font-weight: 800; color: var(--primary-dark); }
-        .card-rekap .detail-rw { font-size: 11px; color: #64748b; margin-top: 6px; line-height: 1.4; font-weight: 500; }
+        .container { width: 100%; max-width: 600px; margin: 0 auto; padding: 15px; }
 
-        .tab-navigation { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; }
-        .tab-btn { padding: 12px 22px; background: #e2e8f0; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 14px; color: #475569; transition: all 0.2s ease; }
-        .tab-btn.active { background: var(--primary-emerald); color: white; box-shadow: 0 4px 12px rgba(19, 78, 56, 0.25); }
-        .tab-content { display: none; }
+        /* BOTTOM NAVIGATION BAR */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%; background: #ffffff;
+            display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--border-color);
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.06); z-index: 999; height: 70px;
+        }
+        .nav-item {
+            background: none; border: none; display: flex; flex-direction: column; align-items: center;
+            justify-content: center; gap: 3px; cursor: pointer; color: #64748b; font-size: 11px; font-weight: 600; transition: 0.2s;
+        }
+        .nav-item span.icon { font-size: 20px; }
+        .nav-item.active { color: var(--primary-emerald); }
+        .nav-item.active span.icon { transform: scale(1.1); }
+
+        /* TAB CONTAINER SYSTEM */
+        .tab-content { display: none; animation: fadeIn 0.2s ease-in-out; }
         .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-        .grid-layout { display: grid; grid-template-columns: 1fr 2fr; gap: 25px; }
-        @media (max-width: 1024px) { .grid-layout { grid-template-columns: 1fr; } }
+        /* NATIVE CARDS */
+        .card-native { background: var(--card-bg); border-radius: 14px; padding: 18px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); border: 1px solid var(--border-color); }
+        .card-native h3 { font-size: 13px; color: var(--primary-dark); margin-bottom: 12px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; }
 
-        .panel { background: #ffffff; padding: 25px; border-radius: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 20px; border: 1px solid var(--border-color); }
-        .panel h2 { font-size: 18px; margin-bottom: 20px; color: var(--primary-dark); border-bottom: 2px solid #edf2f7; padding-bottom: 10px; font-weight: 700; }
-        
-        .panel-header-action { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #edf2f7; padding-bottom: 10px; flex-wrap: wrap; gap: 10px; }
-        .panel-header-action h2 { border: none; margin: 0; padding: 0; }
+        /* DASHBOARD 2X2 GRID */
+        .grid-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 15px; }
+        .stat-box { background: white; padding: 14px; border-radius: 12px; border: 1px solid var(--border-color); border-left: 4px solid #ccc; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .stat-box.masuk { border-left-color: #059669; }
+        .stat-box.keluar { border-left-color: #dc2626; }
+        .stat-box.saldo { border-left-color: #2563eb; }
+        .stat-box.warga { border-left-color: #d97706; }
+        .stat-box span { font-size: 10px; text-transform: uppercase; color: #64748b; font-weight: 700; display: block; margin-bottom: 4px; }
+        .stat-box p { font-size: 16px; font-weight: 800; color: var(--primary-dark); }
+        .stat-box .sub-info { font-size: 9px; color: #64748b; margin-top: 4px; font-weight: 500; }
 
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 6px; font-weight: 700; font-size: 13px; color: #334155; }
-        .form-control { width: 100%; padding: 11px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; transition: 0.2s; }
+        /* FORM CONTROLS */
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 700; font-size: 12px; color: #334155; }
+        .form-control { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; background: #fff; }
         .form-control:focus { outline: none; border-color: var(--primary-emerald); box-shadow: 0 0 0 3px rgba(19, 78, 56, 0.1); }
         .form-row-prefix { display: flex; gap: 5px; }
-        .prefix-addon { background: #e2e8f0; padding: 11px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: bold; color: #334155; font-size: 14px; display: flex; align-items: center; }
+        .prefix-addon { background: #e2e8f0; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-weight: bold; color: #334155; font-size: 13px; display: flex; align-items: center; }
 
-        .btn-primary { width: 100%; padding: 13px; background: var(--primary-emerald); color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 15px; transition: 0.2s; box-shadow: 0 4px 12px rgba(19, 78, 56, 0.2); }
-        .btn-primary:hover { background: #0f3d2c; }
-        .btn-search { padding: 11px 20px; background: var(--primary-dark); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .btn-print { padding: 8px 15px; background: #0284c7; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 13px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; }
-        .btn-excel { padding: 8px 15px; background: #059669; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 13px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; }
-        .btn-print-tagihan { padding: 8px 15px; background: #d97706; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 13px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; }
+        .btn-native { width: 100%; padding: 12px; background: var(--primary-emerald); color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 14px; box-shadow: 0 4px 12px rgba(19, 78, 56, 0.15); transition: 0.2s; }
+        .btn-native:hover { background: #0f3d2c; }
+        
+        .btn-group-action { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+        .btn-action-sm { padding: 7px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 4px; color: white; }
+        .bg-excel { background-color: #059669; }
+        .bg-print { background-color: #0284c7; }
+        .bg-warning { background-color: #d97706; }
 
-        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
-        th, td { padding: 12px 14px; border-bottom: 1px solid #e2e8f0; }
-        th { background-color: #f8fafc; color: #334155; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+        /* TABLES & LISTS */
+        .table-responsive { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
+        th, td { padding: 10px 8px; border-bottom: 1px solid #e2e8f0; }
+        th { background-color: #f8fafc; color: #334155; font-weight: 700; text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px; }
 
-        .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; color: #fff; display: inline-block; }
-        .badge.aktif, .badge.lancar { background-color: #059669; }
+        .badge { padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: bold; color: #fff; display: inline-block; }
+        .badge.lancar { background-color: #059669; }
         .badge.tunggak { background-color: #dc2626; }
-        .badge.berjalan { background-color: #d97706; color: white; }
+        .badge.berjalan { background-color: #d97706; }
         .badge.rw { background-color: #0284c7; }
         .badge.arus-keluar { background-color: #ea580c; }
 
-        .search-box-container { display: flex; gap: 10px; margin-bottom: 20px; }
-        .result-box { padding: 20px; border-radius: 10px; margin-top: 15px; display: none; font-weight: 500; border-left: 6px solid #ccc; }
-        .result-box.bagus { background-color: #ecfdf5; color: #065f46; border-left-color: #059669; }
-        .result-box.macet { background-color: #fef2f2; color: #991b1b; border-left-color: #dc2626; }
-        .result-box.tidak-ada { background-color: #fffbeb; color: #92400e; border-left-color: #d97706; }
+        .btn-hapus { background: none; color: #dc2626; border: 1px solid #fca5a5; padding: 3px 7px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; }
+        .btn-edit-kk { background-color: #0284c7; color: white; border: none; padding: 3px 7px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; margin-right: 2px; }
+        .btn-wa { background-color: #25d366; color: white; border: none; padding: 3px 7px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; text-decoration: none; display: inline-block; margin-right: 2px; }
 
-        .action-buttons-group { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
-        .btn-cairkan { padding: 10px 18px; background-color: #059669; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; display: inline-block; }
-        .btn-sk-cetak { padding: 10px 18px; background-color: #0284c7; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; display: inline-block; }
-        
-        .btn-hapus { background: none; color: #dc2626; border: 1px solid #fca5a5; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; }
-        .btn-edit-kk { background-color: #0284c7; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; margin-right: 4px; }
-        .btn-wa { background-color: #25d366; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; text-decoration: none; display: inline-block; margin-right: 4px; }
+        .filter-select { padding: 6px 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 11px; font-weight: 600; background: white; }
+        .live-search-input { padding: 6px 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 11px; width: 100%; }
 
-        .filter-select { padding: 7px 12px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 13px; font-weight: 600; }
-        .live-search-input { padding: 7px 12px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 13px; width: 200px; }
+        /* SIGNATURE */
+        .signature-box { width: 100%; height: 130px; border: 2px dashed #cbd5e1; border-radius: 8px; background: #fafafa; display: block; touch-action: none; cursor: crosshair; }
 
-        /* KOTAK TANDA TANGAN CANVAS */
-        .signature-box {
-            width: 100%; height: 150px; border: 2px dashed #cbd5e1; border-radius: 8px; background: #fafafa; display: block; touch-action: none; cursor: crosshair;
-        }
+        /* PAGINATION */
+        .pagination-container { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; font-size: 11px; font-weight: bold; color: #475569; }
+        .btn-page { background: white; border: 1px solid #cbd5e1; padding: 5px 10px; border-radius: 6px; cursor: pointer; color: #2c3e50; }
+        .btn-page:disabled { opacity: 0.4; cursor: not-allowed; }
 
-        /* PAGINATION CONTROLS */
-        .pagination-container { display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-top: 15px; font-size: 12px; font-weight: bold; color: #475569; }
-        .btn-page { background: white; border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 6px; cursor: pointer; color: #2c3e50; }
-        .btn-page:hover { background: #f1f5f9; }
-        .btn-page:disabled { opacity: 0.5; cursor: not-allowed; }
+        /* MODAL */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center; padding: 15px; }
+        .modal-content { background-color: #fff; padding: 20px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .modal-header { font-size: 15px; font-weight: bold; margin-bottom: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; color: var(--primary-dark); }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 15px; }
 
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
-        .modal-content { background-color: #fff; padding: 25px; border-radius: 12px; width: 420px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-        .modal-header { font-size: 16px; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; color: var(--primary-dark); }
-        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
-        .btn-batal { padding: 8px 15px; background: #cbd5e1; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; }
-        .btn-simpan-modal { padding: 8px 15px; background: #0284c7; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; }
-
-        /* PRINT CSS ENGINE */
-        #kop-buku-penagihan { display: none; text-align: center; border-bottom: 4px double #000; padding-bottom: 12px; margin-bottom: 15px; color: #000; }
-        #kop-buku-penagihan h2 { font-size: 18px; font-weight: bold; text-transform: uppercase; margin-bottom: 4px; }
-        #kop-buku-penagihan p { font-size: 13px; font-weight: 600; margin-top: 3px; }
-        #form-sk-print-area { display: none; background: #fff; padding: 30px 40px; border: 2px dashed #1b3a4b; border-radius: 8px; margin-top: 20px; color: #000; }
-        .sk-header { text-align: center; border-bottom: 4px double #000; padding-bottom: 10px; margin-bottom: 15px; }
-        .sk-header h2 { font-size: 18px; text-transform: uppercase; font-weight: bold; color: #000; line-height: 1.2; }
-        .sk-header p { font-size: 11px; color: #000; font-weight: 500; margin-top: 4px; }
-        .sk-title { text-align: center; margin-bottom: 15px; }
-        .sk-title h3 { text-decoration: underline; font-size: 14px; text-transform: uppercase; font-weight: bold; color: #000; }
-        .sk-title p { font-size: 11px; font-weight: 600; margin-top: 3px; color: #000; }
-        .sk-body { font-size: 12px; line-height: 1.5; margin-bottom: 15px; text-align: justify; color: #000; }
-        .sk-body ul { margin-left: 15px; margin-bottom: 10px; list-style-type: none; }
-        .sk-body ul li { margin-bottom: 4px; text-indent: -15px; padding-left: 15px; color: #000; }
-        .sk-table-info { margin: 10px auto; width: 100%; border-collapse: collapse; }
-        .sk-table-info td { padding: 4px 6px; border: none !important; font-size: 12px; background: transparent !important; color: #000 !important; }
-        .sk-footer { display: flex; justify-content: space-between; margin-top: 30px; padding: 0 15px; }
-        .sk-ttd { text-align: center; width: 200px; font-size: 12px; color: #000; line-height: 1.4; }
-        .sk-ttd .space { height: 60px; }
+        /* PRINT STYLES */
+        #kop-buku-penagihan, #form-sk-print-area, #box-lampiran-cetak-kk { display: none; }
         .kolom-cetak-lap { display: none; }
         .kolom-layar-normal { display: table-cell; }
 
         @media print {
-            body { background: white; padding: 0; color: black; }
-            header, .panel-backup, .rekap-dashboard, .tab-navigation, .panel:not(.printable-panel), form, .btn-print, .btn-print-tagihan, .btn-excel, .filter-select, .btn-hapus, .btn-edit-kk, .search-box-container, .live-search-input, .modal, .tab-content:not(.active), .panel-header-action, .pagination-container { display: none !important; }
+            body { background: white; padding: 0 !important; color: black; }
+            .app-bar, .bottom-nav, .card-native:not(.printable-panel), form, .btn-group-action, .filter-select, .live-search-input, .modal, .pagination-container { display: none !important; }
+            .container { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
             
-            body.mode-cetak-buku-aktif #kop-buku-penagihan { display: block !important; }
-            body.mode-cetak-buku-aktif .panel.printable-panel { display: block !important; border: none !important; padding: 0 !important; margin: 0 !important; }
+            body.mode-cetak-buku-aktif #kop-buku-penagihan { display: block !important; text-align: center; border-bottom: 3px double #000; padding-bottom: 10px; margin-bottom: 10px; }
+            body.mode-cetak-buku-aktif .card-native.printable-panel { display: block !important; border: none !important; box-shadow: none !important; padding: 0 !important; }
             body.mode-cetak-buku-aktif .kolom-layar-normal { display: none !important; }
-            body.mode-cetak-buku-aktif .kolom-cetak-lap { display: table-cell !important; text-align: center !important; vertical-align: middle !important; color: #000 !important; border: 1px solid #000 !important; }
+            body.mode-cetak-buku-aktif .kolom-cetak-lap { display: table-cell !important; text-align: center !important; vertical-align: middle !important; border: 1px solid #000 !important; color: #000 !important; }
             
-            th.lebar-centang { width: 65px !important; } th.lebar-infaq { width: 100px !important; } th.lebar-paraf { width: 110px !important; }
-            .kotak-kecil { font-size: 14px; font-weight: normal; } .gari-bawah { font-size: 11px; color: #000 !important; letter-spacing: 1px; }
             table { width: 100% !important; border-collapse: collapse !important; border: 1px solid #000 !important; }
-            th { background: #f0f0f0 !important; border: 1px solid #000 !important; color: #000 !important; font-weight: bold !important; text-align: center !important; }
-            td, th { padding: 8px !important; border: 1px solid #000 !important; color: #000 !important; font-size: 12px !important; }
-            
-            body.mode-cetak-buku-aktif tr.bukan-tunggakan.sembunyikan-saat-cetak { display: none !important; }
-            
-            body.mode-cetak-sk-aktif { background: white !important; color: black !important; padding: 0 !important; }
-            body.mode-cetak-sk-aktif .container { display: none !important; }
-            body.mode-cetak-sk-aktif #form-sk-print-area { display: block !important; border: none !important; padding: 0 !important; width: 100% !important; position: absolute; left: 0; top: 0; page-break-inside: avoid; }
+            th, td { padding: 6px !important; border: 1px solid #000 !important; color: #000 !important; font-size: 11px !important; }
+            th { background: #f0f0f0 !important; font-weight: bold !important; text-align: center !important; }
+            .kotak-kecil { font-size: 12px; } .gari-bawah { font-size: 10px; letter-spacing: 0.5px; }
+
+            body.mode-cetak-sk-aktif { background: white !important; padding: 10px !important; }
+            body.mode-cetak-sk-aktif .container, body.mode-cetak-sk-aktif .app-bar, body.mode-cetak-sk-aktif .bottom-nav { display: none !important; }
+            body.mode-cetak-sk-aktif #form-sk-print-area { display: block !important; width: 100% !important; position: absolute; left: 0; top: 0; padding: 20px; }
         }
     </style>
 </head>
 <body>
 
+<!-- TOP APP BAR -->
+<div class="app-bar">
+    <div class="app-bar-title">
+        <h1>SOSKEM Jami Al-Ikhlash</h1>
+        <p>Idarah Sosial Kematian Terintegrasi</p>
+    </div>
+    <button class="btn-quick-backup" onclick="eksporBackupDataSistem()">💾 Backup</button>
+</div>
+
 <div class="container">
-    <header>
-        <h1>Sistem Aplikasi Sosial Kematian DKM MASJID JAMI AL IKHLASH</h1>
-        <div class="sub"><span>Manajemen SosKem Terintegrasi • Basis Data Master KK Lengkap • Sekretariat DKM Masjid Jami Al-Ikhlash</span></div>
-    </header>
 
-    <div class="panel-backup">
-        <p>🔒 Proteksi Data Cloud & Amankan Idarah SOSKEM Jami Al-Ikhlash (Format JSON Mandiri) By 3R-Software</p>
-        <div class="btn-backup-group">
-            <button class="btn-ekspor" onclick="eksporBackupDataSistem()">💾 Ekspor Backup Data</button>
-            <button class="btn-impor" onclick="pemicuTombolFileImpor()">📂 Impor Pulihkan Data</button>
-            <input type="file" id="input-file-backup-json" accept=".json" style="display: none;" onchange="prosesImporDataSistem(event)">
+    <!-- ================= TAB 0: BERANDA & DASHBOARD ================= -->
+    <div id="tab-home" class="tab-content active">
+        
+        <!-- Grid Statistik Utama -->
+        <div class="grid-stats">
+            <div class="stat-box masuk">
+                <span>📈 Kas Masuk</span>
+                <p id="rekap-kas-masuk">Rp 0</p>
+            </div>
+            <div class="stat-box keluar">
+                <span>📉 Kas Keluar</span>
+                <p id="rekap-kas-keluar">Rp 0</p>
+            </div>
+            <div class="stat-box saldo">
+                <span>💰 Saldo Sisa</span>
+                <p id="rekap-saldo-inter">Rp 0</p>
+            </div>
+            <div class="stat-box warga">
+                <span>📊 Total Jemaah</span>
+                <p id="rekap-total-warga">0 KK</p>
+                <div class="sub-info" id="rekap-detail-rw">RW 18:0 | 19:0 | 20:0</div>
+            </div>
         </div>
-    </div>
 
-    <div class="rekap-dashboard">
-        <div class="card-rekap masuk"><h3>📈 Total Kas Masuk (Iuran)</h3><p id="rekap-kas-masuk">Rp 0</p></div>
-        <div class="card-rekap keluar"><h3>📉 Total Kas Keluar</h3><p id="rekap-kas-keluar">Rp 0</p></div>
-        <div class="card-rekap saldo"><h3>💰 Sisa Saldo SOSKEM</h3><p id="rekap-saldo-inter">Rp 0</p></div>
-        <div class="card-rekap warga">
-            <h3>📊 Jemaah Terdaftar</h3><p id="rekap-total-warga">0 KK</p>
-            <div class="detail-rw" id="rekap-detail-rw">RW 18: 0 | RW 19: 0 | RW 20: 0</div>
+        <!-- Cek Kelayakan Cepat -->
+        <div class="card-native" style="border-left: 4px solid var(--primary-emerald);">
+            <h3>🔍 Cek Cepat Kelayakan Santunan</h3>
+            <div style="display: flex; gap: 6px; margin-bottom: 10px;">
+                <input type="text" id="cari-identitas" class="form-control" placeholder="Kode Buku atau No KK...">
+                <button class="btn-action-sm bg-print" onclick="lacakKelayakanKK()" style="padding: 0 14px;">Cek</button>
+            </div>
+            <div id="box-hasil-lacak" class="result-box" style="display: none; padding: 10px; border-radius: 8px; font-size: 12px; margin-top: 8px;">
+                <div id="teks-hasil-lacak"></div>
+                <div id="area-tombol-klaim" style="margin-top: 8px; display: flex; flex-direction: column; gap: 6px;"></div>
+            </div>
         </div>
-    </div>
 
-    <div class="grid-layout" style="margin-bottom: 20px;">
-        <div class="panel" style="border-left: 4px solid #d97706; background-color: #fffbeb; margin-bottom: 0;">
-            <h2 style="color: #b45309; font-size: 16px;">⚠️ Monitoring KK Sementara / Belum Konfirmasi</h2>
-            <p style="font-size: 12px; color: #64748b; margin-bottom: 15px;">Berikut jumlah warga menggunakan No. KK 16 Digit sementara.</p>
-            <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
-                <div style="background: white; padding: 10px; border-radius: 8px; border: 1px solid #fde68a; flex: 1;">
-                    <span style="font-size: 11px; color: #64748b; display: block; font-weight: 600;">RW 18</span>
-                    <span id="rekap-kk-temp-rw18" style="font-size: 16px; font-weight: 700; color: #d97706;">0 KK</span>
+        <!-- Grafik Kepatuhan -->
+        <div class="card-native">
+            <h3>📊 Grafik Kepatuhan Iuran Warga</h3>
+            <div style="height: 180px; width: 100%; position: relative;"><canvas id="kepatuhanChart"></canvas></div>
+        </div>
+
+        <!-- Monitoring KK Sementara -->
+        <div class="card-native" style="background: #fffbeb; border-color: #fde68a;">
+            <h3 style="color: #b45309;">⚠️ Monitoring No. KK Sementara</h3>
+            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                <div style="background: white; padding: 6px; border-radius: 6px; flex: 1; text-align: center; border: 1px solid #fef3c7;">
+                    <span style="font-size: 9px; color: #64748b; display: block;">RW 18</span>
+                    <span id="rekap-kk-temp-rw18" style="font-size: 13px; font-weight: 700; color: #d97706;">0 KK</span>
                 </div>
-                <div style="background: white; padding: 10px; border-radius: 8px; border: 1px solid #fde68a; flex: 1;">
-                    <span style="font-size: 11px; color: #64748b; display: block; font-weight: 600;">RW 19</span>
-                    <span id="rekap-kk-temp-rw19" style="font-size: 16px; font-weight: 700; color: #d97706;">0 KK</span>
+                <div style="background: white; padding: 6px; border-radius: 6px; flex: 1; text-align: center; border: 1px solid #fef3c7;">
+                    <span style="font-size: 9px; color: #64748b; display: block;">RW 19</span>
+                    <span id="rekap-kk-temp-rw19" style="font-size: 13px; font-weight: 700; color: #d97706;">0 KK</span>
                 </div>
-                <div style="background: white; padding: 10px; border-radius: 8px; border: 1px solid #fde68a; flex: 1;">
-                    <span style="font-size: 11px; color: #64748b; display: block; font-weight: 600;">RW 20</span>
-                    <span id="rekap-kk-temp-rw20" style="font-size: 16px; font-weight: 700; color: #d97706;">0 KK</span>
+                <div style="background: white; padding: 6px; border-radius: 6px; flex: 1; text-align: center; border: 1px solid #fef3c7;">
+                    <span style="font-size: 9px; color: #64748b; display: block;">RW 20</span>
+                    <span id="rekap-kk-temp-rw20" style="font-size: 13px; font-weight: 700; color: #d97706;">0 KK</span>
                 </div>
             </div>
-            <div style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
-                <label style="font-size: 12px; font-weight: 600;">Tampilkan Detail:</label>
-                <select id="filter-detail-kk-temp" class="filter-select" onchange="saringDetailKKSementara()" style="padding: 4px 10px;">
-                    <option value="RW 18">RW 18</option><option value="RW 19" selected>RW 19</option><option value="RW 20">RW 20</option>
+            <select id="filter-detail-kk-temp" class="filter-select" onchange="saringDetailKKSementara()" style="width: 100%; margin-bottom: 8px;">
+                <option value="RW 18">Detail RW 18</option><option value="RW 19" selected>Detail RW 19</option><option value="RW 20">Detail RW 20</option>
+            </select>
+            <div id="list-detail-kk-temp" style="max-height: 100px; overflow-y: auto; background: white; border: 1px solid var(--border-color); border-radius: 6px; padding: 6px; font-size: 11px; display: flex; flex-direction: column; gap: 4px;"></div>
+        </div>
+    </div>
+
+
+    <!-- ================= TAB 1: MASTER KK & WARGA ================= -->
+    <div id="tab-master" class="tab-content">
+        <!-- Form Pendaftaran -->
+        <div class="card-native">
+            <h3>📝 Registrasi Master KK Jemaah</h3>
+            <form id="form-master-kk">
+                <div class="form-group">
+                    <label>Wilayah Rukun Warga (RW)</label>
+                    <select id="kk-rw" class="form-control" required onchange="generateKodeBukuOtomatis()">
+                        <option value="RW 18">RW 18</option><option value="RW 19">RW 19</option><option value="RW 20">RW 20</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Nomor Rukun Tetangga (RT)</label>
+                    <select id="kk-rt" class="form-control" required onchange="generateKodeBukuOtomatis()">
+                        <option value="01">RT 01</option><option value="02">RT 02</option><option value="03">RT 03</option><option value="04">RT 04</option><option value="05">RT 05</option>
+                        <option value="06">RT 06</option><option value="07">RT 07</option><option value="08">RT 08</option><option value="09">RT 09</option><option value="10">RT 10</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Kode Buku Penagihan (Otomatis)</label>
+                    <input type="text" id="kk-kode" class="form-control" readonly style="background:#f1f5f9; font-weight:bold;">
+                </div>
+                <div class="form-group">
+                    <label>Nama Kepala Keluarga</label>
+                    <input type="text" id="kk-nama" class="form-control" placeholder="Contoh: Bpk. H. Ahmad" required>
+                </div>
+                <div class="form-group">
+                    <label>Nomor WhatsApp</label>
+                    <input type="text" id="kk-wa" class="form-control" placeholder="Contoh: 08123456789" required>
+                </div>
+                <div class="form-group">
+                    <label>No. Kartu Keluarga (16 Digit)</label>
+                    <input type="text" id="kk-nomor" class="form-control" placeholder="16 Digit No KK..." required maxlength="16" pattern="\d{16}">
+                </div>
+                <button type="submit" class="btn-native" style="background: var(--primary-dark);">Daftarkan Keluarga</button>
+            </form>
+        </div>
+
+        <!-- Tabel Master KK & Cetak Buku -->
+        <div class="card-native printable-panel">
+            <div id="kop-buku-penagihan">
+                <h2>DEWAN KEMAKMURAN MASJID (DKM) JAMI AL-IKHLASH</h2>
+                <p id="kop-sub-judul">BUKU DAFTAR PENAGIHAN IURAN SOSKEM</p>
+                <p id="kop-wilayah-kerja" style="font-size: 11px; font-weight: bold; text-decoration: underline;"></p>
+            </div>
+
+            <h3>
+                <span>🖨️ Data Master Kepala Keluarga</span>
+                <select id="pilihan-triwulan-cetak" class="filter-select" onchange="muatTabelMasterKK()">
+                    <option value="Triwulan 1 (Jan-Mar)">TW 1 (Jan-Mar)</option>
+                    <option value="Triwulan 2 (Apr-Jun)">TW 2 (Apr-Jun)</option>
+                    <option value="Triwulan 3 (Jul-Sep)" selected>TW 3 (Jul-Sep)</option>
+                    <option value="Triwulan 4 (Okt-Des)">TW 4 (Okt-Des)</option>
+                </select>
+            </h3>
+
+            <div style="display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap;">
+                <select id="filter-status-cetak" class="filter-select" onchange="muatTabelMasterKK()" style="flex:1;">
+                    <option value="SEMUA">Semua Status</option>
+                    <option value="TUNGGAKAN">Hanya Tunggakan</option>
+                </select>
+                <select id="filter-rw-master" class="filter-select" onchange="muatTabelMasterKK()" style="flex:1;">
+                    <option value="SEMUA">Semua RW</option><option value="RW 18">RW 18</option><option value="RW 19">RW 19</option><option value="RW 20">RW 20</option>
                 </select>
             </div>
-            <div id="list-detail-kk-temp" style="max-height: 120px; overflow-y: auto; background: white; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 6px;"></div>
-        </div>
-        
-        <div class="panel" style="margin-bottom: 0;">
-            <h2 style="font-size: 16px;">📊 Grafik Analitik Kepatuhan Iuran (Triwulan Berjalan)</h2>
-            <div style="height: 220px; width: 100%; position: relative;"><canvas id="kepatuhanChart"></canvas></div>
-        </div>
-    </div>
 
-    <div class="tab-navigation">
-        <button type="button" class="tab-btn active" onclick="pindahTab(0)">TAB 3: Tracking Klaim</button>
-        <button type="button" class="tab-btn" onclick="pindahTab(1)">TAB 2: Setor Iuran 3 Bulanan</button>
-        <button type="button" class="tab-btn" onclick="pindahTab(2)">TAB 1: Input Data Awal (Master KK)</button>
-    </div>
-
-    <div id="tab-track" class="tab-content active">
-        <div class="panel">
-            <h2>🔎 Cek Cepat Kelayakan Pelayanan & Santunan Jemaah Berduka</h2>
-            <p style="font-size: 13px; color: #64748b; margin-bottom: 15px;">Ketik <b>Kode Buku Penagihan</b> atau <b>16 Digit No KK</b> Jemaah. Verifikasi instan menggunakan kartu iuran, pelayanan berjalan tanpa menunggu surat kematian formal.</p>
-            <div class="search-box-container">
-                <input type="text" id="cari-identitas" class="form-control" placeholder="Masukkan Kode KK Buku Jemaah atau No KK...">
-                <button class="btn-search" onclick="lacakKelayakanKK()">Periksa Kelayakan</button>
+            <div class="btn-group-action">
+                <button onclick="unduhLaporanExcel('MASTER')" class="btn-action-sm bg-excel">📊 Export CSV</button>
+                <button onclick="cetakBukuPenagihanMassal()" class="btn-action-sm bg-print">🖨️ Cetak Buku</button>
+                <button onclick="cetakTagihanBerikutnya()" class="btn-action-sm bg-warning">🖨️ Tagihan Berikut</button>
             </div>
-            <div id="box-hasil-lacak" class="result-box">
-                <div id="teks-hasil-lacak"></div>
-                <div id="area-tombol-klaim" class="action-buttons-group"></div>
-            </div>
-        </div>
 
-        <div class="panel printable-panel">
-            <h2>📜 Riwayat Kas Keluar (Pencairan Santunan & Alat Pemakaman)</h2>
-            <div style="overflow-x: auto;">
+            <div class="table-responsive">
                 <table>
                     <thead>
                         <tr>
-                            <th>Tanggal Klaim</th>
-                            <th>Kode KK Buku</th>
-                            <th class="kolom-layar-normal">Wilayah</th>
+                            <th>Kode</th>
+                            <th>Kepala Keluarga & Kontak</th>
+                            <th class="kolom-layar-normal">RW</th>
+                            <th class="kolom-cetak-lap">Status</th>
+                            <th class="kolom-cetak-lap" style="width: 45px;">▢ (25k)</th>
+                            <th class="kolom-cetak-lap" style="width: 70px;">Infaq</th>
+                            <th class="kolom-cetak-lap" style="width: 80px;">Paraf</th>
+                            <th class="kolom-layar-normal">Status</th>
+                            <th class="kolom-layar-normal">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabel-master-kk-view"></tbody>
+                </table>
+            </div>
+            
+            <div class="pagination-container">
+                <span id="info-hal-master">0 Data</span>
+                <div style="display: flex; gap: 4px;">
+                    <button id="btn-prev-master" class="btn-page" onclick="ubahHalamanMaster(-1)">Prev</button>
+                    <span id="teks-hal-master" style="padding: 5px 0;">1/1</span>
+                    <button id="btn-next-master" class="btn-page" onclick="ubahHalamanMaster(1)">Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ================= TAB 2: SETOR IURAN ================= -->
+    <div id="tab-iuran" class="tab-content">
+        <div class="card-native">
+            <h3>💰 Form Input Setoran Iuran</h3>
+            <form id="form-setor-iuran">
+                <div class="form-group">
+                    <label>Wilayah Rukun Warga (RW)</label>
+                    <select id="setor-rw-pilihan" class="form-control" onchange="sinkronisasiPrefixSetoran()" required>
+                        <option value="RW 18">RW 18</option><option value="RW 19">RW 19</option><option value="RW 20">RW 20</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Kode Buku Peserta</label>
+                    <div class="form-row-prefix">
+                        <span id="label-prefix-setor" class="prefix-addon">ISK18/</span>
+                        <input type="text" id="setor-kode-kk" class="form-control" placeholder="004 atau 004-01" required style="text-transform: uppercase;" oninput="cekPreviewKK()">
+                    </div>
+                    <div id="preview-kk" style="font-size: 11px; margin-top: 4px; font-weight: 600;"></div>
+                </div>
+                <div class="form-group">
+                    <label>Tanggal Pembayaran</label>
+                    <input type="date" id="setor-tanggal" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Periode Triwulan</label>
+                    <select id="setor-periode" class="form-control" required>
+                        <option value="Triwulan 1 (Jan-Mar)">Triwulan 1 (Jan-Mar)</option>
+                        <option value="Triwulan 2 (Apr-Jun)">Triwulan 2 (Apr-Jun)</option>
+                        <option value="Triwulan 3 (Jul-Sep)">Triwulan 3 (Jul-Sep)</option>
+                        <option value="Triwulan 4 (Okt-Des)">Triwulan 4 (Okt-Des)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Jumlah Setoran (Kelipatan Rp 25.000)</label>
+                    <input type="text" id="setor-nominal" class="form-control" value="Rp 25.000" onkeyup="this.value = formatRupiahKetik(this.value, 'Rp ')" required style="font-weight:bold; color:var(--primary-dark);">
+                </div>
+                <div class="form-group">
+                    <label>Tanda Tangan Penyetor *</label>
+                    <canvas id="signatureCanvas" class="signature-box" width="500" height="130"></canvas>
+                    <input type="hidden" name="signature" id="signatureInput" />
+                    <button type="button" id="clearSignatureBtn" style="margin-top:4px; padding:4px 8px; font-size:10px; background:#e2e8f0; border:none; border-radius:4px; font-weight:bold;">Hapus Tanda Tangan</button>
+                </div>
+                <button type="submit" class="btn-native">Simpan Setoran Iuran</button>
+            </form>
+        </div>
+
+        <!-- Log Aliran Kas Masuk -->
+        <div class="card-native printable-panel">
+            <div id="print-area-header" style="text-align: center; margin-bottom: 15px; display: none; border-bottom: 3px double #000; padding-bottom: 8px;">
+                <h2 style="font-size: 15px; font-weight: bold;">REKAPITULASI SETORAN IURAN SOSKEM</h2>
+                <p style="font-size: 12px;" id="nama-wilayah-terpilih">-</p>
+            </div>
+
+            <h3>📋 Log Kas Masuk (Setoran)</h3>
+            <div style="display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap;">
+                <input type="text" id="live-search-log" class="live-search-input" placeholder="🔍 Cari Kode..." onkeyup="muatTabelLogIuran()" style="flex:1;">
+                <select id="filter-cetak-rw-iuran" class="filter-select" onchange="muatTabelLogIuran()">
+                    <option value="SEMUA">Semua RW</option><option value="RW 18">RW 18</option><option value="RW 19">RW 19</option><option value="RW 20">RW 20</option>
+                </select>
+            </div>
+
+            <div class="btn-group-action">
+                <button onclick="unduhLaporanExcel('IURAN')" class="btn-action-sm bg-excel">📊 Export CSV</button>
+                <button onclick="cetakRekapKasMasukPerWilayah()" class="btn-action-sm bg-print">🖨️ Cetak Log</button>
+            </div>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Tanggal</th>
+                            <th>Kode</th>
+                            <th>Periode</th>
+                            <th>Jumlah</th>
+                            <th>Akumulasi</th>
+                            <th class="kolom-layar-normal">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabel-log-iuran"></tbody>
+                </table>
+            </div>
+
+            <div class="pagination-container">
+                <span id="info-hal-iuran">0 Data</span>
+                <div style="display: flex; gap: 4px;">
+                    <button id="btn-prev-iuran" class="btn-page" onclick="ubahHalamanIuran(-1)">Prev</button>
+                    <span id="teks-hal-iuran" style="padding: 5px 0;">1/1</span>
+                    <button id="btn-next-iuran" class="btn-page" onclick="ubahHalamanIuran(1)">Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ================= TAB 3: TRACKING KLAIM & KELUAR ================= -->
+    <div id="tab-track" class="tab-content">
+        <div class="card-native printable-panel">
+            <h3>📜 Riwayat Kas Keluar & Santunan</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tanggal</th>
+                            <th>Kode</th>
+                            <th class="kolom-layar-normal">RW</th>
                             <th>Jenis Pengeluaran</th>
                             <th>Nominal</th>
-                            <th>Sisa Saldo</th>
+                            <th>Saldo Sisa</th>
                             <th class="kolom-layar-normal">Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="tabel-riwayat-santunan"></tbody>
                 </table>
             </div>
-            <div style="margin-top:25px; border-top:1px dashed #cbd5e1; padding-top:15px; text-align:right;">
-                <button onclick="bersihkanSemuaDataMacet()" style="padding:8px 15px; background:#dc2626; color:white; border:none; border-radius:6px; font-weight:bold; cursor:pointer; font-size:12px;">⚠️ RESET TOTAL DATA SISTEM</button>
+            <div style="margin-top: 15px; border-top: 1px dashed #cbd5e1; padding-top: 10px; text-align: right;">
+                <button onclick="bersihkanSemuaDataMacet()" style="padding: 6px 12px; background: #dc2626; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 11px; cursor: pointer;">⚠️ RESET TOTAL SISTEM</button>
             </div>
         </div>
     </div>
 
-    <div id="tab-iuran" class="tab-content">
-        <div class="grid-layout">
-            <div class="panel">
-                <h2>💰 Form Input Setoran Iuran</h2>
-                <form id="form-setor-iuran">
-                    <div class="form-group">
-                        <label>Pilih Wilayah Rukun Warga (RW)</label>
-                        <select id="setor-rw-pilihan" class="form-control" onchange="sinkronisasiPrefixSetoran()" required>
-                            <option value="RW 18">RW 18</option><option value="RW 19">RW 19</option><option value="RW 20">RW 20</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Kode KK Peserta (Buku Penagihan)</label>
-                        <div class="form-row-prefix">
-                            <span id="label-prefix-setor" class="prefix-addon">ISK18/</span>
-                            <input type="text" id="setor-kode-kk" class="form-control" placeholder="Contoh: 004 atau 004-01" required style="text-transform: uppercase;" oninput="cekPreviewKK()">
-                        </div>
-                        <div id="preview-kk" style="font-size: 13px; margin-top: 6px; font-weight: 600;"></div>
-                    </div>
-                    <div class="form-group">
-                        <label>Tanggal Pembayaran</label>
-                        <input type="date" id="setor-tanggal" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Periode Triwulan (Per 3 Bulan)</label>
-                        <select id="setor-periode" class="form-control" required>
-                            <option value="Triwulan 1 (Jan-Mar)">Triwulan 1 (Jan-Mar)</option>
-                            <option value="Triwulan 2 (Apr-Jun)">Triwulan 2 (Apr-Jun)</option>
-                            <option value="Triwulan 3 (Jul-Sep)">Triwulan 3 (Jul-Sep)</option>
-                            <option value="Triwulan 4 (Okt-Des)">Triwulan 4 (Okt-Des)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Jumlah Setoran (Kelipatan Rp 25.000 jika Dobel)</label>
-                        <input type="text" id="setor-nominal" class="form-control" value="Rp 25.000" onkeyup="this.value = formatRupiahKetik(this.value, 'Rp ')" required style="font-weight:bold; color:var(--primary-dark);">
-                        <small style="color: #64748b;">*Ketik angka saja, format otomatis. Jika dobel isi Rp 50.000, Rp 75.000, dst.</small>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Tanda Tangan Warga / Penyetor *</label>
-                        <canvas id="signatureCanvas" class="signature-box" width="600" height="150"></canvas>
-                        <input type="hidden" name="signature" id="signatureInput" />
-                        <button type="button" class="btn btn-secondary" id="clearSignatureBtn" style="margin-top:6px; padding:6px 12px; font-size:12px; background:#e2e8f0; color:#334155; border:none; border-radius:6px; font-weight:bold;">Hapus Tanda Tangan</button>
-                    </div>
+</div> <!-- End Container -->
 
-                    <button type="submit" class="btn-primary" style="margin-top: 10px;">Simpan Setoran Iuran</button>
-                </form>
-            </div>
 
-            <div class="panel printable-panel">
-                <div id="print-area-header" style="margin-bottom: 25px; border-bottom: 3px double var(--primary-dark); padding-bottom: 12px; display: none; text-align: center;">
-                    <h2 style="font-size: 20px; color: var(--primary-dark); text-transform: uppercase; font-weight: 700; margin: 0; letter-spacing: 1px;">REKAPITULASI SETORAN IURAN SOSKEM</h2>
-                    <p style="font-size: 14px; color: #64748b; margin: 5px 0 0 0; font-weight: 500;">Wilayah: <span id="nama-wilayah-terpilih" style="color: var(--primary-dark); font-weight: 700;">-</span></p>
-                </div>
+<!-- BOTTOM NAVIGATION BAR (NATIVE APP STYLE) -->
+<nav class="bottom-nav">
+    <button class="nav-item active" onclick="pindahTabNative(0, this)">
+        <span class="icon">🏠</span>
+        <span>Beranda</span>
+    </button>
+    <button class="nav-item" onclick="pindahTabNative(1, this)">
+        <span class="icon">👥</span>
+        <span>Master KK</span>
+    </button>
+    <button class="nav-item" onclick="pindahTabNative(2, this)">
+        <span class="icon">💰</span>
+        <span>Setor Iuran</span>
+    </button>
+    <button class="nav-item" onclick="pindahTabNative(3, this)">
+        <span class="icon">📜</span>
+        <span>Riwayat Keluar</span>
+    </button>
+</nav>
 
-                <div class="panel-header-action">
-                    <h2>📋 Log Aliran Kas Masuk (Setoran Iuran)</h2>
-                    <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                        <input type="text" id="live-search-log" class="live-search-input" placeholder="🔍 Cari Kode Buku..." onkeyup="muatTabelLogIuran()">
-                        <select id="filter-cetak-rw-iuran" class="filter-select" onchange="muatTabelLogIuran()">
-                            <option value="SEMUA">Semua RW</option><option value="RW 18">Khusus RW 18</option><option value="RW 19">Khusus RW 19</option><option value="RW 20">Khusus RW 20</option>
-                        </select>
-                        <button onclick="unduhLaporanExcel('IURAN')" class="btn-excel">📊 Export CSV</button>
-                        <button onclick="cetakRekapKasMasukPerWilayah()" class="btn-print">🖨️ Cetak</button>
-                    </div>
-                </div>
-                
-                <div style="overflow-x: auto;">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th style="width: 50px; text-align: center;">No.</th>
-                                <th>Tanggal Bayar</th>
-                                <th>Kode Buku</th>
-                                <th>Periode Setoran</th>
-                                <th>Jumlah</th>
-                                <th>Saldo Kumulatif</th>
-                                <th class="kolom-layar-normal">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabel-log-iuran"></tbody>
-                    </table>
-                </div>
-                <div class="pagination-container">
-                    <span id="info-hal-iuran">Total: 0 Data</span>
-                    <button id="btn-prev-iuran" class="btn-page" onclick="ubahHalamanIuran(-1)">Prev</button>
-                    <span id="teks-hal-iuran">Hal 1/1</span>
-                    <button id="btn-next-iuran" class="btn-page" onclick="ubahHalamanIuran(1)">Next</button>
-                </div>
 
-                <div id="stat-rekap-box" style="margin-top: 25px; padding: 15px; border: 1px solid var(--border-color); border-radius: 8px; background-color: #f8fafc;">
-                    <h3 style="font-size: 14px; color: var(--primary-dark); margin: 0 0 10px 0; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; text-transform: uppercase;">📊 Ringkasan Capaian Pembayaran</h3>
-                    <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
-                        <div style="flex: 1; min-width: 140px;">
-                            <span style="font-size: 12px; color: #64748b; display: block;">Total Target Warga:</span>
-                            <span id="stat-total-kk" style="font-size: 18px; font-weight: 700; color: var(--primary-dark);">0 KK</span>
-                        </div>
-                        <div style="flex: 1; min-width: 140px;">
-                            <span style="font-size: 12px; color: #059669; display: block;">Sudah Membayar:</span>
-                            <span id="stat-sudah-bayar" style="font-size: 18px; font-weight: 700; color: #059669;">0 KK (0%)</span>
-                        </div>
-                        <div style="flex: 1; min-width: 140px;">
-                            <span style="font-size: 12px; color: #dc2626; display: block;">Belum Membayar:</span>
-                            <span id="stat-belum-bayar" style="font-size: 18px; font-weight: 700; color: #dc2626;">0 KK (0%)</span>
-                        </div>
-                    </div>
-                    <div style="width: 100%; height: 10px; background: #e2e8f0; border-radius: 5px; margin-top: 12px; overflow: hidden; display: flex;">
-                        <div id="bar-sudah-bayar" style="width: 0%; background: #059669; height: 100%;"></div>
-                        <div id="bar-belum-bayar" style="width: 0%; background: #dc2626; height: 100%;"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- TAB 1: MASTER KK DENGAN INPUT NAMA, NO WA, DAN RT -->
-    <div id="tab-master" class="tab-content">
-        <div class="grid-layout">
-            <div class="panel">
-                <h2>📝 Registrasi Master KK Jemaah Baru</h2>
-                <form id="form-master-kk">
-                    <div class="form-group">
-                        <label>Wilayah Rukun Warga (RW)</label>
-                        <select id="kk-rw" class="form-control" required onchange="generateKodeBukuOtomatis()">
-                            <option value="RW 18">RW 18</option><option value="RW 19">RW 19</option><option value="RW 20">RW 20</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Nomor Rukun Tetangga (RT)</label>
-                        <select id="kk-rt" class="form-control" required onchange="generateKodeBukuOtomatis()">
-                            <option value="01">RT 01</option><option value="02">RT 02</option><option value="03">RT 03</option><option value="04">RT 04</option><option value="05">RT 05</option>
-                            <option value="06">RT 06</option><option value="07">RT 07</option><option value="08">RT 08</option><option value="09">RT 09</option><option value="10">RT 10</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Kode Buku Penagihan (Otomatis)</label>
-                        <input type="text" id="kk-kode" class="form-control" placeholder="Generasi Otomatis..." readonly style="background:#e2e8f0; font-weight:bold; color:var(--primary-dark);">
-                    </div>
-                    <div class="form-group">
-                        <label>Nama Kepala Keluarga</label>
-                        <input type="text" id="kk-nama" class="form-control" placeholder="Contoh: Bpk. H. Ahmad Fauzi" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Nomor WhatsApp</label>
-                        <input type="text" id="kk-wa" class="form-control" placeholder="Contoh: 081234567890" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Nomor Kartu Keluarga (16 Digit)</label>
-                        <input type="text" id="kk-nomor" class="form-control" placeholder="Masukkan 16 digit No KK..." required maxlength="16" pattern="\d{16}">
-                    </div>
-                    <button type="submit" class="btn-primary" style="background-color: var(--primary-dark);">Daftarkan Keluarga</button>
-                </form>
-            </div>
-
-            <div class="panel printable-panel">
-                <div id="kop-buku-penagihan">
-                    <h2>DEWAN KEMAKMURAN MASJID (DKM) JAMI AL-IKHLASH</h2>
-                    <p id="kop-sub-judul">BUKU DAFTAR PENAGIHAN IURAN SOSKEM - TRIWULAN BERJALAN</p>
-                    <p id="kop-wilayah-kerja" style="font-size: 13px; color: #000; font-weight: bold; margin-top: 4px; text-decoration: underline;"></p>
-                </div>
-
-                <div class="panel-header-action">
-                    <h2>🖨️ Master Kepala Keluarga Terdaftar</h2>
-                    <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
-                        <select id="pilihan-triwulan-cetak" class="filter-select" style="border: 2px solid #059669; background-color: #ecfdf5;" onchange="muatTabelMasterKK()">
-                            <option value="Triwulan 1 (Jan-Mar)">Triwulan 1 (Jan-Mar)</option>
-                            <option value="Triwulan 2 (Apr-Jun)">Triwulan 2 (Apr-Jun)</option>
-                            <option value="Triwulan 3 (Jul-Sep)">Triwulan 3 (Jul-Sep)</option>
-                            <option value="Triwulan 4 (Okt-Des)">Triwulan 4 (Okt-Des)</option>
-                        </select>
-                        <select id="filter-status-cetak" class="filter-select" style="border: 2px solid #dc2626; background-color: #fef2f2;" onchange="muatTabelMasterKK()">
-                            <option value="SEMUA">Semua Status</option>
-                            <option value="TUNGGAKAN">Hanya Tunggakan</option>
-                        </select>
-                        <select id="filter-rw-master" class="filter-select" onchange="muatTabelMasterKK()">
-                            <option value="SEMUA">Semua Wilayah</option><option value="RW 18">Khusus RW 18</option><option value="RW 19">Khusus RW 19</option><option value="RW 20">Khusus RW 20</option>
-                        </select>
-                        <button onclick="unduhLaporanExcel('MASTER')" class="btn-excel">📊 Export CSV</button>
-                        <button onclick="cetakBukuPenagihanMassal()" style="padding: 8px 14px; background-color: #059669; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
-                            🖨️ Cetak Buku
-                        </button>
-                        <button onclick="cetakTagihanBerikutnya()" class="btn-print-tagihan">
-                            🖨️ Cetak Tagihan Berikutnya
-                        </button>
-                    </div>
-                </div>
-                
-                <div style="overflow-x: auto;">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Kode Buku</th>
-                                <th>Kepala Keluarga & Kontak</th>
-                                <th class="kolom-layar-normal">Wilayah</th>
-                                <th class="kolom-cetak-lap">Status Terakhir</th>
-                                <th class="kolom-cetak-lap lebar-centang">▢ (25k)</th>
-                                <th class="kolom-cetak-lap lebar-infaq">Infaq (Rp)</th>
-                                <th class="kolom-cetak-lap lebar-paraf">Paraf Warga</th>
-                                <th class="kolom-layar-normal">Status Iuran</th>
-                                <th class="kolom-layar-normal">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabel-master-kk-view"></tbody>
-                    </table>
-                </div>
-                <div class="pagination-container">
-                    <span id="info-hal-master">Total: 0 Data</span>
-                    <button id="btn-prev-master" class="btn-page" onclick="ubahHalamanMaster(-1)">Prev</button>
-                    <span id="teks-hal-master">Hal 1/1</span>
-                    <button id="btn-next-master" class="btn-page" onclick="ubahHalamanMaster(1)">Next</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="box-lampiran-cetak-kk" style="page-break-before: auto; page-break-inside: avoid; margin-top: 25px; padding-top: 15px; border-top: 1px dashed #cbd5e1;">
-    <h3 style="font-size: 15px; color: #dc2626; text-transform: uppercase; margin-bottom: 5px; border-bottom: 2px solid #dc2626; padding-bottom: 5px;">
-        📌 LAMPIRAN PETUGAS: Daftar Warga Perlu Konfirmasi No. KK Asli
-    </h3>
-    <table style="width: 100%; border-collapse: collapse; font-size: 12px; border: 1px solid #000;">
+<!-- LAMPIRAN CETAK KODE KK SEMENTARA -->
+<div id="box-lampiran-cetak-kk" style="page-break-before: auto; margin-top: 20px; padding-top: 10px; border-top: 1px dashed #000;">
+    <h3 style="font-size: 13px; color: #000; text-transform: uppercase; margin-bottom: 5px;">📌 LAMPIRAN PETUGAS: Konfirmasi No. KK Asli (16 Digit)</h3>
+    <table style="width: 100%; border-collapse: collapse; font-size: 11px; border: 1px solid #000;">
         <thead>
             <tr>
-                <th style="width: 40px; text-align: center; border: 1px solid #000; padding: 8px; background: #f2f2f2;">No.</th>
-                <th style="width: 110px; text-align: center; border: 1px solid #000; padding: 8px; background: #f2f2f2;">Kode Buku</th>
-                <th style="border: 1px solid #000; padding: 8px; background: #f2f2f2; text-align: left;">Nama KK</th>
-                <th style="width: 80px; text-align: center; border: 1px solid #000; padding: 8px; background: #f2f2f2;">Wilayah</th>
-                <th style="width: 320px; text-align: center; border: 1px solid #000; padding: 8px; background: #f2f2f2;">TULIS TANGAN NO. KK ASLI (16 DIGIT)</th>
+                <th style="width: 30px; text-align: center; border: 1px solid #000; padding: 6px;">No</th>
+                <th style="width: 90px; text-align: center; border: 1px solid #000; padding: 6px;">Kode Buku</th>
+                <th style="border: 1px solid #000; padding: 6px; text-align: left;">Nama KK</th>
+                <th style="width: 60px; text-align: center; border: 1px solid #000; padding: 6px;">RW</th>
+                <th style="width: 240px; text-align: center; border: 1px solid #000; padding: 6px;">TULIS TANGAN NO KK ASLI</th>
             </tr>
         </thead>
         <tbody id="tabel-lampiran-kk-body"></tbody>
     </table>
 </div>
 
+<!-- SURAT KEPUTUSAN (SK) PRINT AREA -->
 <div id="form-sk-print-area">
-    <div class="sk-header">
-        <h2>DEWAN KEMAKMURAN MASJID (DKM) JAMI AL-IKHLASH</h2>
-        <p>Sekretariat Administrasi Idarah Sosial Kematian (SOSKEM) Jami Al-Ikhlash • Wilayah Pelayanan RW 18, RW 19, & RW 20</p>
+    <div style="text-align: center; border-bottom: 3px double #000; padding-bottom: 8px; margin-bottom: 12px;">
+        <h2 style="font-size: 16px; text-transform: uppercase; font-weight: bold;">DEWAN KEMAKMURAN MASJID (DKM) JAMI AL-IKHLASH</h2>
+        <p style="font-size: 10px;">Sekretariat Administrasi Idarah Sosial Kematian (SOSKEM) • RW 18, RW 19, RW 20</p>
     </div>
-    <div class="sk-title">
-        <h3>SURAT KEPUTUSAN PERSETUJUAN PENCAIRAN DANA SANTUNAN</h3>
-        <p id="sk-nomor-surat">Nomor: 042/SK-SOSKEM/DKM-AI/V/2026</p>
+    <div style="text-align: center; margin-bottom: 12px;">
+        <h3 style="text-decoration: underline; font-size: 13px; font-weight: bold;">SURAT KEPUTUSAN PERSETUJUAN PENCAIRAN DANA SANTUNAN</h3>
+        <p style="font-size: 10px;" id="sk-nomor-surat">Nomor: 042/SK-SOSKEM/DKM-AI/V/2026</p>
     </div>
-    <div class="sk-body">
-        <p style="font-weight: bold; text-align: center; margin-bottom: 10px;">BISMILLAHIRRAHMANIRRAHIM<br>PENGURUS DEWAN KEMAKMURAN MASJID (DKM) JAMI AL-IKHLASH,</p>
-        <p><b>Menimbang:</b></p>
-        <ul>
-            <li>1. Bahwa berdasarkan rekaman data pada <i>Sistem Aplikasi SOSKEM Jami Al-Ikhlash</i>, status kepesertaan keluarga jemaah dengan <b>Kode Buku Tagihan: <span id="sk-data-kode"></span></b> dinyatakan <b>Terdaftar Resmi</b>.</li>
-            <li>2. Bahwa demi kelancaran kepengurusan fardhu kifayah jemaah wafat mulai dari pemulasaran hingga penyediaan sarana pelayanan kubur, dipandang perlu menerbitkan SK pencairan dana.</li>
-        </ul>
-        <p><b>Mengingat:</b> AD/ART DKM Jami Al-Ikhlash mengenai regulasi Tabungan Kas Sosial Kematian (SOSKEM).</p>
-        <p><b>Memperhatikan:</b> Hasil verifikasi kelayakan digital tertanggal <span id="sk-tanggal-verifikasi"></span>.</p>
-        <div style="border-top: 1px solid #000; margin: 10px 0;"></div>
-        <p style="text-align: center; font-weight: bold; text-transform: uppercase; margin-bottom: 8px;">MEMUTUSKAN</p>
-        <p><b>Menetapkan:</b></p>
-        <table class="sk-table-info">
-            <tr><td style="width: 12%; vertical-align: top;"><b>PERTAMA</b></td><td style="width: 3%; vertical-align: top;">:</td><td>Mengesahkan kelayakan pelayanan sosial kematian atas nama pemilik <b>No KK: <span id="sk-data-kk"></span></b>, asal <b>Wilayah: <span id="sk-data-rw"></span></b>.</td></tr>
-            <tr><td style="vertical-align: top;"><b>KEDUA</b></td><td style="vertical-align: top;">:</td><td>Menyetujui pencairan dana santunan sebesar <b>Rp 850.000 (Delapan Ratus Lima Puluh Ribu Rupiah)</b> kepada ahli waris.</td></tr>
-            <tr><td style="vertical-align: top;"><b>KETIGA</b></td><td style="vertical-align: top;">:</td><td>Menginstruksikan unit teknis lapangan untuk segera melaksanakan rangkaian pelayanan pemakaman.</td></tr>
-        </table>
+    <div style="font-size: 11px; line-height: 1.4; margin-bottom: 12px;">
+        <p style="font-weight: bold; text-align: center; margin-bottom: 8px;">BISMILLAHIRRAHMANIRRAHIM</p>
+        <p><b>Menimbang:</b> Bahwa berdasarkan rekaman data pada Sistem Aplikasi SOSKEM Jami Al-Ikhlash, status kepesertaan keluarga dengan <b>Kode Buku: <span id="sk-data-kode"></span></b> dinyatakan terdaftar resmi dan iuran lancar.</p>
+        <p style="margin-top: 6px;"><b>Memutuskan & Menetapkan:</b></p>
+        <p>1. Menyetujui pencairan dana santunan sebesar <b>Rp 850.000</b> kepada ahli waris pemegang <b>No. KK: <span id="sk-data-kk"></span></b> (<span id="sk-data-rw"></span>).</p>
+        <p>2. Menginstruksikan unit teknis lapangan untuk segera melaksanakan pelayanan fardhu kifayah.</p>
     </div>
-    <div class="sk-footer">
-        <div class="sk-ttd"><p>Penerima Santunan / Ahli Waris,</p><div class="space"></div><p>__________________________</p></div>
-        <div class="sk-ttd"><p>Bandung, <span id="sk-tanggal-cetak"></span></p><p><b>Dewan Kemakmuran Masjid<br>Jami Al-Ikhlash</b><br>Sekretaris,</p><div class="space"></div><p><b><u>Ade Harya Rukmana</u></b></p></div>
+    <div style="display: flex; justify-content: space-between; margin-top: 30px; font-size: 11px;">
+        <div style="text-align: center; width: 160px;"><p>Penerima Santunan,</p><div style="height: 50px;"></div><p>___________________</p></div>
+        <div style="text-align: center; width: 160px;"><p>Bandung, <span id="sk-tanggal-cetak"></span></p><p><b>Sekretaris DKM,</b></p><div style="height: 50px;"></div><p><b><u>Ade Harya Rukmana</u></b></p></div>
     </div>
 </div>
 
+<!-- MODAL EDIT KK -->
 <div id="modalEditKK" class="modal">
     <div class="modal-content">
         <div class="modal-header">Pembaruan Data Jemaah</div>
-        <div class="form-group">
-            <label id="modal-label-kode">Kode Buku: -</label>
-        </div>
+        <div class="form-group"><label id="modal-label-kode">Kode Buku: -</label></div>
         <div class="form-group">
             <label>Nomor Rukun Tetangga (RT)</label>
             <select id="modal-input-rt" class="form-control">
@@ -564,12 +536,12 @@
             <input type="text" id="modal-input-wa" class="form-control" placeholder="No WhatsApp...">
         </div>
         <div class="form-group">
-            <label>Nomor Kartu Keluarga (16 Digit)</label>
-            <input type="text" id="modal-input-kk" class="form-control" maxlength="16" pattern="\d{16}" placeholder="No KK 16 Digit...">
+            <label>No. Kartu Keluarga (16 Digit)</label>
+            <input type="text" id="modal-input-kk" class="form-control" maxlength="16" pattern="\d{16}" placeholder="16 Digit No KK...">
         </div>
         <div class="modal-footer">
-            <button class="btn-batal" onclick="tutupModalEdit()">Batal</button>
-            <button class="btn-simpan-modal" onclick="simpanPembaruanKK()">Simpan Perubahan</button>
+            <button class="btn-action-sm" onclick="tutupModalEdit()" style="background:#cbd5e1; color:#334155;">Batal</button>
+            <button class="btn-action-sm bg-print" onclick="simpanPembaruanKK()">Simpan</button>
         </div>
     </div>
 </div>
@@ -586,7 +558,7 @@
 
     let currentPageMaster = 1;
     let currentPageIuran = 1;
-    const rowsPerPage = 15;
+    const rowsPerPage = 12;
     let globalDataMasterFiltered = [];
     let globalDataIuranFiltered = [];
 
@@ -631,22 +603,17 @@
         muatTabelMasterKK();
     }
 
-    async function pindahTab(indexTab) {
-        const listTabID = ['tab-track', 'tab-iuran', 'tab-master'];
+    function pindahTabNative(indexTab, elBtn) {
+        const listTabID = ['tab-home', 'tab-master', 'tab-iuran', 'tab-track'];
 
-        document.querySelectorAll('.tab-content').forEach(tab => {
-            tab.classList.remove('active');
-        });
-
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
 
         const targetTab = document.getElementById(listTabID[indexTab]);
         if (targetTab) targetTab.classList.add('active');
+        if (elBtn) elBtn.classList.add('active');
 
-        const targetBtn = document.querySelectorAll('.tab-btn')[indexTab];
-        if (targetBtn) targetBtn.classList.add('active');
+        window.scrollTo(0, 0);
 
         if (listTabID[indexTab] === 'tab-master') muatTabelMasterKK();
         if (listTabID[indexTab] === 'tab-iuran') {
@@ -667,12 +634,8 @@
         const ctx = document.getElementById('kepatuhanChart');
         if (!ctx) return;
         
-        const triwulanAktif = document.getElementById('pilihan-triwulan-cetak').value || "Triwulan 1 (Jan-Mar)";
-        let stats = {
-            'RW 18': { lunas: 0, tunggak: 0 },
-            'RW 19': { lunas: 0, tunggak: 0 },
-            'RW 20': { lunas: 0, tunggak: 0 }
-        };
+        const triwulanAktif = document.getElementById('pilihan-triwulan-cetak').value || "Triwulan 3 (Jul-Sep)";
+        let stats = { 'RW 18': { lunas: 0, tunggak: 0 }, 'RW 19': { lunas: 0, tunggak: 0 }, 'RW 20': { lunas: 0, tunggak: 0 } };
 
         databaseKK.forEach(warga => {
             if(!stats[warga.rw]) return;
@@ -688,14 +651,14 @@
             data: {
                 labels: ['RW 18', 'RW 19', 'RW 20'],
                 datasets: [
-                    { label: 'Lancar / Lunas', data: [stats['RW 18'].lunas, stats['RW 19'].lunas, stats['RW 20'].lunas], backgroundColor: '#059669', borderRadius: 4 },
-                    { label: 'Menunggak', data: [stats['RW 18'].tunggak, stats['RW 19'].tunggak, stats['RW 20'].tunggak], backgroundColor: '#dc2626', borderRadius: 4 }
+                    { label: 'Lancar', data: [stats['RW 18'].lunas, stats['RW 19'].lunas, stats['RW 20'].lunas], backgroundColor: '#059669', borderRadius: 4 },
+                    { label: 'Tunggak', data: [stats['RW 18'].tunggak, stats['RW 19'].tunggak, stats['RW 20'].tunggak], backgroundColor: '#dc2626', borderRadius: 4 }
                 ]
             },
             options: {
                 responsive: true, maintainAspectRatio: false,
                 scales: { y: { beginAtZero: true, stacked: true }, x: { stacked: true } },
-                plugins: { legend: { position: 'bottom' } }
+                plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } }
             }
         });
     }
@@ -703,11 +666,7 @@
     function cekPreviewKK() {
         const inputVal = document.getElementById('setor-kode-kk').value.trim();
         const previewElement = document.getElementById('preview-kk');
-        
-        if (inputVal === '') {
-            previewElement.innerHTML = '';
-            return;
-        }
+        if (inputVal === '') { previewElement.innerHTML = ''; return; }
 
         const rw = document.getElementById('setor-rw-pilihan').value;
         const angkaRW = rw.replace(/\D/g, '');
@@ -724,10 +683,10 @@
 
         if (jemaah) {
             previewElement.style.color = '#059669';
-            previewElement.innerHTML = `✅ Ditemukan (${jemaah.kode}): ${jemaah.nama || "Keluarga " + jemaah.kode} - No KK: ${jemaah.nomor}`;
+            previewElement.innerHTML = `✅ (${jemaah.kode}): ${jemaah.nama || "Keluarga"} - No KK: ${jemaah.nomor}`;
         } else {
             previewElement.style.color = '#dc2626';
-            previewElement.innerHTML = `❌ Kode buku dengan nomor "${inputVal}" belum terdaftar di ${rw}.`;
+            previewElement.innerHTML = `❌ Kode buku "${inputVal}" belum terdaftar.`;
         }
     }
 
@@ -751,14 +710,11 @@
                 if (bagianKode) {
                     const nomorUrutStr = bagianKode.split('-')[0];
                     const nomorInt = parseInt(nomorUrutStr, 10);
-                    if (!isNaN(nomorInt) && nomorInt > nomorUrutTerbesar) {
-                        nomorUrutTerbesar = nomorInt;
-                    }
+                    if (!isNaN(nomorInt) && nomorInt > nomorUrutTerbesar) nomorUrutTerbesar = nomorInt;
                 }
             }
         });
-        const nomorBerikutnya = nomorUrutTerbesar + 1;
-        document.getElementById('kk-kode').value = `${prefixTarget}${String(nomorBerikutnya).padStart(3, '0')}-${rtTerpilih}`;
+        document.getElementById('kk-kode').value = `${prefixTarget}${String(nomorUrutTerbesar + 1).padStart(3, '0')}-${rtTerpilih}`;
     }
 
     document.getElementById('form-master-kk').addEventListener('submit', function(e) {
@@ -771,19 +727,17 @@
         const rw = document.getElementById('kk-rw').value;
 
         if (databaseKK.some(item => item.kode === kode)) {
-            Swal.fire('Kode Duplikat!', `KODE BUKU ${kode} sudah terdaftar!`, 'warning');
+            Swal.fire('Duplikat!', `Kode ${kode} sudah terdaftar!`, 'warning');
             generateKodeBukuOtomatis();
             return;
         }
 
         databaseKK.push({ kode, rt, nama, wa, nomor, rw });
         localStorage.setItem('soskem_master_kk', JSON.stringify(databaseKK));
-        
-        Swal.fire('Berhasil!', `Data Keluarga Berhasil Disimpan!<br>Kode Buku Penagihan: <b>${kode}</b>`, 'success');
+        Swal.fire('Berhasil!', `Keluarga Disimpan!<br><b>${kode}</b>`, 'success');
         document.getElementById('kk-nama').value = '';
         document.getElementById('kk-wa').value = '';
         document.getElementById('kk-nomor').value = '';
-        
         jalankanSistemAwal();
         generateKodeBukuOtomatis();
     });
@@ -791,7 +745,7 @@
     function bukaModalEditKK(index) {
         indeksEditTerpilih = index;
         const dataJemaah = databaseKK[index];
-        document.getElementById('modal-label-kode').innerText = `Kode Buku Jemaah: ${dataJemaah.kode}`;
+        document.getElementById('modal-label-kode').innerText = `Kode Buku: ${dataJemaah.kode}`;
         document.getElementById('modal-input-rt').value = dataJemaah.rt || '01';
         document.getElementById('modal-input-nama').value = dataJemaah.nama || '';
         document.getElementById('modal-input-wa').value = dataJemaah.wa || '';
@@ -807,7 +761,7 @@
         const noKKBaru = document.getElementById('modal-input-kk').value.trim();
         
         if (noKKBaru.length !== 16 || isNaN(noKKBaru)) {
-            Swal.fire('Kesalahan Validasi', 'Nomor KK harus berupa kombinasi 16 Digit Angka!', 'warning');
+            Swal.fire('Validasi', 'Nomor KK harus 16 Digit Angka!', 'warning');
             return;
         }
         
@@ -825,7 +779,7 @@
         }
         
         localStorage.setItem('soskem_master_kk', JSON.stringify(databaseKK));
-        Swal.fire('Berhasil', 'Data Jemaah Berhasil Diperbarui!', 'success');
+        Swal.fire('Berhasil', 'Data Diperbarui!', 'success');
         tutupModalEdit();
         jalankanSistemAwal();
     }
@@ -846,7 +800,7 @@
         });
 
         if (!jemaahValid) {
-            Swal.fire('Data Tidak Valid', `Kode Buku dengan nomor "${subKodeInput}" tidak ditemukan dalam basis data Master KK.`, 'error');
+            Swal.fire('Tidak Valid', `Kode buku "${subKodeInput}" tidak ditemukan di ${rw}.`, 'error');
             return;
         }
 
@@ -854,10 +808,10 @@
         const tanggal = document.getElementById('setor-tanggal').value;
         const periodeInput = document.getElementById('setor-periode').value;
         const nominalInput = bersihkanFormatRupiah(document.getElementById('setor-nominal').value);
-        
         const signature = document.getElementById('signatureInput').value.trim();
+        
         if (!signature) {
-            Swal.fire('Perhatian', 'Tanda tangan warga wajib diisi di kotak yang disediakan.', 'warning');
+            Swal.fire('Perhatian', 'Tanda tangan warga wajib diisi.', 'warning');
             return;
         }
 
@@ -870,8 +824,6 @@
             if (!cekSudahAda) {
                 databaseIuran.push({ tanggal, kode: kodeLengkap, rw, periode: susunanPeriode[indeksAwal], nominal: TARIF_PER_TRIWULAN, signature });
                 sisaDanaPeta -= TARIF_PER_TRIWULAN;
-            } else {
-                Swal.fire('Informasi', `Jemaah sudah membayar periode utama ${susunanPeriode[indeksAwal]}. Dana dialirkan otomatis ke triwulan kosong berikutnya.`, 'info');
             }
         }
 
@@ -889,16 +841,14 @@
         }
 
         localStorage.setItem('soskem_log_iuran', JSON.stringify(databaseIuran));
-        Swal.fire('Sukses', `Pemrosesan Pembayaran Berhasil Disimpan!<br>Total setoran Rp ${nominalInput.toLocaleString('id-ID')} telah disaring & dialokasikan otomatis.`, 'success');
+        Swal.fire('Sukses', `Pembayaran Berhasil Disimpan!<br>Rp ${nominalInput.toLocaleString('id-ID')} dialokasikan.`, 'success');
         document.getElementById('setor-kode-kk').value = '';
         document.getElementById('setor-nominal').value = 'Rp 25.000';
         document.getElementById('preview-kk').innerHTML = '';
         
         const canvas = document.getElementById('signatureCanvas');
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
         document.getElementById('signatureInput').value = '';
-
         jalankanSistemAwal();
     });
 
@@ -907,66 +857,31 @@
         const input = document.getElementById('signatureInput');
         if (!canvas || !input) return;
         const ctx = canvas.getContext('2d');
-        ctx.lineWidth = 3;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.strokeStyle = '#0f2c23';
+        ctx.lineWidth = 2.5; ctx.lineCap = 'round'; ctx.strokeStyle = '#0f2c23';
         let drawing = false;
 
         const getPos = (event) => {
             const rect = canvas.getBoundingClientRect();
             const clientX = event.touches ? event.touches[0].clientX : event.clientX;
             const clientY = event.touches ? event.touches[0].clientY : event.clientY;
-            return {
-                x: ((clientX - rect.left) / rect.width) * canvas.width,
-                y: ((clientY - rect.top) / rect.height) * canvas.height
-            };
+            return { x: ((clientX - rect.left) / rect.width) * canvas.width, y: ((clientY - rect.top) / rect.height) * canvas.height };
         };
 
-        const start = (event) => {
-            drawing = true;
-            const p = getPos(event);
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            event.preventDefault();
-        };
+        const start = (e) => { drawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); e.preventDefault(); };
+        const move = (e) => { if (!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault(); };
+        const stop = () => { if (!drawing) return; drawing = false; input.value = canvas.toDataURL('image/png'); };
 
-        const move = (event) => {
-            if (!drawing) return;
-            const p = getPos(event);
-            ctx.lineTo(p.x, p.y);
-            ctx.stroke();
-            event.preventDefault();
-        };
-
-        const stop = () => {
-            if (!drawing) return;
-            drawing = false;
-            input.value = canvas.toDataURL('image/png');
-        };
-
-        canvas.onpointerdown = start;
-        canvas.onpointermove = move;
-        canvas.onpointerup = stop;
-        canvas.onpointerleave = stop;
-        canvas.ontouchstart = start;
-        canvas.ontouchmove = move;
-        canvas.ontouchend = stop;
+        canvas.onpointerdown = start; canvas.onpointermove = move; canvas.onpointerup = stop; canvas.onpointerleave = stop;
+        canvas.ontouchstart = start; canvas.ontouchmove = move; canvas.ontouchend = stop;
 
         const clearBtn = document.getElementById('clearSignatureBtn');
-        if (clearBtn) {
-            clearBtn.onclick = () => {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                input.value = '';
-            };
-        }
+        if (clearBtn) clearBtn.onclick = () => { ctx.clearRect(0, 0, canvas.width, canvas.height); input.value = ''; };
     }
 
     function hitungStatusIuranWarga(kodeWarga, periodeKriteria) {
-        const lunasDiPeriodeIni = databaseIuran.some(item => item.kode === kodeWarga && item.periode === periodeKriteria);
-        if (lunasDiPeriodeIni) return 'LANCAR';
-        const triwulanTerpilihDropdown = document.getElementById('pilihan-triwulan-cetak').value;
-        if (periodeKriteria === triwulanTerpilihDropdown) return 'BERJALAN';
+        if (databaseIuran.some(item => item.kode === kodeWarga && item.periode === periodeKriteria)) return 'LANCAR';
+        const triwulanAktif = document.getElementById('pilihan-triwulan-cetak').value || "Triwulan 3 (Jul-Sep)";
+        if (periodeKriteria === triwulanAktif) return 'BERJALAN';
         return 'TUNGGAK';
     }
 
@@ -983,22 +898,21 @@
         let rw18 = databaseKK.filter(i => i.rw === 'RW 18').length;
         let rw19 = databaseKK.filter(i => i.rw === 'RW 19').length;
         let rw20 = databaseKK.filter(i => i.rw === 'RW 20').length;
-        document.getElementById('rekap-detail-rw').innerText = `RW 18: ${rw18} | RW 19: ${rw19} | RW 20: ${rw20}`;
+        document.getElementById('rekap-detail-rw').innerText = `RW 18:${rw18} | 19:${rw19} | 20:${rw20}`;
     }
 
     function muatTabelMasterKK() {
-        const triwulanTerpilihDropdown = document.getElementById('pilihan-triwulan-cetak').value;
+        const triwulanDropdown = document.getElementById('pilihan-triwulan-cetak').value;
         const filterStatus = document.getElementById('filter-status-cetak').value;
         const filterRW = document.getElementById('filter-rw-master').value;
 
-        let databaseSorted = [...databaseKK].sort((a, b) => a.kode.localeCompare(b.kode, undefined, { numeric: true, sensitivity: 'base' }));
+        let databaseSorted = [...databaseKK].sort((a, b) => a.kode.localeCompare(b.kode, undefined, { numeric: true }));
         globalDataMasterFiltered = [];
 
         databaseSorted.forEach((warga) => {
             if (filterRW !== 'SEMUA' && warga.rw !== filterRW) return;
-            let status = hitungStatusIuranWarga(warga.kode, triwulanTerpilihDropdown);
+            let status = hitungStatusIuranWarga(warga.kode, triwulanDropdown);
             if (filterStatus === 'TUNGGAKAN' && status === 'LANCAR') return;
-            
             warga.statusKalkulasi = status;
             globalDataMasterFiltered.push(warga);
         });
@@ -1020,50 +934,46 @@
         if(currentPageMaster > totalPages && totalPages > 0) currentPageMaster = totalPages;
 
         let startInd = (currentPageMaster - 1) * rowsPerPage;
-        let endInd = startInd + rowsPerPage;
-        let paginatedItems = document.body.classList.contains('mode-cetak-buku-aktif') ? globalDataMasterFiltered : globalDataMasterFiltered.slice(startInd, endInd);
+        let paginatedItems = document.body.classList.contains('mode-cetak-buku-aktif') ? globalDataMasterFiltered : globalDataMasterFiltered.slice(startInd, startInd + rowsPerPage);
 
         paginatedItems.forEach((warga) => {
             let status = warga.statusKalkulasi;
             let badgeClass = status === 'LANCAR' ? 'lancar' : (status === 'BERJALAN' ? 'berjalan' : 'tunggak');
-            let trClass = status === 'LANCAR' ? 'bukan-tunggakan' : 'termasuk-tunggakan';
-            
-            let indexAsliDiDatabase = databaseKK.findIndex(x => x.kode === warga.kode);
-            let namaKeluargaCetak = warga.nama ? warga.nama : ("Keluarga " + warga.kode);
+            let indexAsli = databaseKK.findIndex(x => x.kode === warga.kode);
+            let namaCetak = warga.nama || "Keluarga " + warga.kode;
             let noWaCetak = warga.wa ? `📱 ${warga.wa}` : '';
             let infoRtCetak = warga.rt ? `RT ${warga.rt}` : '';
 
-            // Tombol Direct WhatsApp
             let waButtonHTML = '';
             if (warga.wa) {
                 let nomorWaClean = normalizeWA(warga.wa);
-                let pesanWa = encodeURIComponent(`Assalamu'alaikum Bpk/Ibu ${namaKeluargaCetak}, mohon pengingat untuk iuran SOSKEM DKM Jami Al-Ikhlash (Kode Buku: *${warga.kode}*). Jazakumullah khairan katsiran.`);
-                waButtonHTML = `<a href="https://wa.me/${nomorWaClean}?text=${pesanWa}" target="_blank" class="btn-wa" title="Kirim Pesan WhatsApp">💬 WA</a>`;
+                let pesanWa = encodeURIComponent(`Assalamu'alaikum Bpk/Ibu ${namaCetak}, pengingat iuran SOSKEM DKM Jami Al-Ikhlash (Kode: *${warga.kode}*). Jazakumullah khairan.`);
+                waButtonHTML = `<a href="https://wa.me/${nomorWaClean}?text=${pesanWa}" target="_blank" class="btn-wa">WA</a>`;
             }
 
             const tr = document.createElement('tr');
-            tr.className = trClass;
+            tr.className = status === 'LANCAR' ? 'bukan-tunggakan' : 'termasuk-tunggakan';
             tr.innerHTML = `
                 <td style="font-weight: bold; text-align: center;">${warga.kode}</td>
-                <td><b>${namaKeluargaCetak}</b> ${infoRtCetak ? `<span class="badge" style="background:#475569; font-size:10px;">${infoRtCetak}</span>` : ''}<br><small style="color: #64748b;">KK: ${warga.nomor} ${noWaCetak ? ' | ' + noWaCetak : ''}</small></td>
+                <td><b>${namaCetak}</b> ${infoRtCetak ? `<span class="badge" style="background:#475569; font-size:9px;">${infoRtCetak}</span>` : ''}<br><small style="color: #64748b;">KK:${warga.nomor} ${noWaCetak ? '| ' + noWaCetak : ''}</small></td>
                 <td class="kolom-layar-normal" style="text-align: center;"><span class="badge rw">${warga.rw}</span></td>
                 <td class="kolom-cetak-lap" style="text-align: center;"><span class="badge ${badgeClass}">${status}</span></td>
                 <td class="kolom-cetak-lap kotak-kecil" style="text-align: center;">▢</td>
-                <td class="kolom-cetak-lap gari-bawah" style="text-align: center;">Rp ....................</td>
-                <td class="kolom-cetak-lap gari-bawah" style="text-align: center;">............................</td>
+                <td class="kolom-cetak-lap gari-bawah" style="text-align: center;">Rp ........</td>
+                <td class="kolom-cetak-lap gari-bawah" style="text-align: center;">..........</td>
                 <td class="kolom-layar-normal" style="text-align: center;"><span class="badge ${badgeClass}">${status}</span></td>
                 <td class="kolom-layar-normal" style="text-align: center; white-space: nowrap;">
                     ${waButtonHTML}
-                    <button class="btn-edit-kk" onclick="bukaModalEditKK(${indexAsliDiDatabase})">✏️ Edit</button>
-                    <button class="btn-hapus" onclick="hapusMasterKK(${indexAsliDiDatabase})">❌</button>
+                    <button class="btn-edit-kk" onclick="bukaModalEditKK(${indexAsli})">Edit</button>
+                    <button class="btn-hapus" onclick="hapusMasterKK(${indexAsli})">X</button>
                 </td>
             `;
             tbody.appendChild(tr);
         });
 
         if(!document.body.classList.contains('mode-cetak-buku-aktif')) {
-            document.getElementById('info-hal-master').innerText = `Total: ${totalData} Jemaah`;
-            document.getElementById('teks-hal-master').innerText = `Hal ${currentPageMaster}/${totalPages || 1}`;
+            document.getElementById('info-hal-master').innerText = `${totalData} Data`;
+            document.getElementById('teks-hal-master').innerText = `${currentPageMaster}/${totalPages || 1}`;
             document.getElementById('btn-prev-master').disabled = currentPageMaster === 1;
             document.getElementById('btn-next-master').disabled = currentPageMaster === totalPages || totalPages === 0;
         }
@@ -1076,68 +986,35 @@
         if (!tbodyLampiran || !boxLampiran) return;
         tbodyLampiran.innerHTML = '';
         
-        let nomorUrutLampiran = 1;
-        let adaKKTempDiWilayahIni = false;
-
-        let databaseSorted = [...databaseKK].sort((a, b) => a.kode.localeCompare(b.kode, undefined, { numeric: true }));
-        databaseSorted.forEach(warga => {
+        let nomorUrut = 1; let adaTemp = false;
+        databaseKK.forEach(warga => {
             if (rwTerpilih !== 'SEMUA' && warga.rw !== rwTerpilih) return;
             let isSementaran = Object.values(warga).some(val => String(val).startsWith("0000") || String(val).includes("000000000000"));
             if (isSementaran) {
-                adaKKTempDiWilayahIni = true;
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td style="text-align: center; padding: 8px;">${nomorUrutLampiran++}</td><td style="padding: 8px;"><b>${warga.kode}</b></td><td style="padding: 8px;">${warga.nama || "Keluarga " + warga.kode}</td><td style="padding: 8px; text-align: center;">${warga.rw}</td><td style="padding: 8px; background: #fafafa; color: #cbd5e1; font-style: italic; font-size: 11px;">..................................................</td>`;
-                tbodyLampiran.appendChild(tr);
+                adaTemp = true;
+                tbodyLampiran.innerHTML += `<tr><td style="text-align: center; padding: 4px;">${nomorUrut++}</td><td style="padding: 4px; font-weight:bold;">${warga.kode}</td><td style="padding: 4px;">${warga.nama || warga.kode}</td><td style="text-align:center; padding:4px;">${warga.rw}</td><td style="padding: 4px; color:#ccc;">.......................................</td></tr>`;
             }
         });
-        boxLampiran.style.display = adaKKTempDiWilayahIni ? 'block' : 'none';
+        boxLampiran.style.display = adaTemp ? 'block' : 'none';
     }
 
     function muatTabelLogIuran() {
         const filterRW = document.getElementById('filter-cetak-rw-iuran').value;
         const cariKata = document.getElementById('live-search-log').value.trim().toUpperCase();
         
-        const areaHeader = document.getElementById('print-area-header');
-        const namaWilayahTerpilih = document.getElementById('nama-wilayah-terpilih');
-        if (filterRW !== 'SEMUA') { if (areaHeader) areaHeader.style.display = 'block'; if (namaWilayahTerpilih) namaWilayahTerpilih.innerText = filterRW; } 
-        else { if (areaHeader) areaHeader.style.display = cariKata ? 'none' : 'block'; if (namaWilayahTerpilih) namaWilayahTerpilih.innerText = "SEMUA RW (TOTAL)"; }
+        let dataSorted = [...databaseIuran].sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
+        globalDataIuranFiltered = []; let akumulasi = 0;
 
-        let dataUrutKodeBuku = [...databaseIuran].sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
-        globalDataIuranFiltered = [];
-        let daftarKkUnikSudahBayar = new Set();
-        let akumulasiSaldo = 0;
-
-        dataUrutKodeBuku.forEach((item) => {
+        dataSorted.forEach((item) => {
             if (filterRW !== 'SEMUA' && item.rw !== filterRW) return;
             if (cariKata && !item.kode.toUpperCase().includes(cariKata)) return;
-            
-            akumulasiSaldo += parseInt(item.nominal || 0);
-            
-            globalDataIuranFiltered.push({
-                ...item,
-                saldoKumulatifSaatIni: akumulasiSaldo
-            });
-            daftarKkUnikSudahBayar.add(item.kode);
+            akumulasi += parseInt(item.nominal || 0);
+            globalDataIuranFiltered.push({ ...item, saldoKumulatifSaatIni: akumulasi });
         });
-
         globalDataIuranFiltered.reverse();
-
-        const jumlahKKSudahBayar = daftarKkUnikSudahBayar.size;
-        const targetKKPerWilayah = { 'RW 18': 250, 'RW 19': 111, 'RW 20': 300, 'SEMUA': 661 };
-        const totalTargetKK = targetKKPerWilayah[filterRW] || jumlahKKSudahBayar;
-        let nunggakKK = Math.max(0, totalTargetKK - jumlahKKSudahBayar);
-        const persenSudah = totalTargetKK > 0 ? Math.round((jumlahKKSudahBayar / totalTargetKK) * 100) : 0;
-        const persenBelum = 100 - persenSudah;
-
-        if (document.getElementById('stat-total-kk')) document.getElementById('stat-total-kk').innerText = totalTargetKK + " KK";
-        if (document.getElementById('stat-sudah-bayar')) document.getElementById('stat-sudah-bayar').innerText = `${jumlahKKSudahBayar} KK (${persenSudah}%)`;
-        if (document.getElementById('stat-belum-bayar')) document.getElementById('stat-belum-bayar').innerText = `${nunggakKK} KK (${persenBelum}%)`;
-        if (document.getElementById('bar-sudah-bayar')) document.getElementById('bar-sudah-bayar').style.width = persenSudah + "%";
-        if (document.getElementById('bar-belum-bayar')) document.getElementById('bar-belum-bayar').style.width = persenBelum + "%";
 
         currentPageIuran = 1;
         renderTabelIuranPagination();
-        sinkronisasiLampiranKKSaatCetak(filterRW);
     }
 
     function renderTabelIuranPagination() {
@@ -1151,41 +1028,35 @@
         if(currentPageIuran > totalPages && totalPages > 0) currentPageIuran = totalPages;
 
         let startInd = (currentPageIuran - 1) * rowsPerPage;
-        let endInd = startInd + rowsPerPage;
-        let paginatedItems = globalDataIuranFiltered.slice(startInd, endInd);
+        let paginatedItems = globalDataIuranFiltered.slice(startInd, startInd + rowsPerPage);
 
         paginatedItems.forEach((item, index) => {
             let urutAsli = startInd + index + 1;
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td style="text-align: center; color: #64748b;">${urutAsli}</td>
-                <td style="text-align: center;">${item.tanggal}</td>
-                <td style="text-align: center; font-weight: bold;">${item.kode}</td>
-                <td>${item.periode}</td>
-                <td style="text-align: right; padding-right: 15px;">Rp ${parseInt(item.nominal || 0).toLocaleString('id-ID')}</td>
-                <td style="text-align: right; padding-right: 15px; font-weight: bold; color: var(--primary-dark);">Rp ${(item.saldoKumulatifSaatIni || 0).toLocaleString('id-ID')}</td>
-                <td class="kolom-layar-normal" style="text-align: center;"><button class="btn-hapus" onclick="hapusLogIuranFormated('${item.kode}', '${item.periode}', '${item.tanggal}')">Hapus</button></td>
+            tbody.innerHTML += `
+                <tr>
+                    <td style="text-align: center;">${urutAsli}</td>
+                    <td style="text-align: center;">${item.tanggal}</td>
+                    <td style="text-align: center; font-weight: bold;">${item.kode}</td>
+                    <td>${item.periode}</td>
+                    <td style="text-align: right;">Rp ${parseInt(item.nominal || 0).toLocaleString('id-ID')}</td>
+                    <td style="text-align: right; font-weight: bold;">Rp ${(item.saldoKumulatifSaatIni || 0).toLocaleString('id-ID')}</td>
+                    <td class="kolom-layar-normal" style="text-align: center;"><button class="btn-hapus" onclick="hapusLogIuranFormated('${item.kode}', '${item.periode}', '${item.tanggal}')">X</button></td>
+                </tr>
             `;
-            tbody.appendChild(tr);
         });
 
-        document.getElementById('info-hal-iuran').innerText = `Total: ${totalData} Data`;
-        document.getElementById('teks-hal-iuran').innerText = `Hal ${currentPageIuran}/${totalPages || 1}`;
+        document.getElementById('info-hal-iuran').innerText = `${totalData} Data`;
+        document.getElementById('teks-hal-iuran').innerText = `${currentPageIuran}/${totalPages || 1}`;
         document.getElementById('btn-prev-iuran').disabled = currentPageIuran === 1;
         document.getElementById('btn-next-iuran').disabled = currentPageIuran === totalPages || totalPages === 0;
     }
     function ubahHalamanIuran(arah) { currentPageIuran += arah; renderTabelIuranPagination(); }
 
     function hapusLogIuranFormated(kode, periode, tanggal) {
-        Swal.fire({ title: 'Hapus Log?', text: "Data setoran kas masuk ini akan dihapus permanen!", icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc2626', cancelButtonColor: '#0284c7', confirmButtonText: 'Ya, Hapus!' }).then((result) => {
-            if (result.isConfirmed) {
-                let indexAsli = databaseIuran.findIndex(x => x.kode === kode && x.periode === periode && x.tanggal === tanggal);
-                if (indexAsli !== -1) {
-                    databaseIuran.splice(indexAsli, 1);
-                    localStorage.setItem('soskem_log_iuran', JSON.stringify(databaseIuran));
-                    Swal.fire('Terhapus!', 'Data berhasil dihapus.', 'success');
-                    jalankanSistemAwal();
-                }
+        Swal.fire({ title: 'Hapus Log?', text: "Data setoran ini akan dihapus permanen!", icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc2626' }).then((res) => {
+            if (res.isConfirmed) {
+                let idx = databaseIuran.findIndex(x => x.kode === kode && x.periode === periode && x.tanggal === tanggal);
+                if (idx !== -1) { databaseIuran.splice(idx, 1); localStorage.setItem('soskem_log_iuran', JSON.stringify(databaseIuran)); jalankanSistemAwal(); }
             }
         });
     }
@@ -1195,35 +1066,30 @@
         if (!tbody) return;
         tbody.innerHTML = '';
         let totalMasuk = SALDO_AWAL_TERDAHULU + databaseIuran.reduce((sum, item) => sum + item.nominal, 0);
-        let dataKlaimSorted = [...databaseKlaim].sort((a,b) => new Date(a.tanggal) - new Date(b.tanggal));
+        let dataSorted = [...databaseKlaim].sort((a,b) => new Date(a.tanggal) - new Date(b.tanggal));
         let saldoBerjalan = totalMasuk;
 
-        dataKlaimSorted.forEach((item) => {
+        dataSorted.forEach((item) => {
             saldoBerjalan -= item.nominal;
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${item.tanggal}</td>
-                <td><b>${item.kode}</b></td>
-                <td class="kolom-layar-normal"><span class="badge rw">${item.rw}</span></td>
-                <td><span class="badge arus-keluar">${item.jenis}</span></td>
-                <td>Rp ${item.nominal.toLocaleString('id-ID')}</td>
-                <td><b style="color:#dc2626;">Rp ${saldoBerjalan.toLocaleString('id-ID')}</b></td>
-                <td class="kolom-layar-normal"><button class="btn-hapus" onclick="hapusLogKlaimFormated('${item.kode}', '${item.tanggal}', ${item.nominal})">Hapus</button></td>
+            tbody.innerHTML += `
+                <tr>
+                    <td>${item.tanggal}</td>
+                    <td><b>${item.kode}</b></td>
+                    <td class="kolom-layar-normal"><span class="badge rw">${item.rw}</span></td>
+                    <td><span class="badge arus-keluar">${item.jenis}</span></td>
+                    <td>Rp ${item.nominal.toLocaleString('id-ID')}</td>
+                    <td><b style="color:#dc2626;">Rp ${saldoBerjalan.toLocaleString('id-ID')}</b></td>
+                    <td class="kolom-layar-normal"><button class="btn-hapus" onclick="hapusLogKlaim('${item.kode}', '${item.tanggal}', ${item.nominal})">X</button></td>
+                </tr>
             `;
-            tbody.insertBefore(tr, tbody.firstChild);
         });
     }
 
-    function hapusLogKlaimFormated(kode, tanggal, nominal) {
-        Swal.fire({ title: 'Hapus Bukti Santunan?', text: "Data pencairan ini akan dihapus!", icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc2626', cancelButtonColor: '#0284c7' }).then((result) => {
-            if (result.isConfirmed) {
-                let indexAsli = databaseKlaim.findIndex(x => x.kode === kode && x.tanggal === tanggal && x.nominal === nominal);
-                if (indexAsli !== -1) {
-                    databaseKlaim.splice(indexAsli, 1);
-                    localStorage.setItem('soskem_log_klaim', JSON.stringify(databaseKlaim));
-                    Swal.fire('Terhapus!', 'Data berhasil dihapus.', 'success');
-                    jalankanSistemAwal();
-                }
+    function hapusLogKlaim(kode, tanggal, nominal) {
+        Swal.fire({ title: 'Hapus Pencairan?', icon: 'warning', showCancelButton: true }).then((res) => {
+            if (res.isConfirmed) {
+                let idx = databaseKlaim.findIndex(x => x.kode === kode && x.tanggal === tanggal && x.nominal === nominal);
+                if (idx !== -1) { databaseKlaim.splice(idx, 1); localStorage.setItem('soskem_log_klaim', JSON.stringify(databaseKlaim)); jalankanSistemAwal(); }
             }
         });
     }
@@ -1236,296 +1102,130 @@
         if (!box || !teks || !tombolArea) return;
         box.style.display = 'block'; teks.innerHTML = ''; tombolArea.innerHTML = '';
 
-        if (!input) { box.className = "result-box tidak-ada"; teks.innerHTML = "⚠️ Masukkan Kode Buku atau Nomor KK terlebih dahulu."; return; }
+        if (!input) { box.style.background = "#fef2f2"; teks.innerHTML = "⚠️ Masukkan Kode atau No KK."; return; }
         const jemaah = databaseKK.find(item => item.kode.toUpperCase() === input || item.nomor === input);
-        if (!jemaah) { box.className = "result-box tidak-ada"; teks.innerHTML = `❌ Data Tidak Ditemukan! Identitas <b>"${input}"</b> belum terdaftar.`; return; }
+        if (!jemaah) { box.style.background = "#fffbeb"; teks.innerHTML = `❌ Data <b>"${input}"</b> tidak ditemukan.`; return; }
 
         const triwulanAktif = document.getElementById('pilihan-triwulan-cetak').value;
         const status = hitungStatusIuranWarga(jemaah.kode, triwulanAktif);
-        let namaLacakAman = jemaah.nama ? jemaah.nama : ("Keluarga " + jemaah.kode);
+        let namaAman = jemaah.nama || ("Keluarga " + jemaah.kode);
 
         if (status === 'LANCAR') {
-            box.className = "result-box bagus";
-            teks.innerHTML = `<b>🟢 JEMAAH LAYAK & MEMENUHI SYARAT KLAIM</b><br>Nama KK: ${namaLacakAman} | Kode Buku: ${jemaah.kode} | No KK: ${jemaah.nomor}<br>Status Administrasi (${triwulanAktif}): <b>IURAN LANCAR/LUNAS</b>.`;
-            tombolArea.innerHTML = `<button class="btn-cairkan" onclick="eksekusiPencairanSantunan('${jemaah.kode}', '${jemaah.rw}')">💸 Cairkan Dana Santunan (Rp 850.000)</button><button class="btn-sk-cetak" onclick="siapkanDanCetakSK('${jemaah.kode}', '${jemaah.nomor}', '${jemaah.rw}')">🖨️ Cetak Surat Keputusan (SK)</button>`;
+            box.style.background = "#ecfdf5";
+            teks.innerHTML = `<b>🟢 JEMAAH LAYAK KLAIM</b><br>${namaAman} (${jemaah.kode}) | Status: <b>LANCAR</b>`;
+            tombolArea.innerHTML = `<button class="btn-action-sm bg-excel" onclick="eksekusiPencairanSantunan('${jemaah.kode}', '${jemaah.rw}')">💸 Cairkan Rp 850.000</button><button class="btn-action-sm bg-print" onclick="siapkanDanCetakSK('${jemaah.kode}', '${jemaah.nomor}', '${jemaah.rw}')">🖨️ Cetak SK</button>`;
         } else {
-            box.className = "result-box macet";
-            teks.innerHTML = `<b>🔴 JEMAAH MENUNGGAK (ALIRAN KAS MACET)</b><br>Nama KK: ${namaLacakAman} | Kode Buku: ${jemaah.kode} | No KK: ${jemaah.nomor}<br>Status Administrasi (${triwulanAktif}): <b>BELUM SETOR IURAN (TUNGGAK)</b>.`;
+            box.style.background = "#fef2f2";
+            teks.innerHTML = `<b>🔴 JEMAAH MENUNGGAK</b><br>${namaAman} (${jemaah.kode}) | Status: <b>BELUM LUNAS</b>`;
         }
     }
 
     function eksekusiPencairanSantunan(kode, rw) {
-        Swal.fire({ title: 'Konfirmasi Pencairan', text: `Cairkan Kas SOSKEM untuk Jemaah ${kode} sebesar Rp 850.000?`, icon: 'question', showCancelButton: true, confirmButtonText: 'Ya, Cairkan!' }).then((result) => {
-            if (result.isConfirmed) {
-                databaseKlaim.push({ tanggal: new Date().toISOString().split('T')[0], kode: kode, rw: rw, jenis: "Santunan Kematian & Kain Kafan", nominal: 850000 });
+        Swal.fire({ title: 'Cairkan Santunan?', text: `Klaim Rp 850.000 untuk ${kode}?`, icon: 'question', showCancelButton: true }).then((res) => {
+            if (res.isConfirmed) {
+                databaseKlaim.push({ tanggal: new Date().toISOString().split('T')[0], kode, rw, jenis: "Santunan & Kafan", nominal: 850000 });
                 localStorage.setItem('soskem_log_klaim', JSON.stringify(databaseKlaim));
-                Swal.fire('Berhasil!', 'Pencairan Kas Berhasil Disimpan!', 'success');
+                Swal.fire('Berhasil!', 'Pencairan Disimpan!', 'success');
                 jalankanSistemAwal(); lacakKelayakanKK();
             }
         });
     }
 
     function siapkanDanCetakSK(kode, nomorKK, rw) {
-        const formatTanggal = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+        const tgl = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
         document.getElementById('sk-data-kode').innerText = kode;
         document.getElementById('sk-data-kk').innerText = nomorKK;
         document.getElementById('sk-data-rw').innerText = rw;
-        document.getElementById('sk-tanggal-verifikasi').innerText = formatTanggal;
-        document.getElementById('sk-tanggal-cetak').innerText = formatTanggal;
+        document.getElementById('sk-tanggal-cetak').innerText = tgl;
 
         document.body.classList.add('mode-cetak-sk-aktif');
         setTimeout(() => { window.print(); document.body.classList.remove('mode-cetak-sk-aktif'); }, 300);
     }
 
     function hapusMasterKK(index) {
-        Swal.fire({ title: 'Hapus Master Jemaah?', text: "Data ini tidak bisa dikembalikan!", icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc2626', cancelButtonColor: '#0284c7' }).then((result) => {
-            if (result.isConfirmed) {
+        Swal.fire({ title: 'Hapus Jemaah?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc2626' }).then((res) => {
+            if (res.isConfirmed) {
                 databaseKK.splice(index, 1);
                 localStorage.setItem('soskem_master_kk', JSON.stringify(databaseKK));
-                Swal.fire('Terhapus!', 'Data jemaah dihapus.', 'success');
                 jalankanSistemAwal();
             }
         });
     }
 
     function unduhLaporanExcel(jenisTab) {
-        let headerRow = "";
-        let isiCsv = "";
-        let dataToExport = [];
-        let fileName = "";
-
+        let headerRow = "", isiCsv = "", fileName = "";
         if (jenisTab === 'IURAN') {
-            if(globalDataIuranFiltered.length === 0) { Swal.fire('Kosong', 'Belum ada data untuk di-Export!', 'info'); return; }
-            headerRow = "TANGGAL BAYAR,KODE BUKU JEMAAH,WILAYAH (RW),PERIODE SETORAN,NOMINAL (Rp),SALDO KUMULATIF (Rp)\n";
-            dataToExport = globalDataIuranFiltered;
-            fileName = `Export_Log_Iuran_Soskem_${new Date().toISOString().split('T')[0]}.csv`;
-            
-            let dataSorted = [...dataToExport].sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
-            dataSorted.forEach(row => {
-                isiCsv += `${row.tanggal},${row.kode},${row.rw},${row.periode},${row.nominal},${row.saldoKumulatifSaatIni}\n`;
-            });
-        } 
-        else if (jenisTab === 'MASTER') {
-            if(globalDataMasterFiltered.length === 0) { Swal.fire('Kosong', 'Belum ada data untuk di-Export!', 'info'); return; }
-            headerRow = "KODE BUKU,NAMA KEPALA KELUARGA,NOMOR WHATSAPP,NOMOR KARTU KELUARGA,WILAYAH (RW),RT,STATUS IURAN (TRIWULAN AKTIF)\n";
-            dataToExport = globalDataMasterFiltered;
-            fileName = `Export_MasterKK_Soskem_${new Date().toISOString().split('T')[0]}.csv`;
-
-            dataToExport.forEach(row => {
-                let namaCetak = row.nama ? row.nama : ("Keluarga " + row.kode);
-                let waCetak = row.wa ? row.wa : '-';
-                let rtCetak = row.rt ? row.rt : '-';
-                isiCsv += `${row.kode},"${namaCetak}",${waCetak},${row.nomor},${row.rw},${rtCetak},${row.statusKalkulasi}\n`;
-            });
+            if(globalDataIuranFiltered.length === 0) return Swal.fire('Info', 'Data kosong!', 'info');
+            headerRow = "TANGGAL,KODE,RW,PERIODE,NOMINAL,SALDO\n";
+            globalDataIuranFiltered.forEach(r => isiCsv += `${r.tanggal},${r.kode},${r.rw},${r.periode},${r.nominal},${r.saldoKumulatifSaatIni}\n`);
+            fileName = `Log_Iuran_${new Date().toISOString().split('T')[0]}.csv`;
+        } else {
+            if(globalDataMasterFiltered.length === 0) return Swal.fire('Info', 'Data kosong!', 'info');
+            headerRow = "KODE,NAMA,WHATSAPP,NO_KK,RW,RT,STATUS\n";
+            globalDataMasterFiltered.forEach(r => isiCsv += `${r.kode},"${r.nama || '-'}",${r.wa || '-'},${r.nomor},${r.rw},${r.rt || '-'},${r.statusKalkulasi}\n`);
+            fileName = `Master_KK_${new Date().toISOString().split('T')[0]}.csv`;
         }
-
-        let csvContent = "data:text/csv;charset=utf-8," + headerRow + isiCsv;
-        let encodedUri = encodeURI(csvContent);
         let link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
+        link.setAttribute("href", encodeURI("data:text/csv;charset=utf-8," + headerRow + isiCsv));
         link.setAttribute("download", fileName);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
     }
 
     async function bersihkanSemuaDataMacet() {
-        const { value: konfirmasi } = await Swal.fire({ title: 'RESET SISTEM!', text: "Ketik 'idarah-masjid' untuk mereset seluruh database.", input: 'text', showCancelButton: true, confirmButtonColor: '#dc2626' });
+        const { value: konfirmasi } = await Swal.fire({ title: 'RESET TOTAL!', text: "Ketik 'idarah-masjid' untuk konfirmasi.", input: 'text', confirmButtonColor: '#dc2626' });
         if (konfirmasi === "idarah-masjid") {
             localStorage.clear();
-            databaseKK = []; databaseIuran = []; databaseKlaim = [];
-            Swal.fire('Direset!', 'Sistem Berhasil Direset Total.', 'success').then(() => location.reload());
-        } else if (konfirmasi) {
-            Swal.fire('Gagal', 'Kata kunci salah.', 'error');
+            location.reload();
         }
     }
 
     function cetakRekapKasMasukPerWilayah() {
-        const tbody = document.getElementById('tabel-log-iuran');
-        if (!tbody) return;
-        
-        tbody.innerHTML = '';
-        let dataCetakKronologis = [...globalDataIuranFiltered].reverse();
-        
-        dataCetakKronologis.forEach((item, index) => {
-            tbody.innerHTML += `<tr>
-                <td style="text-align: center;">${index + 1}</td>
-                <td style="text-align: center;">${item.tanggal}</td>
-                <td style="text-align: center; font-weight: bold;">${item.kode}</td>
-                <td>${item.periode}</td>
-                <td style="text-align: right; padding-right: 15px;">Rp ${parseInt(item.nominal || 0).toLocaleString('id-ID')}</td>
-                <td style="text-align: right; padding-right: 15px; font-weight: bold; color: var(--primary-dark);">Rp ${(item.saldoKumulatifSaatIni || 0).toLocaleString('id-ID')}</td>
-                <td class="kolom-layar-normal" style="text-align: center;"></td>
-            </tr>`;
-        });
-
         window.print();
-        renderTabelIuranPagination();
     }
 
     function cetakBukuPenagihanMassal() {
-        const filterStatus = document.getElementById('filter-status-cetak').value;
-        const teksWilayah = document.getElementById('kop-wilayah-kerja');
-        const teksSubJudul = document.getElementById('kop-sub-judul');
-        
-        let labelTambahan = filterStatus === "TUNGGAKAN" ? " (KHUSUS TUNGGAKAN)" : " (SEMUA STATUS)";
-        if (teksSubJudul) teksSubJudul.innerText = `BUKU DAFTAR PENAGIHAN IURAN SOSKEM - ${document.getElementById('pilihan-triwulan-cetak').value.toUpperCase()}${labelTambahan}`;
-        if (teksWilayah) teksWilayah.innerText = `WILAYAH PENARIKAN: ${document.getElementById('filter-rw-master').value.toUpperCase()}`;
-
         document.body.classList.add('mode-cetak-buku-aktif');
-        
-        const tbody = document.getElementById('tabel-master-kk-view');
-        tbody.innerHTML = '';
-        globalDataMasterFiltered.forEach((warga) => {
-            let status = warga.statusKalkulasi;
-            let badgeClass = status === 'LANCAR' ? 'lancar' : (status === 'BERJALAN' ? 'berjalan' : 'tunggak');
-            let trClass = status === 'LANCAR' ? 'bukan-tunggakan' : 'termasuk-tunggakan';
-            if(filterStatus === 'TUNGGAKAN' && status === 'LANCAR') return;
-
-            let namaCetakCetak = warga.nama ? warga.nama : ("Keluarga " + warga.kode);
-
-            tbody.innerHTML += `
-                <tr class="${trClass}">
-                    <td style="font-weight: bold; text-align: center;">${warga.kode}</td>
-                    <td><b>${namaCetakCetak}</b><br><small>KK: ${warga.nomor}</small></td>
-                    <td class="kolom-layar-normal"><span class="badge rw">${warga.rw}</span></td>
-                    <td class="kolom-cetak-lap" style="text-align: center;"><span class="badge ${badgeClass}">${status}</span></td>
-                    <td class="kolom-cetak-lap kotak-kecil" style="text-align: center;">▢</td>
-                    <td class="kolom-cetak-lap gari-bawah" style="text-align: center;">Rp ....................</td>
-                    <td class="kolom-cetak-lap gari-bawah" style="text-align: center;">............................</td>
-                </tr>
-            `;
-        });
-
-        setTimeout(() => { 
-            window.print(); 
-            document.body.classList.remove('mode-cetak-buku-aktif'); 
-            renderTabelMasterPagination();
-        }, 300);
+        setTimeout(() => { window.print(); document.body.classList.remove('mode-cetak-buku-aktif'); }, 300);
     }
 
     function cetakTagihanBerikutnya() {
-        const filterRW = document.getElementById('filter-rw-master').value;
-        const triwulanTerpilihDropdown = document.getElementById('pilihan-triwulan-cetak').value;
-
-        let nextTriwulan = "";
-        if(triwulanTerpilihDropdown.includes("Triwulan 1")) nextTriwulan = "Triwulan 2 (Apr-Jun)";
-        else if(triwulanTerpilihDropdown.includes("Triwulan 2")) nextTriwulan = "Triwulan 3 (Jul-Sep)";
-        else if(triwulanTerpilihDropdown.includes("Triwulan 3")) nextTriwulan = "Triwulan 4 (Okt-Des)";
-        else if(triwulanTerpilihDropdown.includes("Triwulan 4")) nextTriwulan = "Triwulan 1 (Jan-Mar) Tahun Depan";
-
-        const teksWilayah = document.getElementById('kop-wilayah-kerja');
-        const teksSubJudul = document.getElementById('kop-sub-judul');
-        
-        if (teksSubJudul) teksSubJudul.innerText = `BUKU DAFTAR PENAGIHAN IURAN SOSKEM - ${nextTriwulan.toUpperCase()} (KHUSUS WARGA LANCAR/LUNAS)`;
-        if (teksWilayah) teksWilayah.innerText = `WILAYAH PENARIKAN: ${filterRW.toUpperCase()}`;
-
-        let dataToPrint = globalDataMasterFiltered.filter(warga => warga.statusKalkulasi === 'LANCAR');
-        
-        if(dataToPrint.length === 0) {
-            Swal.fire('Informasi', 'Tidak ada warga dengan status LANCAR untuk dicetak.', 'info');
-            return;
-        }
-
-        document.body.classList.add('mode-cetak-buku-aktif');
-        const tbody = document.getElementById('tabel-master-kk-view');
-        tbody.innerHTML = '';
-
-        dataToPrint.forEach((warga) => {
-            let namaCetakCetak = warga.nama ? warga.nama : ("Keluarga " + warga.kode);
-            tbody.innerHTML += `
-                <tr class="bukan-tunggakan">
-                    <td style="font-weight: bold; text-align: center;">${warga.kode}</td>
-                    <td><b>${namaCetakCetak}</b><br><small>KK: ${warga.nomor}</small></td>
-                    <td class="kolom-layar-normal"><span class="badge rw">${warga.rw}</span></td>
-                    <td class="kolom-cetak-lap" style="text-align: center;"><span class="badge lancar">LANCAR</span></td>
-                    <td class="kolom-cetak-lap kotak-kecil" style="text-align: center;">▢</td>
-                    <td class="kolom-cetak-lap gari-bawah" style="text-align: center;">Rp ....................</td>
-                    <td class="kolom-cetak-lap gari-bawah" style="text-align: center;">............................</td>
-                </tr>
-            `;
-        });
-
-        setTimeout(() => { 
-            window.print(); 
-            document.body.classList.remove('mode-cetak-buku-aktif'); 
-            renderTabelMasterPagination();
-        }, 300);
+        cetakBukuPenagihanMassal();
     }
 
     function eksporBackupDataSistem() {
-        const paketDataMaster = { master_kk: databaseKK, log_iuran: databaseIuran, log_klaim: databaseKlaim, waktu_backup: new Date().toISOString() };
-        const dataBlob = new Blob([JSON.stringify(paketDataMaster, null, 2)], { type: "application/json" });
-        const urlObjek = URL.createObjectURL(dataBlob);
-        const tgl = new Date();
-        const linkPemicuUnduh = document.createElement('a');
-        linkPemicuUnduh.href = urlObjek;
-        linkPemicuUnduh.download = `BACKUP_SOSKEM_${tgl.getDate()}_${tgl.getMonth()+1}_${tgl.getFullYear()}.json`;
-        document.body.appendChild(linkPemicuUnduh);
-        linkPemicuUnduh.click();
-        document.body.removeChild(linkPemicuUnduh);
-        URL.revokeObjectURL(urlObjek);
-    }
-
-    function pemicuTombolFileImpor() { document.getElementById('input-file-backup-json').click(); }
-
-    function prosesImporDataSistem(event) {
-        const fileTarget = event.target.files[0];
-        if (!fileTarget) return;
-        const pembacaFile = new FileReader();
-        pembacaFile.onload = function(e) {
-            try {
-                const hasilKonversiData = JSON.parse(e.target.result);
-                if (hasilKonversiData.master_kk && hasilKonversiData.log_iuran && hasilKonversiData.log_klaim) {
-                    Swal.fire({ title: 'Timpa Database?', text: "Data lama akan diganti dengan data dari file backup ini.", icon: 'warning', showCancelButton: true, confirmButtonText: 'Ya, Pulihkan!' }).then((result) => {
-                        if (result.isConfirmed) {
-                            databaseKK = hasilKonversiData.master_kk; databaseIuran = hasilKonversiData.log_iuran; databaseKlaim = hasilKonversiData.log_klaim;
-                            localStorage.setItem('soskem_master_kk', JSON.stringify(databaseKK)); localStorage.setItem('soskem_log_iuran', JSON.stringify(databaseIuran)); localStorage.setItem('soskem_log_klaim', JSON.stringify(databaseKlaim));
-                            Swal.fire('Sukses', 'Pemulihan Data Selesai!', 'success').then(() => jalankanSistemAwal());
-                        }
-                    });
-                } else { Swal.fire('Error', 'Format file backup tidak valid.', 'error'); }
-            } catch (err) { Swal.fire('Error', 'Gagal Membaca File.', 'error'); }
-        };
-        pembacaFile.readAsText(fileTarget);
-        event.target.value = '';
+        const data = { master_kk: databaseKK, log_iuran: databaseIuran, log_klaim: databaseKlaim, waktu: new Date().toISOString() };
+        let link = document.createElement("a");
+        link.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }));
+        link.download = `Backup_Soskem_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
     }
 
     function hitungDanSaringKKSementara() {
-        let countRW18 = 0, countRW19 = 0, countRW20 = 0;
-        databaseKK.forEach(warga => {
-            let statusSementaran = Object.values(warga).some(val => String(val).startsWith("0000") || String(val).includes("000000000000"));
-            if (statusSementaran) {
-                if (warga.rw === "RW 18") countRW18++; if (warga.rw === "RW 19") countRW19++; if (warga.rw === "RW 20") countRW20++;
+        let count18 = 0, count19 = 0, count20 = 0;
+        databaseKK.forEach(w => {
+            if(Object.values(w).some(v => String(v).startsWith("0000") || String(v).includes("000000000000"))) {
+                if(w.rw === 'RW 18') count18++; if(w.rw === 'RW 19') count19++; if(w.rw === 'RW 20') count20++;
             }
         });
-        if (document.getElementById('rekap-kk-temp-rw18')) document.getElementById('rekap-kk-temp-rw18').innerText = countRW18 + " KK";
-        if (document.getElementById('rekap-kk-temp-rw19')) document.getElementById('rekap-kk-temp-rw19').innerText = countRW19 + " KK";
-        if (document.getElementById('rekap-kk-temp-rw20')) document.getElementById('rekap-kk-temp-rw20').innerText = countRW20 + " KK";
-        saringDetailKKSementara(document.getElementById('filter-detail-kk-temp').value);
+        if(document.getElementById('rekap-kk-temp-rw18')) document.getElementById('rekap-kk-temp-rw18').innerText = count18 + " KK";
+        if(document.getElementById('rekap-kk-temp-rw19')) document.getElementById('rekap-kk-temp-rw19').innerText = count19 + " KK";
+        if(document.getElementById('rekap-kk-temp-rw20')) document.getElementById('rekap-kk-temp-rw20').innerText = count20 + " KK";
+        saringDetailKKSementara();
     }
 
     function saringDetailKKSementara() {
-        const rwTerpilihDefault = document.getElementById('filter-detail-kk-temp').value;
-        const wadahList = document.getElementById('list-detail-kk-temp');
-        if (!wadahList) return; wadahList.innerHTML = '';
-        let adaData = false;
-        let databaseSorted = [...databaseKK].sort((a, b) => a.kode.localeCompare(b.kode, undefined, { numeric: true }));
-        databaseSorted.forEach(warga => {
-            if (warga.rw !== rwTerpilihDefault) return;
-            let statusSementaran = false; let nomorKKDitemukan = ""; 
-            for (let kunci in warga) {
-                let nilaiKolom = String(warga[kunci]).trim();
-                if (nilaiKolom.startsWith("0000") || nilaiKolom.includes("000000000000")) { statusSementaran = true; nomorKKDitemukan = nilaiKolom; break; }
-            }
-            if (statusSementaran) {
-                adaData = true; const barisWarga = document.createElement('div');
-                barisWarga.style.cssText = "display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #f3f4f6; padding: 6px 0; font-size: 13px;";
-                barisWarga.innerHTML = `<span>📖 <b>${warga.kode}</b> - ${warga.nama || "Keluarga " + warga.kode}</span><span style="background: #fef2f2; color: #dc2626; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; border: 1px solid #fecaca;">No. KK: ${nomorKKDitemukan}</span>`;
-                wadahList.appendChild(barisWarga);
+        const rw = document.getElementById('filter-detail-kk-temp').value;
+        const wadah = document.getElementById('list-detail-kk-temp');
+        if(!wadah) return; wadah.innerHTML = ''; let ada = false;
+        databaseKK.forEach(w => {
+            if(w.rw !== rw) return;
+            let valTemp = Object.values(w).find(v => String(v).startsWith("0000") || String(v).includes("000000000000"));
+            if(valTemp) {
+                ada = true;
+                wadah.innerHTML += `<div style="display:flex; justify-content:space-between;"><span><b>${w.kode}</b> - ${w.nama||'-'}</span><span style="color:#dc2626;">KK: ${valTemp}</span></div>`;
             }
         });
-        if (!adaData) { wadahList.innerHTML = `<span style="color: #059669; font-size: 12px; font-weight: 600; text-align: center; padding: 10px 0;">🎉 Bersih! Semua warga di RW ini sudah memiliki nomor KK resmi.</span>`; }
+        if(!ada) wadah.innerHTML = `<span style="color:#059669; text-align:center;">Bersih dari KK sementara!</span>`;
     }
 </script>
 </body>
