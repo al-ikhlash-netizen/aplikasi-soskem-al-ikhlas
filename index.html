@@ -126,7 +126,7 @@
 
         /* MODAL */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center; padding: 15px; }
-        .modal-content { background-color: #fff; padding: 20px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .modal-content { background-color: #fff; padding: 20px; border-radius: 14px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
         .modal-header { font-size: 15px; font-weight: bold; margin-bottom: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; color: var(--primary-dark); }
         .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 15px; }
 
@@ -564,6 +564,30 @@
     </div>
 </div>
 
+<!-- MODAL PILIHAN WHATSAPP (BARU) -->
+<div id="modalWA" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">Pilih Jenis Pesan WhatsApp</div>
+        <p style="font-size: 12px; margin-bottom: 15px; color: #64748b;">Kirim pesan otomatis ke: <br><b id="wa-nama-warga" style="color: var(--primary-dark); font-size: 14px;"></b></p>
+        
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <button class="btn-native" style="background: #0284c7; text-align: left; padding: 12px 15px; font-size: 12px;" onclick="kirimPesanWA('terdaftar')">
+                📌 1. Info Terdaftar Resmi (Welcome)
+            </button>
+            <button class="btn-native" style="background: #059669; text-align: left; padding: 12px 15px; font-size: 12px;" onclick="kirimPesanWA('lunas')">
+                💰 2. Bukti Terima Kasih Pembayaran
+            </button>
+            <button class="btn-native" style="background: #d97706; text-align: left; padding: 12px 15px; font-size: 12px;" onclick="kirimPesanWA('tagihan')">
+                ⏰ 3. Pengingat Iuran / Tunggakan
+            </button>
+        </div>
+        
+        <div class="modal-footer">
+            <button class="btn-action-sm" onclick="tutupModalWA()" style="background:#cbd5e1; color:#334155;">Tutup Batal</button>
+        </div>
+    </div>
+</div>
+
 <script>
     const SALDO_AWAL_TERDAHULU = 18127500;
     const TARIF_PER_TRIWULAN = 25000;
@@ -571,7 +595,9 @@
     let databaseKK = JSON.parse(localStorage.getItem('soskem_master_kk')) || [];
     let databaseIuran = JSON.parse(localStorage.getItem('soskem_log_iuran')) || [];
     let databaseKlaim = JSON.parse(localStorage.getItem('soskem_log_klaim')) || [];
+    
     let indeksEditTerpilih = null;
+    let wargaWATerpilih = null;
     let chartKepatuhanObj = null;
 
     let currentPageMaster = 1;
@@ -760,6 +786,46 @@
         generateKodeBukuOtomatis();
     });
 
+    // ==========================================
+    // LOGIKA MODAL WHATSAPP BROADCAST (BARU)
+    // ==========================================
+    function bukaModalWA(index) {
+        wargaWATerpilih = databaseKK[index];
+        let namaTampil = wargaWATerpilih.nama ? wargaWATerpilih.nama : ("Keluarga " + wargaWATerpilih.kode);
+        document.getElementById('wa-nama-warga').innerText = `${namaTampil} (${wargaWATerpilih.wa})`;
+        document.getElementById('modalWA').style.display = 'flex';
+    }
+
+    function tutupModalWA() {
+        document.getElementById('modalWA').style.display = 'none';
+        wargaWATerpilih = null;
+    }
+
+    function kirimPesanWA(jenis) {
+        if (!wargaWATerpilih) return;
+        
+        let nomorWaClean = normalizeWA(wargaWATerpilih.wa);
+        let namaWarga = wargaWATerpilih.nama ? wargaWATerpilih.nama : ("Keluarga " + wargaWATerpilih.kode);
+        let infoRt = wargaWATerpilih.rt ? ` RT ${wargaWATerpilih.rt}` : '';
+        let pesanTeks = '';
+
+        if (jenis === 'terdaftar') {
+            pesanTeks = `Assalamu'alaikum Wr. Wb. Bpk/Ibu ${namaWarga},\n\nKami informasikan bahwa keluarga Bapak/Ibu telah tercatat resmi di database program Sosial Kematian (SOSKEM) DKM Masjid Jami Al-Ikhlash.\n\nNomor Buku: *${wargaWATerpilih.kode}*\nWilayah: *${wargaWATerpilih.rw}${infoRt}*\n\nJazakumullah khairan katsiran.`;
+        } 
+        else if (jenis === 'lunas') {
+            const triwulanAktif = document.getElementById('pilihan-triwulan-cetak').value || 'Berjalan';
+            pesanTeks = `Assalamu'alaikum Wr. Wb.\n\nJazakumullah khairan katsiran Bpk/Ibu ${namaWarga}. Pembayaran iuran SOSKEM DKM Jami Al-Ikhlash untuk periode *${triwulanAktif}* telah kami terima dan tercatat di sistem.\n\nSemoga menjadi amal jariyah yang barokah. Aamiin.`;
+        } 
+        else if (jenis === 'tagihan') {
+            pesanTeks = `Assalamu'alaikum Wr. Wb. Bpk/Ibu ${namaWarga},\n\nMohon izin mengingatkan santun untuk iuran program Sosial Kematian (SOSKEM) DKM Jami Al-Ikhlash (Kode Buku: *${wargaWATerpilih.kode}*) untuk periode yang belum terselesaikan.\n\nTerima kasih atas partisipasi dan kepeduliannya.`;
+        }
+
+        let linkWA = `https://wa.me/${nomorWaClean}?text=${encodeURIComponent(pesanTeks)}`;
+        window.open(linkWA, '_blank');
+        tutupModalWA();
+    }
+
+
     function bukaModalEditKK(index) {
         indeksEditTerpilih = index;
         const dataJemaah = databaseKK[index];
@@ -770,6 +836,7 @@
         document.getElementById('modal-input-kk').value = dataJemaah.nomor || '';
         document.getElementById('modalEditKK').style.display = 'flex';
     }
+    
     function tutupModalEdit() { document.getElementById('modalEditKK').style.display = 'none'; indeksEditTerpilih = null; }
 
     function simpanPembaruanKK() {
@@ -963,10 +1030,9 @@
             let infoRtCetak = warga.rt ? `RT ${warga.rt}` : '';
 
             let waButtonHTML = '';
+            // Perubahan Tombol WA Menjadi Modal Popup
             if (warga.wa) {
-                let nomorWaClean = normalizeWA(warga.wa);
-                let pesanWa = encodeURIComponent(`Assalamu'alaikum Bpk/Ibu ${namaCetak}, pengingat iuran SOSKEM DKM Jami Al-Ikhlash (Kode: *${warga.kode}*). Jazakumullah khairan.`);
-                waButtonHTML = `<a href="https://wa.me/${nomorWaClean}?text=${pesanWa}" target="_blank" class="btn-wa">WA</a>`;
+                waButtonHTML = `<button class="btn-wa" onclick="bukaModalWA(${indexAsli})">WA</button>`;
             }
 
             const tr = document.createElement('tr');
