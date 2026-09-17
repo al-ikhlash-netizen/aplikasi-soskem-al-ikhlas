@@ -103,6 +103,7 @@
         
         .btn-hapus { background: none; color: #dc2626; border: 1px solid #fca5a5; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; }
         .btn-edit-kk { background-color: #0284c7; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; margin-right: 4px; }
+        .btn-wa { background-color: #25d366; color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; text-decoration: none; display: inline-block; margin-right: 4px; }
 
         .filter-select { padding: 7px 12px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 13px; font-weight: 600; }
         .live-search-input { padding: 7px 12px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 13px; width: 200px; }
@@ -602,6 +603,12 @@
     
     function bersihkanFormatRupiah(rupiahString) { return parseInt(rupiahString.replace(/[^0-9]/g, ''), 10) || 0; }
 
+    function normalizeWA(value) {
+        const s = String(value || '').replace(/\D/g, '');
+        if (!s) return '';
+        return s.startsWith('0') ? '62' + s.slice(1) : s;
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
         const hariIni = new Date().toISOString().split('T')[0];
         if(document.getElementById('setor-tanggal')) document.getElementById('setor-tanggal').value = hariIni;
@@ -706,7 +713,6 @@
         const angkaRW = rw.replace(/\D/g, '');
         const inputAtas = inputVal.toUpperCase();
         
-        // Smart Matching: Cocokkan apakah input cocok dengan kode utuh ATAU cocok dengan nomor urut awalnya saja (misal user ketik 004 padahal aslinya ISK18/004-01)
         const jemaah = databaseKK.find(item => {
             if (!item.kode) return false;
             let kodeBersih = item.kode.toUpperCase();
@@ -811,7 +817,6 @@
         jemaahTarget.wa = waBaru;
         jemaahTarget.nomor = noKKBaru;
 
-        // Opsional: Perbarui akhiran kode buku jika sebelumnya belum ada strip RT atau ingin disesuaikan dengan RT baru
         if (jemaahTarget.kode && !jemaahTarget.kode.includes('-')) {
             jemaahTarget.kode = `${jemaahTarget.kode}-${rtBaru}`;
         } else if (jemaahTarget.kode && jemaahTarget.kode.includes('-')) {
@@ -831,7 +836,6 @@
         const subKodeInput = document.getElementById('setor-kode-kk').value.trim().toUpperCase();
         const angkaRW = rw.replace(/\D/g, '');
         
-        // Smart Matching saat submit: Cari jemaah berdasarkan input penuh ATAU nomor urutnya saja
         let jemaahValid = databaseKK.find(item => {
             if (!item.kode) return false;
             let kodeBersih = item.kode.toUpperCase();
@@ -1029,6 +1033,14 @@
             let noWaCetak = warga.wa ? `📱 ${warga.wa}` : '';
             let infoRtCetak = warga.rt ? `RT ${warga.rt}` : '';
 
+            // Tombol Direct WhatsApp
+            let waButtonHTML = '';
+            if (warga.wa) {
+                let nomorWaClean = normalizeWA(warga.wa);
+                let pesanWa = encodeURIComponent(`Assalamu'alaikum Bpk/Ibu ${namaKeluargaCetak}, mohon pengingat untuk iuran SOSKEM DKM Jami Al-Ikhlash (Kode Buku: *${warga.kode}*). Jazakumullah khairan katsiran.`);
+                waButtonHTML = `<a href="https://wa.me/${nomorWaClean}?text=${pesanWa}" target="_blank" class="btn-wa" title="Kirim Pesan WhatsApp">💬 WA</a>`;
+            }
+
             const tr = document.createElement('tr');
             tr.className = trClass;
             tr.innerHTML = `
@@ -1040,7 +1052,8 @@
                 <td class="kolom-cetak-lap gari-bawah" style="text-align: center;">Rp ....................</td>
                 <td class="kolom-cetak-lap gari-bawah" style="text-align: center;">............................</td>
                 <td class="kolom-layar-normal" style="text-align: center;"><span class="badge ${badgeClass}">${status}</span></td>
-                <td class="kolom-layar-normal" style="text-align: center;">
+                <td class="kolom-layar-normal" style="text-align: center; white-space: nowrap;">
+                    ${waButtonHTML}
                     <button class="btn-edit-kk" onclick="bukaModalEditKK(${indexAsliDiDatabase})">✏️ Edit</button>
                     <button class="btn-hapus" onclick="hapusMasterKK(${indexAsliDiDatabase})">❌</button>
                 </td>
