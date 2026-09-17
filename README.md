@@ -1,24 +1,34 @@
-# SOSKEM DKM Jami Al-Ikhlash — PWA FIX
+# SOSKEM DKM Jami Al-Ikhlash — PWA FIX V2
 
-Versi PWA yang diperbaiki untuk GitHub Pages.
+Versi ini memperbaiki dua masalah:
+1. PWA/ikon/service worker untuk instalasi Android.
+2. Restore JSON dengan pemeriksaan jumlah data sebelum mengganti data lokal.
 
-## File utama
-- `index.html` — aplikasi SOSKEM
-- `manifest.webmanifest` — konfigurasi PWA installable
-- `sw.js` — service worker/offline cache
-- `assets/icon-192.png` — ikon PWA 192x192
-- `assets/icon-512.png` — ikon PWA 512x512
-- `assets/logomasjid.png` — logo aplikasi
+## WAJIB upload seluruh struktur
+Jangan hanya mengganti `index.html`. Upload juga folder `assets/` dan file:
+- `index.html`
+- `manifest.webmanifest`
+- `sw.js`
+- `assets/icon-192.png`
+- `assets/icon-512.png`
+- `assets/logomasjid.png`
 
-## Upload ke GitHub
-Ganti/replace file lama dengan seluruh isi folder ini pada repository GitHub Pages:
-`main` / `(root)`.
+Jika `assets/` tidak ikut di-upload, logo akan rusak dan Chrome dapat memperlakukan situs hanya sebagai shortcut.
 
-Setelah deployment selesai, buka:
+## GitHub Pages
+Repository: `main` / `(root)`.
+
+URL aplikasi:
 `https://al-ikhlash-netizen.github.io/aplikasi-soskem-al-ikhlas/`
 
-## Instal di Android
-Buka situs memakai Chrome. Jika Chrome menampilkan tombol **Instal App**, tekan tombol tersebut.
-Jika tombol belum muncul, buka menu Chrome `⋮` dan cari **Instal aplikasi**. Pada beberapa versi Chrome, pilihan dapat muncul setelah halaman dimuat ulang.
+Setelah upload, tunggu deployment selesai lalu buka ulang situs.
 
-Data aplikasi disimpan lokal pada perangkat/browser melalui localStorage.
+## Restore JSON
+Aplikasi akan:
+- membaca file JSON;
+- menghitung data Master KK, Iuran, Santunan, dan Mutasi Kas;
+- menolak restore jika 0 data ditemukan;
+- menampilkan jumlah data sebelum restore;
+- mengecek kembali jumlah data setelah disimpan.
+
+Data aplikasi tetap tersimpan lokal pada perangkat melalui localStorage.
