@@ -289,7 +289,7 @@
                         <label>Kode KK Peserta (Buku Penagihan)</label>
                         <div class="form-row-prefix">
                             <span id="label-prefix-setor" class="prefix-addon">ISK18/</span>
-                            <input type="text" id="setor-kode-kk" class="form-control" placeholder="Contoh: 004-01" required style="text-transform: uppercase;" oninput="cekPreviewKK()">
+                            <input type="text" id="setor-kode-kk" class="form-control" placeholder="Contoh: 004 atau 004-01" required style="text-transform: uppercase;" oninput="cekPreviewKK()">
                         </div>
                         <div id="preview-kk" style="font-size: 13px; margin-top: 6px; font-weight: 600;"></div>
                     </div>
@@ -404,16 +404,8 @@
                     <div class="form-group">
                         <label>Nomor Rukun Tetangga (RT)</label>
                         <select id="kk-rt" class="form-control" required onchange="generateKodeBukuOtomatis()">
-                            <option value="01">RT 01</option>
-                            <option value="02">RT 02</option>
-                            <option value="03">RT 03</option>
-                            <option value="04">RT 04</option>
-                            <option value="05">RT 05</option>
-                            <option value="06">RT 06</option>
-                            <option value="07">RT 07</option>
-                            <option value="08">RT 08</option>
-                            <option value="09">RT 09</option>
-                            <option value="10">RT 10</option>
+                            <option value="01">RT 01</option><option value="02">RT 02</option><option value="03">RT 03</option><option value="04">RT 04</option><option value="05">RT 05</option>
+                            <option value="06">RT 06</option><option value="07">RT 07</option><option value="08">RT 08</option><option value="09">RT 09</option><option value="10">RT 10</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -554,6 +546,13 @@
         <div class="modal-header">Pembaruan Data Jemaah</div>
         <div class="form-group">
             <label id="modal-label-kode">Kode Buku: -</label>
+        </div>
+        <div class="form-group">
+            <label>Nomor Rukun Tetangga (RT)</label>
+            <select id="modal-input-rt" class="form-control">
+                <option value="01">RT 01</option><option value="02">RT 02</option><option value="03">RT 03</option><option value="04">RT 04</option><option value="05">RT 05</option>
+                <option value="06">RT 06</option><option value="07">RT 07</option><option value="08">RT 08</option><option value="09">RT 09</option><option value="10">RT 10</option>
+            </select>
         </div>
         <div class="form-group">
             <label>Nama Kepala Keluarga</label>
@@ -705,15 +704,24 @@
 
         const rw = document.getElementById('setor-rw-pilihan').value;
         const angkaRW = rw.replace(/\D/g, '');
-        const kodeLengkap = `ISK${angkaRW}/${inputVal.toUpperCase()}`;
+        const inputAtas = inputVal.toUpperCase();
         
-        const jemaah = databaseKK.find(item => item.kode === kodeLengkap);
+        // Smart Matching: Cocokkan apakah input cocok dengan kode utuh ATAU cocok dengan nomor urut awalnya saja (misal user ketik 004 padahal aslinya ISK18/004-01)
+        const jemaah = databaseKK.find(item => {
+            if (!item.kode) return false;
+            let kodeBersih = item.kode.toUpperCase();
+            let targetLengkap = `ISK${angkaRW}/${inputAtas}`;
+            if (kodeBersih === targetLengkap) return true;
+            if (kodeBersih.includes(`/${inputAtas}-`) || kodeBersih === `ISK${angkaRW}/${inputAtas}`) return true;
+            return false;
+        });
+
         if (jemaah) {
             previewElement.style.color = '#059669';
-            previewElement.innerHTML = `✅ Ditemukan: ${jemaah.nama} - No KK: ${jemaah.nomor}`;
+            previewElement.innerHTML = `✅ Ditemukan (${jemaah.kode}): ${jemaah.nama || "Keluarga " + jemaah.kode} - No KK: ${jemaah.nomor}`;
         } else {
             previewElement.style.color = '#dc2626';
-            previewElement.innerHTML = `❌ Kode buku ${kodeLengkap} belum terdaftar di ${rw}.`;
+            previewElement.innerHTML = `❌ Kode buku dengan nomor "${inputVal}" belum terdaftar di ${rw}.`;
         }
     }
 
@@ -724,7 +732,6 @@
         cekPreviewKK();
     }
 
-    // GENERATE KODE BUKU OTOMATIS BERBASIS RW & RT (Contoh: ISK18/001-01)
     function generateKodeBukuOtomatis() {
         const rwTerpilih = document.getElementById('kk-rw').value;
         const rtTerpilih = document.getElementById('kk-rt').value;
@@ -734,7 +741,6 @@
         let nomorUrutTerbesar = 0;
         databaseKK.forEach(item => {
             if (item.kode && item.kode.toUpperCase().startsWith(prefixTarget)) {
-                // Ambil bagian nomor sebelum tanda strip (-) atau keseluruhan jika tidak ada strip
                 const bagianKode = item.kode.split('/')[1];
                 if (bagianKode) {
                     const nomorUrutStr = bagianKode.split('-')[0];
@@ -780,6 +786,7 @@
         indeksEditTerpilih = index;
         const dataJemaah = databaseKK[index];
         document.getElementById('modal-label-kode').innerText = `Kode Buku Jemaah: ${dataJemaah.kode}`;
+        document.getElementById('modal-input-rt').value = dataJemaah.rt || '01';
         document.getElementById('modal-input-nama').value = dataJemaah.nama || '';
         document.getElementById('modal-input-wa').value = dataJemaah.wa || '';
         document.getElementById('modal-input-kk').value = dataJemaah.nomor || '';
@@ -788,6 +795,7 @@
     function tutupModalEdit() { document.getElementById('modalEditKK').style.display = 'none'; indeksEditTerpilih = null; }
 
     function simpanPembaruanKK() {
+        const rtBaru = document.getElementById('modal-input-rt').value;
         const namaBaru = document.getElementById('modal-input-nama').value.trim();
         const waBaru = document.getElementById('modal-input-wa').value.trim();
         const noKKBaru = document.getElementById('modal-input-kk').value.trim();
@@ -796,9 +804,20 @@
             Swal.fire('Kesalahan Validasi', 'Nomor KK harus berupa kombinasi 16 Digit Angka!', 'warning');
             return;
         }
-        databaseKK[indeksEditTerpilih].nama = namaBaru;
-        databaseKK[indeksEditTerpilih].wa = waBaru;
-        databaseKK[indeksEditTerpilih].nomor = noKKBaru;
+        
+        let jemaahTarget = databaseKK[indeksEditTerpilih];
+        jemaahTarget.rt = rtBaru;
+        jemaahTarget.nama = namaBaru;
+        jemaahTarget.wa = waBaru;
+        jemaahTarget.nomor = noKKBaru;
+
+        // Opsional: Perbarui akhiran kode buku jika sebelumnya belum ada strip RT atau ingin disesuaikan dengan RT baru
+        if (jemaahTarget.kode && !jemaahTarget.kode.includes('-')) {
+            jemaahTarget.kode = `${jemaahTarget.kode}-${rtBaru}`;
+        } else if (jemaahTarget.kode && jemaahTarget.kode.includes('-')) {
+            let bagianUtama = jemaahTarget.kode.split('-')[0];
+            jemaahTarget.kode = `${bagianUtama}-${rtBaru}`;
+        }
         
         localStorage.setItem('soskem_master_kk', JSON.stringify(databaseKK));
         Swal.fire('Berhasil', 'Data Jemaah Berhasil Diperbarui!', 'success');
@@ -811,7 +830,23 @@
         const rw = document.getElementById('setor-rw-pilihan').value;
         const subKodeInput = document.getElementById('setor-kode-kk').value.trim().toUpperCase();
         const angkaRW = rw.replace(/\D/g, '');
-        const kodeLengkap = `ISK${angkaRW}/${subKodeInput}`;
+        
+        // Smart Matching saat submit: Cari jemaah berdasarkan input penuh ATAU nomor urutnya saja
+        let jemaahValid = databaseKK.find(item => {
+            if (!item.kode) return false;
+            let kodeBersih = item.kode.toUpperCase();
+            let targetLengkap = `ISK${angkaRW}/${subKodeInput}`;
+            if (kodeBersih === targetLengkap) return true;
+            if (kodeBersih.includes(`/${subKodeInput}-`) || kodeBersih === `ISK${angkaRW}/${subKodeInput}`) return true;
+            return false;
+        });
+
+        if (!jemaahValid) {
+            Swal.fire('Data Tidak Valid', `Kode Buku dengan nomor "${subKodeInput}" tidak ditemukan dalam basis data Master KK.`, 'error');
+            return;
+        }
+
+        const kodeLengkap = jemaahValid.kode;
         const tanggal = document.getElementById('setor-tanggal').value;
         const periodeInput = document.getElementById('setor-periode').value;
         const nominalInput = bersihkanFormatRupiah(document.getElementById('setor-nominal').value);
@@ -819,12 +854,6 @@
         const signature = document.getElementById('signatureInput').value.trim();
         if (!signature) {
             Swal.fire('Perhatian', 'Tanda tangan warga wajib diisi di kotak yang disediakan.', 'warning');
-            return;
-        }
-
-        const jemaahValid = databaseKK.find(item => item.kode === kodeLengkap);
-        if (!jemaahValid) {
-            Swal.fire('Data Tidak Valid', `Kode Buku ${kodeLengkap} tidak ditemukan dalam basis data Master KK.`, 'error');
             return;
         }
 
@@ -1067,7 +1096,7 @@
 
         dataUrutKodeBuku.forEach((item) => {
             if (filterRW !== 'SEMUA' && item.rw !== filterRW) return;
-            if (cariKata && !item.kode.includes(cariKata)) return;
+            if (cariKata && !item.kode.toUpperCase().includes(cariKata)) return;
             
             akumulasiSaldo += parseInt(item.nominal || 0);
             
@@ -1195,7 +1224,7 @@
         box.style.display = 'block'; teks.innerHTML = ''; tombolArea.innerHTML = '';
 
         if (!input) { box.className = "result-box tidak-ada"; teks.innerHTML = "⚠️ Masukkan Kode Buku atau Nomor KK terlebih dahulu."; return; }
-        const jemaah = databaseKK.find(item => item.kode === input || item.nomor === input);
+        const jemaah = databaseKK.find(item => item.kode.toUpperCase() === input || item.nomor === input);
         if (!jemaah) { box.className = "result-box tidak-ada"; teks.innerHTML = `❌ Data Tidak Ditemukan! Identitas <b>"${input}"</b> belum terdaftar.`; return; }
 
         const triwulanAktif = document.getElementById('pilihan-triwulan-cetak').value;
