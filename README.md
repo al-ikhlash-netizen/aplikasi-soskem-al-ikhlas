@@ -1,34 +1,15 @@
-# SOSKEM DKM Jami Al-Ikhlash — PWA FIX V2
+# SOSKEM DKM Jami Al-Ikhlash — PWA FIX V2.3
 
-Versi ini memperbaiki dua masalah:
-1. PWA/ikon/service worker untuk instalasi Android.
-2. Restore JSON dengan pemeriksaan jumlah data sebelum mengganti data lokal.
-
-## WAJIB upload seluruh struktur
-Jangan hanya mengganti `index.html`. Upload juga folder `assets/` dan file:
-- `index.html`
-- `manifest.webmanifest`
-- `sw.js`
-- `assets/icon-192.png`
-- `assets/icon-512.png`
-- `assets/logomasjid.png`
-
-Jika `assets/` tidak ikut di-upload, logo akan rusak dan Chrome dapat memperlakukan situs hanya sebagai shortcut.
+Aplikasi PWA administrasi sosial kematian DKM Jami Al-Ikhlash.
 
 ## GitHub Pages
-Repository: `main` / `(root)`.
+- Site: `https://al-ikhlash-netizen.github.io/aplikasi-soskem-al-ikhlas/`
+- Source: `main` / root
+- Semua URL aplikasi memakai path relatif agar kompatibel dengan project site GitHub Pages.
+- Ikon dan logo yang digunakan adalah file PNG di root repository (`icon-192.png`, `icon-512.png`, `logomasjid.png`), sesuai struktur repository aktual.
 
-URL aplikasi:
-`https://al-ikhlash-netizen.github.io/aplikasi-soskem-al-ikhlas/`
+## Data
+Data disimpan lokal pada browser melalui localStorage. Backup mengekspor database lengkap beserta metadata versi dan juga mempertahankan format root lama. Restore mendukung format baru `{data:{...}}`, format lama root, serta beberapa nama field kompatibel; record dan ID tidak direkonstruksi atau diringkas. Restore menolak JSON kosong/tidak valid, meminta konfirmasi, menyimpan, lalu memverifikasi seluruh koleksi.
 
-Setelah upload, tunggu deployment selesai lalu buka ulang situs.
-
-## Restore JSON
-Aplikasi akan:
-- membaca file JSON;
-- menghitung data Master KK, Iuran, Santunan, dan Mutasi Kas;
-- menolak restore jika 0 data ditemukan;
-- menampilkan jumlah data sebelum restore;
-- mengecek kembali jumlah data setelah disimpan.
-
-Data aplikasi tetap tersimpan lokal pada perangkat melalui localStorage.
+## PWA
+Manifest, service worker, start URL, scope, ikon, dan seluruh asset menggunakan URL relatif. Service worker memakai cache berversi, menghapus cache aplikasi lama, melakukan network-first untuk memperoleh rilis terbaru, dan mengklaim halaman setelah aktivasi.
