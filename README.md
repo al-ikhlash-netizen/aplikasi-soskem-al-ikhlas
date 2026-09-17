@@ -1,12 +1,24 @@
-# SOSKEM DKM Jami Al-Ikhlash — GitHub Pages
+# SOSKEM DKM Jami Al-Ikhlash — PWA FIX
 
-Web/PWA offline-first. Upload all files in this folder to a GitHub repository and enable GitHub Pages from the repository branch/root.
+Versi PWA yang diperbaiki untuk GitHub Pages.
 
-- Main app: `index.html`
-- PWA manifest: `manifest.webmanifest`
-- Offline cache: `sw.js`
-- Data storage: browser localStorage
-- Backup/Restore: JSON
+## File utama
+- `index.html` — aplikasi SOSKEM
+- `manifest.webmanifest` — konfigurasi PWA installable
+- `sw.js` — service worker/offline cache
+- `assets/icon-192.png` — ikon PWA 192x192
+- `assets/icon-512.png` — ikon PWA 512x512
+- `assets/logomasjid.png` — logo aplikasi
 
-Install on Android: open the GitHub Pages URL in Chrome, then choose **Install app / Add to Home screen**.
+## Upload ke GitHub
+Ganti/replace file lama dengan seluruh isi folder ini pada repository GitHub Pages:
+`main` / `(root)`.
 
+Setelah deployment selesai, buka:
+`https://al-ikhlash-netizen.github.io/aplikasi-soskem-al-ikhlas/`
+
+## Instal di Android
+Buka situs memakai Chrome. Jika Chrome menampilkan tombol **Instal App**, tekan tombol tersebut.
+Jika tombol belum muncul, buka menu Chrome `⋮` dan cari **Instal aplikasi**. Pada beberapa versi Chrome, pilihan dapat muncul setelah halaman dimuat ulang.
+
+Data aplikasi disimpan lokal pada perangkat/browser melalui localStorage.
