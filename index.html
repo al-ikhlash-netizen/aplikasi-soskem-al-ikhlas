@@ -95,6 +95,11 @@
         .filter-select { padding: 6px 12px; border-radius: 4px; border: 1px solid #cbd5e1; font-size: 13px; font-weight: bold; }
         .live-search-input { padding: 6px 12px; border-radius: 4px; border: 1px solid #cbd5e1; font-size: 13px; width: 200px; }
 
+        /* KOTAK TANDA TANGAN CANVAS */
+        .signature-box {
+            width: 100%; height: 150px; border: 2px dashed #cbd5e1; border-radius: 8px; background: #fafafa; display: block; touch-action: none; cursor: crosshair;
+        }
+
         /* PAGINATION CONTROLS */
         .pagination-container { display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-top: 15px; font-size: 12px; font-weight: bold; color: #475569; }
         .btn-page { background: white; border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 6px; cursor: pointer; color: #2c3e50; }
@@ -149,7 +154,7 @@
             
             body.mode-cetak-sk-aktif { background: white !important; color: black !important; padding: 0 !important; }
             body.mode-cetak-sk-aktif .container { display: none !important; }
-            body.mode-cetak-sk-aktif #form-sk-print-area { display: block !important; border: none !important; padding: 0 !important; margin: 0 !important; width: 100% !important; position: absolute; left: 0; top: 0; page-break-inside: avoid; }
+            body.mode-cetak-sk-aktif #form-sk-print-area { display: block !important; border: none !important; padding: 0 !important; width: 100% !important; position: absolute; left: 0; top: 0; page-break-inside: avoid; }
         }
     </style>
 </head>
@@ -294,7 +299,16 @@
                         <input type="text" id="setor-nominal" class="form-control" value="Rp 25.000" onkeyup="this.value = formatRupiahKetik(this.value, 'Rp ')" required style="font-weight:bold; color:#2c3e50;">
                         <small style="color: #7f8c8d;">*Ketik angka saja, format otomatis. Jika dobel isi Rp 50.000, Rp 75.000, dst.</small>
                     </div>
-                    <button type="submit" class="btn-primary">Simpan Setoran Iuran</button>
+                    
+                    <!-- KOTAK TANDA TANGAN CANVAS -->
+                    <div class="form-group">
+                        <label>Tanda Tangan Warga / Penyetor *</label>
+                        <canvas id="signatureCanvas" class="signature-box" width="600" height="150"></canvas>
+                        <input type="hidden" name="signature" id="signatureInput" />
+                        <button type="button" class="btn secondary" id="clearSignatureBtn" style="margin-top:6px; padding:6px 12px; font-size:12px;">Hapus Tanda Tangan</button>
+                    </div>
+
+                    <button type="submit" class="btn-primary" style="margin-top: 10px;">Simpan Setoran Iuran</button>
                 </form>
             </div>
 
@@ -414,7 +428,6 @@
                         <button onclick="cetakBukuPenagihanMassal()" style="padding: 8px 14px; background-color: #2ecc71; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
                             🖨️ Cetak Buku
                         </button>
-                        <!-- TOMBOL CETAK TAGIHAN BERIKUTNYA -->
                         <button onclick="cetakTagihanBerikutnya()" class="btn-print-tagihan">
                             🖨️ Cetak Tagihan Berikutnya
                         </button>
@@ -551,6 +564,7 @@
         generateKodeBukuOtomatis();
         sinkronisasiPrefixSetoran();
         setelDropdownTriwulanOtomatis();
+        setupSignaturePad(); // Inisialisasi kotak tanda tangan
     });
 
     function setelDropdownTriwulanOtomatis() {
@@ -583,7 +597,10 @@
         if (targetBtn) targetBtn.classList.add('active');
 
         if (listTabID[indexTab] === 'tab-master') muatTabelMasterKK();
-        if (listTabID[indexTab] === 'tab-iuran') muatTabelLogIuran();
+        if (listTabID[indexTab] === 'tab-iuran') {
+            muatTabelLogIuran();
+            setupSignaturePad(); // Re-init canvas saat masuk tab iuran agar ukurannya akurat
+        }
     }
 
     function jalankanSistemAwal() {
@@ -660,14 +677,14 @@
         const rwTerpilih = document.getElementById('setor-rw-pilihan').value;
         const angkaRW = rwTerpilih.replace(/\D/g, '');
         document.getElementById('label-prefix-setor').innerText = `ISK${angkaRW}/`;
-        cekPreviewKK(); // Update preview jika RW diubah
+        cekPreviewKK();
     }
 
     function generateKodeBukuOtomatis() {
         const rwTerpilih = document.getElementById('kk-rw').value;
         const angkaRW = rwTerpilih.replace(/\D/g, '');
         const prefixTarget = `ISK${angkaRW}/`;
-        let nomorUrutTerbesar = 0; // Mulai dari 0 agar validasi penomoran awal berfungsi
+        let nomorUrutTerbesar = 0;
         databaseKK.forEach(item => {
             if (item.kode.toUpperCase().startsWith(prefixTarget)) {
                 const pecahanKarakter = item.kode.split('/');
@@ -734,6 +751,13 @@
         const tanggal = document.getElementById('setor-tanggal').value;
         const periodeInput = document.getElementById('setor-periode').value;
         const nominalInput = bersihkanFormatRupiah(document.getElementById('setor-nominal').value);
+        
+        // Ambil tanda tangan dari input hidden
+        const signature = document.getElementById('signatureInput').value.trim();
+        if (!signature) {
+            Swal.fire('Perhatian', 'Tanda tangan warga wajib diisi di kotak yang disediakan.', 'warning');
+            return;
+        }
 
         const jemaahValid = databaseKK.find(item => item.kode === kodeLengkap);
         if (!jemaahValid) {
@@ -748,7 +772,7 @@
         if (sisaDanaPeta >= TARIF_PER_TRIWULAN) {
             let cekSudahAda = databaseIuran.some(item => item.kode === kodeLengkap && item.periode === susunanPeriode[indeksAwal]);
             if (!cekSudahAda) {
-                databaseIuran.push({ tanggal, kode: kodeLengkap, rw, periode: susunanPeriode[indeksAwal], nominal: TARIF_PER_TRIWULAN });
+                databaseIuran.push({ tanggal, kode: kodeLengkap, rw, periode: susunanPeriode[indeksAwal], nominal: TARIF_PER_TRIWULAN, signature });
                 sisaDanaPeta -= TARIF_PER_TRIWULAN;
             } else {
                 Swal.fire('Informasi', `Jemaah sudah membayar periode utama ${susunanPeriode[indeksAwal]}. Dana dialirkan otomatis ke triwulan kosong berikutnya.`, 'info');
@@ -759,13 +783,13 @@
             if (sisaDanaPeta < TARIF_PER_TRIWULAN) break;
             let cekSudahAda = databaseIuran.some(item => item.kode === kodeLengkap && item.periode === susunanPeriode[i]);
             if (!cekSudahAda) {
-                databaseIuran.push({ tanggal, kode: kodeLengkap, rw, periode: susunanPeriode[i], nominal: TARIF_PER_TRIWULAN });
+                databaseIuran.push({ tanggal, kode: kodeLengkap, rw, periode: susunanPeriode[i], nominal: TARIF_PER_TRIWULAN, signature });
                 sisaDanaPeta -= TARIF_PER_TRIWULAN;
             }
         }
 
         if (sisaDanaPeta > 0) {
-            databaseIuran.push({ tanggal, kode: kodeLengkap, rw, periode: "Kompensasi Tahun Depan", nominal: sisaDanaPeta });
+            databaseIuran.push({ tanggal, kode: kodeLengkap, rw, periode: "Kompensasi Tahun Depan", nominal: sisaDanaPeta, signature });
         }
 
         localStorage.setItem('soskem_log_iuran', JSON.stringify(databaseIuran));
@@ -773,8 +797,76 @@
         document.getElementById('setor-kode-kk').value = '';
         document.getElementById('setor-nominal').value = 'Rp 25.000';
         document.getElementById('preview-kk').innerHTML = '';
+        
+        // Reset canvas tanda tangan
+        const canvas = document.getElementById('signatureCanvas');
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        document.getElementById('signatureInput').value = '';
+
         jalankanSistemAwal();
     });
+
+    // SETUP SIGNATURE PAD (CANVAS TANDA TANGAN)
+    function setupSignaturePad() {
+        const canvas = document.getElementById('signatureCanvas');
+        const input = document.getElementById('signatureInput');
+        if (!canvas || !input) return;
+        const ctx = canvas.getContext('2d');
+        ctx.lineWidth = 3;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.strokeStyle = '#1d2e29';
+        let drawing = false;
+
+        const getPos = (event) => {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = event.touches ? event.touches[0].clientX : event.clientX;
+            const clientY = event.touches ? event.touches[0].clientY : event.clientY;
+            return {
+                x: ((clientX - rect.left) / rect.width) * canvas.width,
+                y: ((clientY - rect.top) / rect.height) * canvas.height
+            };
+        };
+
+        const start = (event) => {
+            drawing = true;
+            const p = getPos(event);
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            event.preventDefault();
+        };
+
+        const move = (event) => {
+            if (!drawing) return;
+            const p = getPos(event);
+            ctx.lineTo(p.x, p.y);
+            ctx.stroke();
+            event.preventDefault();
+        };
+
+        const stop = () => {
+            if (!drawing) return;
+            drawing = false;
+            input.value = canvas.toDataURL('image/png');
+        };
+
+        canvas.onpointerdown = start;
+        canvas.onpointermove = move;
+        canvas.onpointerup = stop;
+        canvas.onpointerleave = stop;
+        canvas.ontouchstart = start;
+        canvas.ontouchmove = move;
+        canvas.ontouchend = stop;
+
+        const clearBtn = document.getElementById('clearSignatureBtn');
+        if (clearBtn) {
+            clearBtn.onclick = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                input.value = '';
+            };
+        }
+    }
 
     function hitungStatusIuranWarga(kodeWarga, periodeKriteria) {
         const lunasDiPeriodeIni = databaseIuran.some(item => item.kode === kodeWarga && item.periode === periodeKriteria);
@@ -1146,8 +1238,6 @@
         if (!tbody) return;
         
         tbody.innerHTML = '';
-        
-        // Membaca seluruh data terfilter dari urutan kronologis asli agar penomoran cetak konsisten
         let dataCetakKronologis = [...globalDataIuranFiltered].reverse();
         
         dataCetakKronologis.forEach((item, index) => {
@@ -1205,12 +1295,10 @@
         }, 300);
     }
 
-    // FUNGSI CETAK TAGIHAN BERIKUTNYA
     function cetakTagihanBerikutnya() {
         const filterRW = document.getElementById('filter-rw-master').value;
         const triwulanTerpilihDropdown = document.getElementById('pilihan-triwulan-cetak').value;
 
-        // Menentukan nama triwulan berikutnya
         let nextTriwulan = "";
         if(triwulanTerpilihDropdown.includes("Triwulan 1")) nextTriwulan = "Triwulan 2 (Apr-Jun)";
         else if(triwulanTerpilihDropdown.includes("Triwulan 2")) nextTriwulan = "Triwulan 3 (Jul-Sep)";
