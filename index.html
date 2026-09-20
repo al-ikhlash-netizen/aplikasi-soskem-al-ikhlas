@@ -121,6 +121,7 @@
         .badge.berjalan { background-color: #d97706; }
         .badge.rw { background-color: #0284c7; }
         .badge.arus-keluar { background-color: #ea580c; }
+        .badge.arus-masuk { background-color: #059669; }
 
         .btn-hapus { background: none; color: #dc2626; border: 1px solid #fca5a5; padding: 3px 7px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; }
         .btn-edit-kk { background-color: #0284c7; color: white; border: none; padding: 3px 7px; border-radius: 4px; cursor: pointer; font-size: 10px; font-weight: bold; margin-right: 2px; }
@@ -269,17 +270,20 @@
 
         <div class="card-native printable-panel">
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; margin-bottom: 12px;">
-                <h3 style="margin: 0; border: none; padding: 0;">📜 Riwayat Kas Keluar & Santunan</h3>
-                <button class="btn-action-sm bg-warning" onclick="bukaModalPengeluaran()">➖ Catat Pengeluaran</button>
+                <h3 style="margin: 0; border: none; padding: 0;">📜 Riwayat Kas & Santunan</h3>
+                <div style="display: flex; gap: 4px;">
+                    <button class="btn-action-sm bg-excel" onclick="bukaModalPemasukan()">➕ Catat Pemasukan</button>
+                    <button class="btn-action-sm bg-warning" onclick="bukaModalPengeluaran()">➖ Catat Pengeluaran</button>
+                </div>
             </div>
             <div class="table-responsive">
                 <table>
                     <thead>
                         <tr>
                             <th>Tanggal</th>
-                            <th>Kode</th>
+                            <th>Kode/Ket</th>
                             <th class="kolom-layar-normal">RW</th>
-                            <th>Jenis Pengeluaran</th>
+                            <th>Jenis/Uraian</th>
                             <th>Nominal</th>
                             <th>Saldo Sisa</th>
                             <th class="kolom-layar-normal">Aksi</th>
@@ -288,12 +292,12 @@
                     <tbody id="tabel-riwayat-santunan"></tbody>
                 </table>
             </div>
-  <div style="margin-top: 15px; border-top: 1px dashed #cbd5e1; padding-top: 10px; display: flex; justify-content: flex-end; gap: 8px;">
-    <button onclick="resetKasSaja()" style="padding: 6px 12px; background: #d97706; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 11px; cursor: pointer;">🔄 RESET KAS SAJA</button>
-    <button onclick="bersihkanSemuaDataMacet()" style="padding: 6px 12px; background: #dc2626; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 11px; cursor: pointer;">⚠️ RESET TOTAL SISTEM</button>
-</div>
->
-
+            <div style="margin-top: 15px; border-top: 1px dashed #cbd5e1; padding-top: 10px; display: flex; justify-content: flex-end; gap: 8px;">
+                <button onclick="resetKasSaja()" style="padding: 6px 12px; background: #d97706; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 11px; cursor: pointer;">🔄 RESET KAS SAJA</button>
+                <button onclick="bersihkanSemuaDataMacet()" style="padding: 6px 12px; background: #dc2626; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 11px; cursor: pointer;">⚠️ RESET TOTAL SISTEM</button>
+            </div>
+        </div>
+    </div>
 
     <!-- ================= TAB 1: MASTER KK & WARGA ================= -->
     <div id="tab-master" class="tab-content">
@@ -404,7 +408,6 @@
             </div>
         </div>
     </div>
-
 
     <!-- ================= TAB 2: SETOR IURAN ================= -->
     <div id="tab-iuran" class="tab-content">
@@ -605,6 +608,29 @@
     </div>
 </div>
 
+<!-- MODAL PEMASUKAN LAIN -->
+<div id="modalPemasukan" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">Catat Pemasukan Kas Lainnya</div>
+        <div class="form-group">
+            <label>Tanggal</label>
+            <input type="date" id="pemasukan-tanggal" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label>Keterangan / Sumber Pemasukan</label>
+            <input type="text" id="pemasukan-keterangan" class="form-control" placeholder="Contoh: Donasi, Sumbangan Warga, dll" required>
+        </div>
+        <div class="form-group">
+            <label>Nominal Pemasukan</label>
+            <input type="text" id="pemasukan-nominal" class="form-control" placeholder="Rp 0" onkeyup="this.value = formatRupiahKetik(this.value, 'Rp ')" required style="font-weight:bold; color:#059669;">
+        </div>
+        <div class="modal-footer">
+            <button class="btn-action-sm" onclick="tutupModalPemasukan()" style="background:#cbd5e1; color:#334155;">Batal</button>
+            <button class="btn-action-sm bg-excel" onclick="simpanPemasukanLain()">Simpan Pemasukan</button>
+        </div>
+    </div>
+</div>
+
 <!-- MODAL PENGELUARAN LAIN -->
 <div id="modalPengeluaran" class="modal">
     <div class="modal-content">
@@ -635,6 +661,7 @@
     let databaseKK = JSON.parse(localStorage.getItem('soskem_master_kk')) || [];
     let databaseIuran = JSON.parse(localStorage.getItem('soskem_log_iuran')) || [];
     let databaseKlaim = JSON.parse(localStorage.getItem('soskem_log_klaim')) || [];
+    let databasePemasukanLain = JSON.parse(localStorage.getItem('soskem_pemasukan_lain')) || [];
     
     let indeksEditTerpilih = null;
     let wargaWATerpilih = null;
@@ -1001,7 +1028,8 @@
     }
 
     function hitungUlangKalkulasiDashboard() {
-        let totalMasuk = SALDO_AWAL_TERDAHULU + databaseIuran.reduce((sum, item) => sum + item.nominal, 0);
+        let totalPemasukanLain = databasePemasukanLain.reduce((sum, item) => sum + item.nominal, 0);
+        let totalMasuk = SALDO_AWAL_TERDAHULU + databaseIuran.reduce((sum, item) => sum + item.nominal, 0) + totalPemasukanLain;
         let totalKeluar = databaseKlaim.reduce((sum, item) => sum + item.nominal, 0);
         let sisaSaldo = totalMasuk - totalKeluar;
 
@@ -1164,31 +1192,60 @@
         const tbody = document.getElementById('tabel-riwayat-santunan');
         if (!tbody) return;
         tbody.innerHTML = '';
-        let totalMasuk = SALDO_AWAL_TERDAHULU + databaseIuran.reduce((sum, item) => sum + item.nominal, 0);
-        let dataSorted = [...databaseKlaim].sort((a,b) => new Date(a.tanggal) - new Date(b.tanggal));
-        let saldoBerjalan = totalMasuk;
+        
+        let totalPemasukanLain = databasePemasukanLain.reduce((sum, item) => sum + item.nominal, 0);
+        let totalMasuk = SALDO_AWAL_TERDAHULU + databaseIuran.reduce((sum, item) => sum + item.nominal, 0) + totalPemasukanLain;
+        
+        // Gabungkan klaim dan pemasukan lain untuk riwayat kas gabungan
+        let gabunganArus = [
+            ...databaseKlaim.map(k => ({ ...k, tipe: 'KELUAR', ket: k.jenis, kategori: 'Klaim/Keluar' })),
+            ...databasePemasukanLain.map(p => ({ ...p, kode: 'MASUK', rw: 'PUSAT', jenis: p.keterangan, tipe: 'MASUK', kategori: 'Pemasukan Lain' }))
+        ];
 
+        let dataSorted = [...gabunganArus].sort((a,b) => new Date(a.tanggal) - new Date(b.tanggal));
+        let saldoBerjalan = SALDO_AWAL_TERDAHULU + databaseIuran.reduce((sum, item) => sum + item.nominal, 0);
+
+        // Jika ingin menghitung saldo berjalan secara kronologis akurat dari awal:
+        let saldoHitung = SALDO_AWAL_TERDAHULU + databaseIuran.reduce((sum, item) => sum + item.nominal, 0);
+        
+        // Buat array riwayat lengkap termasuk setoran iuran jika ingin digabung, atau khusus Keluar & Masuk Lain
+        // Sesuai UI sebelumnya, ini menampilkan Riwayat Transaksi Non-Rutinitas / Kas Campuran
         dataSorted.forEach((item) => {
-            saldoBerjalan -= item.nominal;
+            if(item.tipe === 'MASUK') {
+                saldoHitung += item.nominal;
+            } else {
+                saldoHitung -= item.nominal;
+            }
+            
+            let badgeStyle = item.tipe === 'MASUK' ? 'badge arus-masuk' : 'badge arus-keluar';
+            let nominalTampil = item.tipe === 'MASUK' ? `+ Rp ${item.nominal.toLocaleString('id-ID')}` : `- Rp ${item.nominal.toLocaleString('id-ID')}`;
+            let warnaNominal = item.tipe === 'MASUK' ? '#059669' : '#dc2626';
+
             tbody.innerHTML += `
                 <tr>
                     <td>${item.tanggal}</td>
                     <td><b>${item.kode}</b></td>
                     <td class="kolom-layar-normal"><span class="badge rw">${item.rw}</span></td>
-                    <td><span class="badge arus-keluar">${item.jenis}</span></td>
-                    <td>Rp ${item.nominal.toLocaleString('id-ID')}</td>
-                    <td><b style="color:#dc2626;">Rp ${saldoBerjalan.toLocaleString('id-ID')}</b></td>
-                    <td class="kolom-layar-normal"><button class="btn-hapus" onclick="hapusLogKlaim('${item.kode}', '${item.tanggal}', ${item.nominal})">X</button></td>
+                    <td><span class="${badgeStyle}">${item.jenis}</span></td>
+                    <td><b style="color:${warnaNominal};">${nominalTampil}</b></td>
+                    <td><b style="color:#2563eb;">Rp ${saldoHitung.toLocaleString('id-ID')}</b></td>
+                    <td class="kolom-layar-normal"><button class="btn-hapus" onclick="hapusArusKas('${item.tipe}', '${item.kode}', '${item.tanggal}', ${item.nominal})">X</button></td>
                 </tr>
             `;
         });
     }
 
-    function hapusLogKlaim(kode, tanggal, nominal) {
-        Swal.fire({ title: 'Hapus Pencairan?', icon: 'warning', showCancelButton: true }).then((res) => {
+    function hapusArusKas(tipe, kode, tanggal, nominal) {
+        Swal.fire({ title: 'Hapus Catatan?', icon: 'warning', showCancelButton: true }).then((res) => {
             if (res.isConfirmed) {
-                let idx = databaseKlaim.findIndex(x => x.kode === kode && x.tanggal === tanggal && x.nominal === nominal);
-                if (idx !== -1) { databaseKlaim.splice(idx, 1); localStorage.setItem('soskem_log_klaim', JSON.stringify(databaseKlaim)); jalankanSistemAwal(); }
+                if(tipe === 'MASUK') {
+                    let idx = databasePemasukanLain.findIndex(x => x.tanggal === tanggal && x.keterangan === kode && x.nominal === nominal);
+                    if (idx !== -1) { databasePemasukanLain.splice(idx, 1); localStorage.setItem('soskem_pemasukan_lain', JSON.stringify(databasePemasukanLain)); }
+                } else {
+                    let idx = databaseKlaim.findIndex(x => x.kode === kode && x.tanggal === tanggal && x.nominal === nominal);
+                    if (idx !== -1) { databaseKlaim.splice(idx, 1); localStorage.setItem('soskem_log_klaim', JSON.stringify(databaseKlaim)); }
+                }
+                jalankanSistemAwal();
             }
         });
     }
@@ -1202,7 +1259,6 @@
         box.style.display = 'block'; teks.innerHTML = ''; tombolArea.innerHTML = '';
 
         if (!input) { box.style.background = "#fef2f2"; teks.innerHTML = "⚠️ Masukkan Kode Buku."; return; }
-        // Karena no_kk sudah dihapus, pencarian hanya berdasarkan Kode Buku
         const jemaah = databaseKK.find(item => item.kode.toUpperCase() === input);
         if (!jemaah) { box.style.background = "#fffbeb"; teks.innerHTML = `❌ Data <b>"${input}"</b> tidak ditemukan.`; return; }
 
@@ -1262,7 +1318,7 @@
         } else {
             if(globalDataMasterFiltered.length === 0) return Swal.fire('Info', 'Data kosong!', 'info');
             headerRow = "KODE,NAMA,WHATSAPP,JIWA,RW,RT,STATUS\n";
-            globalDataMasterFiltered.forEach(r => isiCsv += `${r.kode},"${r.nama || '-'}",${r.wa || '-'},${r.jiwa || '-'},${r.rw},${r.rt || '-'},${r.statusKalkulasi}\n`);
+            globalDataMasterFiltered.forEach(r => isiCsv += `${r.kode},"${r.nama || '-'}",${r.wa || '-'},${r.jiwa || '-'},${r.rw},${r.rt || '-'},\n`);
             fileName = `Master_KK_${new Date().toISOString().split('T')[0]}.csv`;
         }
         let link = document.createElement("a");
@@ -1298,14 +1354,13 @@
     }
 
     function eksporBackupDataSistem() {
-        const data = { master_kk: databaseKK, log_iuran: databaseIuran, log_klaim: databaseKlaim, waktu: new Date().toISOString() };
+        const data = { master_kk: databaseKK, log_iuran: databaseIuran, log_klaim: databaseKlaim, pemasukan_lain: databasePemasukanLain, waktu: new Date().toISOString() };
         let link = document.createElement("a");
         link.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }));
         link.download = `Backup_Soskem_${new Date().toISOString().split('T')[0]}.json`;
         document.body.appendChild(link); link.click(); document.body.removeChild(link);
     }
 
-    // PULIHKAN DATA DENGAN PENAMBALAN OTOMATIS
     function pemicuTombolFileImpor() { document.getElementById('input-file-backup-json').click(); }
 
     function prosesImporDataSistem(event) {
@@ -1319,7 +1374,6 @@
                     Swal.fire({ title: 'Pulihkan Data?', text: "Data lama akan ditimpa dengan data backup.", icon: 'warning', showCancelButton: true, confirmButtonText: 'Ya, Pulihkan!' }).then((res) => {
                         if (res.isConfirmed) {
                             databaseKK = hasil.master_kk.map(w => {
-                                // Migrasi aman dari format nomor 16-digit lama jika diperlukan
                                 let jiwaAman = w.jiwa || "";
                                 if (!w.jiwa && w.nomor) {
                                     if (w.nomor.length > 3 || w.nomor.includes("0000")) jiwaAman = ""; 
@@ -1337,9 +1391,13 @@
 
                             databaseIuran = hasil.log_iuran;
                             databaseKlaim = hasil.log_klaim;
+                            databasePemasukanLain = hasil.pemasukan_lain || [];
+                            
                             localStorage.setItem('soskem_master_kk', JSON.stringify(databaseKK));
                             localStorage.setItem('soskem_log_iuran', JSON.stringify(databaseIuran));
                             localStorage.setItem('soskem_log_klaim', JSON.stringify(databaseKlaim));
+                            localStorage.setItem('soskem_pemasukan_lain', JSON.stringify(databasePemasukanLain));
+                            
                             Swal.fire('Sukses', 'Data Berhasil Dipulihkan!', 'success').then(() => jalankanSistemAwal());
                         }
                     });
@@ -1350,7 +1408,6 @@
         event.target.value = '';
     }
 
-    // TERIMA LAPORAN LAPANGAN DARI PETUGAS
     function pemicuImporLapangan() { document.getElementById('input-file-lapangan-json').click(); }
 
     function prosesImporLaporanLapangan(event) {
@@ -1381,7 +1438,6 @@
                     dataLap.data_master_update.forEach(wLap => {
                         let idx = databaseKK.findIndex(k => k.kode === wLap.kode);
                         if(idx !== -1) {
-                            // Cek perbaruan data yang kosong sebelumnya dari lapangan
                             if(!databaseKK[idx].jiwa && wLap.jiwa) databaseKK[idx].jiwa = wLap.jiwa;
                             if(!databaseKK[idx].wa && wLap.wa) databaseKK[idx].wa = wLap.wa;
                             if((!databaseKK[idx].nama || databaseKK[idx].nama.startsWith("Keluarga ISK")) && wLap.nama) databaseKK[idx].nama = wLap.nama;
@@ -1405,7 +1461,6 @@
         event.target.value = '';
     }
 
-    // MONITORING KELENGKAPAN DATA
     function hitungDanSaringKelengkapan() {
         let count18 = 0, count19 = 0, count20 = 0;
         databaseKK.forEach(w => {
@@ -1443,6 +1498,42 @@
         if(!ada) wadah.innerHTML = `<span style="color:#059669; text-align:center;">Semua data di wilayah ini sudah lengkap!</span>`;
     }
 
+    // --- FITUR PEMASUKAN LAIN ---
+    function bukaModalPemasukan() {
+        document.getElementById('pemasukan-tanggal').value = new Date().toISOString().split('T')[0];
+        document.getElementById('pemasukan-keterangan').value = '';
+        document.getElementById('pemasukan-nominal').value = '';
+        document.getElementById('modalPemasukan').style.display = 'flex';
+    }
+
+    function tutupModalPemasukan() {
+        document.getElementById('modalPemasukan').style.display = 'none';
+    }
+
+    function simpanPemasukanLain() {
+        const tgl = document.getElementById('pemasukan-tanggal').value;
+        const ket = document.getElementById('pemasukan-keterangan').value.trim();
+        const nomStr = document.getElementById('pemasukan-nominal').value;
+        const nominal = bersihkanFormatRupiah(nomStr);
+
+        if (!tgl || !ket || nominal <= 0) {
+            Swal.fire('Perhatian', 'Harap isi keterangan dan nominal dengan benar!', 'warning');
+            return;
+        }
+
+        databasePemasukanLain.push({
+            tanggal: tgl,
+            keterangan: ket,
+            nominal: nominal
+        });
+
+        localStorage.setItem('soskem_pemasukan_lain', JSON.stringify(databasePemasukanLain));
+        Swal.fire('Berhasil!', 'Pemasukan berhasil dicatat!', 'success');
+        
+        tutupModalPemasukan();
+        jalankanSistemAwal();
+    }
+
     // --- FITUR PENGELUARAN OPERASIONAL ---
     function bukaModalPengeluaran() {
         document.getElementById('pengeluaran-tanggal').value = new Date().toISOString().split('T')[0];
@@ -1466,7 +1557,6 @@
             return;
         }
 
-        // Gunakan array yang sama dengan klaim agar kalkulasi total otomatis terpotong
         databaseKlaim.push({ 
             tanggal: tgl, 
             kode: "OPERASIONAL", 
@@ -1481,33 +1571,31 @@
         tutupModalPengeluaran();
         jalankanSistemAwal();
     }
-    // --- FITUR RESET KAS (TANPA HAPUS WARGA) ---
-async function resetKasSaja() {
-    const { value: konfirmasi } = await Swal.fire({ 
-        title: 'Kosongkan Kas?', 
-        html: "Riwayat saldo, iuran, dan pengeluaran akan dihapus.<br><b style='color:#059669;'>Data 491 KK warga Anda TETAP AMAN.</b><br><br>Ketik <b>'reset-kas'</b> untuk konfirmasi.", 
-        input: 'text', 
-        confirmButtonColor: '#d97706',
-        showCancelButton: true,
-        cancelButtonText: 'Batal'
-    });
-    
-    if (konfirmasi === "reset-kas") { 
-        // 1. Kosongkan memori sementara
-        databaseIuran = [];
-        databaseKlaim = [];
-        
-        // 2. Kosongkan penyimpanan permanen khusus uang
-        localStorage.setItem('soskem_log_iuran', JSON.stringify([]));
-        localStorage.setItem('soskem_log_klaim', JSON.stringify([]));
-        
-        // 3. Tampilkan pesan sukses dan refresh halaman
-        Swal.fire('Berhasil!', 'Riwayat kas sudah dikosongkan.', 'success').then(() => {
-            location.reload();
-        });
-    }
-}
 
+    async function resetKasSaja() {
+        const { value: konfirmasi } = await Swal.fire({ 
+            title: 'Kosongkan Kas?', 
+            html: "Riwayat saldo, iuran, pemasukan lain, dan pengeluaran akan dihapus.<br><b style='color:#059669;'>Data KK warga Anda TETAP AMAN.</b><br><br>Ketik <b>'reset-kas'</b> untuk konfirmasi.", 
+            input: 'text', 
+            confirmButtonColor: '#d97706',
+            showCancelButton: true,
+            cancelButtonText: 'Batal'
+        });
+        
+        if (konfirmasi === "reset-kas") { 
+            databaseIuran = [];
+            databaseKlaim = [];
+            databasePemasukanLain = [];
+            
+            localStorage.setItem('soskem_log_iuran', JSON.stringify([]));
+            localStorage.setItem('soskem_log_klaim', JSON.stringify([]));
+            localStorage.setItem('soskem_pemasukan_lain', JSON.stringify([]));
+            
+            Swal.fire('Berhasil!', 'Riwayat kas sudah dikosongkan.', 'success').then(() => {
+                location.reload();
+            });
+        }
+    }
 </script>
 </body>
 </html>
