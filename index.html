@@ -288,11 +288,11 @@
                     <tbody id="tabel-riwayat-santunan"></tbody>
                 </table>
             </div>
-            <div style="margin-top: 15px; border-top: 1px dashed #cbd5e1; padding-top: 10px; text-align: right;">
-                <button onclick="bersihkanSemuaDataMacet()" style="padding: 6px 12px; background: #dc2626; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 11px; cursor: pointer;">⚠️ RESET TOTAL SISTEM</button>
-            </div>
-        </div>
-    </div>
+  <div style="margin-top: 15px; border-top: 1px dashed #cbd5e1; padding-top: 10px; display: flex; justify-content: flex-end; gap: 8px;">
+    <button onclick="resetKasSaja()" style="padding: 6px 12px; background: #d97706; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 11px; cursor: pointer;">🔄 RESET KAS SAJA</button>
+    <button onclick="bersihkanSemuaDataMacet()" style="padding: 6px 12px; background: #dc2626; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 11px; cursor: pointer;">⚠️ RESET TOTAL SISTEM</button>
+</div>
+>
 
 
     <!-- ================= TAB 1: MASTER KK & WARGA ================= -->
@@ -1481,6 +1481,33 @@
         tutupModalPengeluaran();
         jalankanSistemAwal();
     }
+    // --- FITUR RESET KAS (TANPA HAPUS WARGA) ---
+async function resetKasSaja() {
+    const { value: konfirmasi } = await Swal.fire({ 
+        title: 'Kosongkan Kas?', 
+        html: "Riwayat saldo, iuran, dan pengeluaran akan dihapus.<br><b style='color:#059669;'>Data 491 KK warga Anda TETAP AMAN.</b><br><br>Ketik <b>'reset-kas'</b> untuk konfirmasi.", 
+        input: 'text', 
+        confirmButtonColor: '#d97706',
+        showCancelButton: true,
+        cancelButtonText: 'Batal'
+    });
+    
+    if (konfirmasi === "reset-kas") { 
+        // 1. Kosongkan memori sementara
+        databaseIuran = [];
+        databaseKlaim = [];
+        
+        // 2. Kosongkan penyimpanan permanen khusus uang
+        localStorage.setItem('soskem_log_iuran', JSON.stringify([]));
+        localStorage.setItem('soskem_log_klaim', JSON.stringify([]));
+        
+        // 3. Tampilkan pesan sukses dan refresh halaman
+        Swal.fire('Berhasil!', 'Riwayat kas sudah dikosongkan.', 'success').then(() => {
+            location.reload();
+        });
+    }
+}
+
 </script>
 </body>
 </html>
