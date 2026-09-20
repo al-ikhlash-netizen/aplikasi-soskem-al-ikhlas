@@ -268,7 +268,10 @@
         </div>
 
         <div class="card-native printable-panel">
-            <h3>📜 Riwayat Kas Keluar & Santunan</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; margin-bottom: 12px;">
+                <h3 style="margin: 0; border: none; padding: 0;">📜 Riwayat Kas Keluar & Santunan</h3>
+                <button class="btn-action-sm bg-warning" onclick="bukaModalPengeluaran()">➖ Catat Pengeluaran</button>
+            </div>
             <div class="table-responsive">
                 <table>
                     <thead>
@@ -598,6 +601,29 @@
         
         <div class="modal-footer">
             <button class="btn-action-sm" onclick="tutupModalWA()" style="background:#cbd5e1; color:#334155;">Tutup Batal</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL PENGELUARAN LAIN -->
+<div id="modalPengeluaran" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">Catat Pengeluaran Operasional</div>
+        <div class="form-group">
+            <label>Tanggal</label>
+            <input type="date" id="pengeluaran-tanggal" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label>Keterangan Pengeluaran</label>
+            <input type="text" id="pengeluaran-keterangan" class="form-control" placeholder="Contoh: Beli alat gali, Kafan, dll" required>
+        </div>
+        <div class="form-group">
+            <label>Nominal Pengeluaran</label>
+            <input type="text" id="pengeluaran-nominal" class="form-control" placeholder="Rp 0" onkeyup="this.value = formatRupiahKetik(this.value, 'Rp ')" required style="font-weight:bold; color:#dc2626;">
+        </div>
+        <div class="modal-footer">
+            <button class="btn-action-sm" onclick="tutupModalPengeluaran()" style="background:#cbd5e1; color:#334155;">Batal</button>
+            <button class="btn-action-sm bg-print" onclick="simpanPengeluaranLain()">Simpan Pengeluaran</button>
         </div>
     </div>
 </div>
@@ -1379,7 +1405,7 @@
         event.target.value = '';
     }
 
-    // MONITORING KELENGKAPAN DATA (LOGIKA BARU)
+    // MONITORING KELENGKAPAN DATA
     function hitungDanSaringKelengkapan() {
         let count18 = 0, count19 = 0, count20 = 0;
         databaseKK.forEach(w => {
@@ -1415,6 +1441,45 @@
             }
         });
         if(!ada) wadah.innerHTML = `<span style="color:#059669; text-align:center;">Semua data di wilayah ini sudah lengkap!</span>`;
+    }
+
+    // --- FITUR PENGELUARAN OPERASIONAL ---
+    function bukaModalPengeluaran() {
+        document.getElementById('pengeluaran-tanggal').value = new Date().toISOString().split('T')[0];
+        document.getElementById('pengeluaran-keterangan').value = '';
+        document.getElementById('pengeluaran-nominal').value = '';
+        document.getElementById('modalPengeluaran').style.display = 'flex';
+    }
+
+    function tutupModalPengeluaran() {
+        document.getElementById('modalPengeluaran').style.display = 'none';
+    }
+
+    function simpanPengeluaranLain() {
+        const tgl = document.getElementById('pengeluaran-tanggal').value;
+        const ket = document.getElementById('pengeluaran-keterangan').value.trim();
+        const nomStr = document.getElementById('pengeluaran-nominal').value;
+        const nominal = bersihkanFormatRupiah(nomStr);
+
+        if (!tgl || !ket || nominal <= 0) {
+            Swal.fire('Perhatian', 'Harap isi keterangan dan nominal dengan benar!', 'warning');
+            return;
+        }
+
+        // Gunakan array yang sama dengan klaim agar kalkulasi total otomatis terpotong
+        databaseKlaim.push({ 
+            tanggal: tgl, 
+            kode: "OPERASIONAL", 
+            rw: "PUSAT", 
+            jenis: ket, 
+            nominal: nominal 
+        });
+
+        localStorage.setItem('soskem_log_klaim', JSON.stringify(databaseKlaim));
+        Swal.fire('Berhasil!', 'Pengeluaran berhasil dicatat!', 'success');
+        
+        tutupModalPengeluaran();
+        jalankanSistemAwal();
     }
 </script>
 </body>
