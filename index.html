@@ -490,9 +490,10 @@
                     <thead>
                         <tr>
                             <th style="width: 5%; text-align: center;">No</th>
-                            <th style="width: 30%;">Kode Buku</th>
-                            <th style="width: 25%;">Triwulan</th>
-                            <th style="width: 20%; text-align: right;">Jumlah</th>
+                            <th style="width: 25%;">Kode Buku</th>
+                            <th style="width: 18%; text-align: center;">Tgl Bayar</th>
+                            <th style="width: 22%;">Triwulan</th>
+                            <th style="width: 15%; text-align: right;">Jumlah</th>
                             <th style="width: 15%; text-align: right;">Saldo</th>
                             <th class="kolom-layar-normal" style="width: 5%; text-align: center;">Aksi</th>
                         </tr>
@@ -554,9 +555,9 @@
         
         <table style="width: 100%; margin: 10px 0 10px 20px; border:none; text-align:left;">
             <tr><td style="width: 150px; border:none; padding:3px;">Kode Buku Peserta</td><td style="border:none; padding:3px;">: <b><span id="sk-data-kode"></span></b></td></tr>
-            <tr><td style="border:none; padding:3px;">Nama Kepala Keluarga</td><td style="border:none; padding:3px;">: <b><span id="sk-data-nama"></span></b></td></tr>
-            <tr><td style="border:none; padding:3px;">Wilayah / RT</td><td style="border:none; padding:3px;">: <span id="sk-data-rw"></span> / <span id="sk-data-rt"></span></td></tr>
-            <tr><td style="border:none; padding:3px;">Status Kepesertaan</td><td style="border:none; padding:3px;">: <b>AKTIF / LANCAR</b></td></tr>
+            <tr><td style="width: 150px; border:none; padding:3px;">Nama Kepala Keluarga</td><td style="border:none; padding:3px;">: <b><span id="sk-data-nama"></span></b></td></tr>
+            <tr><td style="width: 150px; border:none; padding:3px;">Wilayah / RT</td><td style="border:none; padding:3px;">: <span id="sk-data-rw"></span> / <span id="sk-data-rt"></span></td></tr>
+            <tr><td style="width: 150px; border:none; padding:3px;">Status Kepesertaan</td><td style="border:none; padding:3px;">: <b>AKTIF / LANCAR</b></td></tr>
         </table>
 
         <p><b>MEMUTUSKAN DAN MENETAPKAN:</b></p>
@@ -1217,8 +1218,14 @@
         const filterPeriode = document.getElementById('filter-cetak-periode-iuran').value;
         const cariKata = document.getElementById('live-search-log').value.trim().toUpperCase();
         
-        let dataSorted = [...databaseIuran].sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
-        globalDataIuranFiltered = []; let akumulasi = 0;
+        let dataSorted = [...databaseIuran].sort((a, b) => {
+            let comp = a.kode.localeCompare(b.kode, undefined, { numeric: true });
+            if (comp !== 0) return comp;
+            return new Date(a.tanggal) - new Date(b.tanggal);
+        });
+        
+        globalDataIuranFiltered = []; 
+        let akumulasi = 0;
 
         dataSorted.forEach((item) => {
             if (filterRW !== 'SEMUA' && item.rw !== filterRW) return;
@@ -1228,7 +1235,6 @@
             akumulasi += parseInt(item.nominal || 0);
             globalDataIuranFiltered.push({ ...item, saldoKumulatifSaatIni: akumulasi });
         });
-        globalDataIuranFiltered.reverse();
 
         currentPageIuran = 1;
         renderTabelIuranPagination();
@@ -1255,7 +1261,8 @@
             tbody.innerHTML += `
                 <tr>
                     <td style="text-align: center;">${urutAsli}</td>
-                    <td style="text-align: center; font-weight: bold;">${item.kode}</td>
+                    <td style="font-weight: bold;">${item.kode}</td>
+                    <td style="text-align: center; font-size:11px;">${item.tanggal}</td>
                     <td style="font-size:11px;">${twSingkat}</td>
                     <td style="text-align: right; white-space: nowrap;">Rp ${parseInt(item.nominal || 0).toLocaleString('id-ID')}</td>
                     <td style="text-align: right; font-weight: bold; white-space: nowrap;">Rp ${(item.saldoKumulatifSaatIni || 0).toLocaleString('id-ID')}</td>
