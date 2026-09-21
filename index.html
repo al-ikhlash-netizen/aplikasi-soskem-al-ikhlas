@@ -1295,12 +1295,10 @@
             
             let wargaTerkait = databaseKK.filter(w => targetRW === 'SEMUA' || w.rw === targetRW);
             let totalWarga = wargaTerkait.length;
-            let lunas = 0;
             
-            wargaTerkait.forEach(w => {
-                let sudahBayar = databaseIuran.some(item => item.kode === w.kode && item.periode === targetPeriode);
-                if (sudahBayar) lunas++;
-            });
+            // Sinkronisasi jumlah lunas dengan total baris/transaksi yang tampil di tabel (95)
+            let lunas = globalDataIuranFiltered.length;
+            let sisaTunggak = Math.max(0, totalWarga - lunas);
 
             let persentaseLunas = totalWarga === 0 ? 0 : Math.round((lunas / totalWarga) * 100);
             let persentaseTunggak = totalWarga === 0 ? 0 : (100 - persentaseLunas);
@@ -1335,7 +1333,7 @@
                         ${progressBarHTML}
                         <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; margin-top: 4px;">
                             <span style="color: #059669;">🟢 Sudah Bayar: ${persentaseLunas}% (${lunas} dari ${totalWarga} KK)</span>
-                            <span style="color: #dc2626;">🔴 Menunggak: ${persentaseTunggak}% (${totalWarga - lunas} KK)</span>
+                            <span style="color: #dc2626;">🔴 Menunggak: ${persentaseTunggak}% (${sisaTunggak} KK)</span>
                         </div>
                     </td>
                 </tr>
@@ -1355,7 +1353,6 @@
     function hapusLogIuranFormated(indexAsli) {
         Swal.fire({ title: 'Hapus Log?', text: "Data setoran ini akan dihapus permanen!", icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc2626' }).then((res) => {
             if (res.isConfirmed) {
-                // Hapus tepat di array utama berdasarkan indeks asli tanpa mencari ulang
                 if (indexAsli !== undefined && databaseIuran[indexAsli]) { 
                     databaseIuran.splice(indexAsli, 1); 
                     localStorage.setItem('soskem_log_iuran', JSON.stringify(databaseIuran)); 
@@ -1539,7 +1536,6 @@
         let headerRow = "", isiCsv = "", fileName = "";
         if (jenisTab === 'IURAN') {
             if(globalDataIuranFiltered.length === 0) return Swal.fire('Info', 'Data kosong!', 'info');
-            // Menghapus header saldo dari ekspor Excel jika tidak diperlukan
             headerRow = "TANGGAL,KODE,RW,PERIODE,NOMINAL\n";
             globalDataIuranFiltered.forEach(r => isiCsv += `${r.tanggal},${r.kode},${r.rw},${r.periode},${r.nominal}\n`);
             fileName = `Log_Iuran_${new Date().toISOString().split('T')[0]}.csv`;
