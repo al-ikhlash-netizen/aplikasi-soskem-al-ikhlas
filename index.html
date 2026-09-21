@@ -175,6 +175,13 @@
             body.mode-cetak-sk-aktif .container, body.mode-cetak-sk-aktif .app-bar, body.mode-cetak-sk-aktif .bottom-nav { display: none !important; }
             body.mode-cetak-sk-aktif #form-sk-print-area { display: block !important; width: 100% !important; position: absolute; left: 0; top: 0; padding: 20px; }
         }
+        
+        body.mode-cetak-data-warga-aktif { background: white !important; padding: 0 !important; }
+        body.mode-cetak-data-warga-aktif .app-bar, 
+        body.mode-cetak-data-warga-aktif .panel-backup-native, 
+        body.mode-cetak-data-warga-aktif .container, 
+        body.mode-cetak-data-warga-aktif .bottom-nav { display: none !important; }
+        body.mode-cetak-data-warga-aktif #print-area-data-warga { display: block !important; position: absolute; left: 0; top: 0; width: 100%; }
     </style>
 </head>
 <body>
@@ -377,6 +384,7 @@
             <div class="btn-group-action">
                 <button onclick="unduhLaporanExcel('MASTER')" class="btn-action-sm bg-excel">📊 Export CSV</button>
                 <button onclick="cetakBukuPenagihanMassal()" class="btn-action-sm bg-print">🖨️ Cetak Buku</button>
+                <button onclick="cetakDataWargaKhusus()" class="btn-action-sm" style="background-color: #475569;">🖨️ Print Data Warga</button>
             </div>
 
             <div class="table-responsive">
@@ -521,25 +529,54 @@
 </nav>
 
 <!-- SURAT KEPUTUSAN (SK) PRINT AREA -->
-<div id="form-sk-print-area">
-    <div style="text-align: center; border-bottom: 3px double #000; padding-bottom: 8px; margin-bottom: 12px;">
-        <h2 style="font-size: 16px; text-transform: uppercase; font-weight: bold;">DEWAN KEMAKMURAN MASJID (DKM) JAMI AL-IKHLASH</h2>
-        <p style="font-size: 10px;">Sekretariat Administrasi Idarah Sosial Kematian (SOSKEM) • RW 18, RW 19, RW 20</p>
+<div id="form-sk-print-area" style="font-family: 'Times New Roman', Times, serif; color: black; background: white; padding: 30px;">
+    <!-- Kop Surat -->
+    <div style="text-align: center; border-bottom: 4px solid #000; padding-bottom: 10px; margin-bottom: 2px;">
+        <div style="border-bottom: 1px solid #000; padding-bottom: 5px;">
+            <h2 style="font-size: 18px; text-transform: uppercase; font-weight: bold; margin:0;">DEWAN KEMAKMURAN MASJID (DKM) JAMI AL-IKHLASH</h2>
+            <h3 style="font-size: 14px; font-weight: bold; margin: 4px 0;">UNIT PENGELOLA IDARAH SOSIAL KEMATIAN (SOSKEM)</h3>
+            <p style="font-size: 12px; margin:0;">Sekretariat: Lingkungan RW 18, RW 19, RW 20, Desa Katapang</p>
+        </div>
     </div>
-    <div style="text-align: center; margin-bottom: 12px;">
-        <h3 style="text-decoration: underline; font-size: 13px; font-weight: bold;">SURAT KEPUTUSAN PERSETUJUAN PENCAIRAN DANA SANTUNAN</h3>
-        <p style="font-size: 10px;" id="sk-nomor-surat">Nomor: 042/SK-SOSKEM/DKM-AI/V/2026</p>
+
+    <!-- Judul Surat -->
+    <div style="text-align: center; margin: 20px 0;">
+        <h3 style="text-decoration: underline; font-size: 14px; font-weight: bold; margin:0;">SURAT KEPUTUSAN PENCAIRAN SANTUNAN SOSKEM</h3>
+        <p style="font-size: 12px; margin-top: 2px;">Nomor: 042/SK-SOSKEM/DKM-AI/V/2026</p>
     </div>
-    <div style="font-size: 11px; line-height: 1.4; margin-bottom: 12px;">
-        <p style="font-weight: bold; text-align: center; margin-bottom: 8px;">BISMILLAHIRRAHMANIRRAHIM</p>
-        <p><b>Menimbang:</b> Bahwa berdasarkan rekaman data pada Sistem Aplikasi SOSKEM Jami Al-Ikhlash, status kepesertaan keluarga dengan <b>Kode Buku: <span id="sk-data-kode"></span></b> dinyatakan terdaftar resmi dan iuran lancar.</p>
-        <p style="margin-top: 6px;"><b>Memutuskan & Menetapkan:</b></p>
-        <p>1. Menyetujui pencairan dana santunan sebesar <b>Rp 850.000</b> kepada ahli waris dari keluarga pemegang Kode Buku <b><span id="sk-data-kode2"></span></b> (<span id="sk-data-rw"></span>).</p>
-        <p>2. Menginstruksikan unit teknis lapangan untuk segera melaksanakan pelayanan fardhu kifayah.</p>
+
+    <!-- Isi Surat -->
+    <div style="font-size: 12px; line-height: 1.5; text-align: justify;">
+        <p><i>Bismillaahirrahmaanirrahiim,</i></p>
+        <p>Berdasarkan hasil verifikasi pada database Sistem Administrasi Idarah Sosial Kematian (SOSKEM) Masjid Jami Al-Ikhlash, dengan ini Pengurus menerangkan bahwa:</p>
+        
+        <table style="width: 100%; margin: 10px 0 10px 20px; border:none; text-align:left;">
+            <tr><td style="width: 150px; border:none; padding:3px;">Kode Buku Peserta</td><td style="border:none; padding:3px;">: <b><span id="sk-data-kode"></span></b></td></tr>
+            <tr><td style="border:none; padding:3px;">Nama Kepala Keluarga</td><td style="border:none; padding:3px;">: <b><span id="sk-data-nama"></span></b></td></tr>
+            <tr><td style="border:none; padding:3px;">Wilayah / RT</td><td style="border:none; padding:3px;">: <span id="sk-data-rw"></span> / <span id="sk-data-rt"></span></td></tr>
+            <tr><td style="border:none; padding:3px;">Status Kepesertaan</td><td style="border:none; padding:3px;">: <b>AKTIF / LANCAR</b></td></tr>
+        </table>
+
+        <p><b>MEMUTUSKAN DAN MENETAPKAN:</b></p>
+        <ol style="padding-left: 20px; margin-top:5px;">
+            <li>Menyetujui pencairan dana santunan duka cita sebesar <b>Rp 850.000</b> (<i>Delapan Ratus Lima Puluh Ribu Rupiah</i>) kepada ahli waris dari keluarga pemegang Kode Buku <b><span id="sk-data-kode2"></span></b>.</li>
+            <li>Menginstruksikan kepada unit teknis lapangan agar segera memberikan santunan dan pelayanan <i>fardhu kifayah</i> sesuai dengan standar SOP SOSKEM DKM Jami Al-Ikhlash.</li>
+        </ol>
+        <p>Demikian Surat Keputusan ini dibuat dengan sebenar-benarnya untuk dipergunakan sebagaimana mestinya.</p>
     </div>
-    <div style="display: flex; justify-content: space-between; margin-top: 30px; font-size: 11px;">
-        <div style="text-align: center; width: 160px;"><p>Penerima Santunan,</p><div style="height: 50px;"></div><p>___________________</p></div>
-        <div style="text-align: center; width: 160px;"><p>Bandung, <span id="sk-tanggal-cetak"></span></p><p><b>Sekretaris DKM,</b></p><div style="height: 50px;"></div><p><b><u>Ade Harya Rukmana</u></b></p></div>
+
+    <!-- Tanda Tangan -->
+    <div style="display: flex; justify-content: space-between; margin-top: 40px; font-size: 12px;">
+        <div style="text-align: center; width: 200px;">
+            <p>Menerima Santunan,<br><b>Ahli Waris</b></p>
+            <div style="height: 60px;"></div>
+            <p>( ....................................... )</p>
+        </div>
+        <div style="text-align: center; width: 200px;">
+            <p>Katapang, <span id="sk-tanggal-cetak"></span><br><b>Sekretaris / Pengurus SOSKEM</b></p>
+            <div style="height: 60px;"></div>
+            <p style="text-decoration: underline; font-weight: bold;">Ade Harya Rukmana</p>
+        </div>
     </div>
 </div>
 
@@ -652,6 +689,28 @@
             <button class="btn-action-sm bg-print" onclick="simpanPengeluaranLain()">Simpan Pengeluaran</button>
         </div>
     </div>
+</div>
+
+<!-- PRINT DATA WARGA -->
+<div id="print-area-data-warga" style="display:none; width:100%; font-family: sans-serif; background:white; color:black; padding:20px;">
+    <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px;">
+        <h2 style="font-size: 16px; margin:0;">LAPORAN DATA MASTER WARGA SOSKEM</h2>
+        <p style="font-size: 12px; margin: 4px 0 0 0;" id="kop-wilayah-cetak-data"></p>
+    </div>
+    <table style="width: 100%; border-collapse: collapse; font-size: 11px;" border="1">
+        <thead>
+            <tr style="background: #f0f0f0;">
+                <th style="padding: 6px; border: 1px solid #000; text-align: center;">NO</th>
+                <th style="padding: 6px; border: 1px solid #000; text-align: center;">KODE BUKU</th>
+                <th style="padding: 6px; border: 1px solid #000; text-align: left;">KEPALA KELUARGA</th>
+                <th style="padding: 6px; border: 1px solid #000; text-align: center;">NO WHATSAPP</th>
+                <th style="padding: 6px; border: 1px solid #000; text-align: center;">RW</th>
+                <th style="padding: 6px; border: 1px solid #000; text-align: center;">RT</th>
+                <th style="padding: 6px; border: 1px solid #000; text-align: center;">STATUS</th>
+            </tr>
+        </thead>
+        <tbody id="tbody-cetak-data-warga"></tbody>
+    </table>
 </div>
 
 <script>
@@ -908,20 +967,33 @@
         const jiwaBaru = document.getElementById('modal-input-jiwa').value;
         
         let jemaahTarget = databaseKK[indeksEditTerpilih];
+        let kodeLama = jemaahTarget.kode; // Simpan kode lama sebelum diubah
+
         jemaahTarget.rt = rtBaru;
         jemaahTarget.nama = namaBaru;
         jemaahTarget.wa = waBaru;
         jemaahTarget.jiwa = jiwaBaru;
 
-        if (jemaahTarget.kode && !jemaahTarget.kode.includes('-')) {
-            jemaahTarget.kode = `${jemaahTarget.kode}-${rtBaru}`;
-        } else if (jemaahTarget.kode && jemaahTarget.kode.includes('-')) {
-            let bagianUtama = jemaahTarget.kode.split('-')[0];
-            jemaahTarget.kode = `${bagianUtama}-${rtBaru}`;
+        // Logika pembuatan kode baru
+        let kodeBaru = kodeLama;
+        if (kodeLama && !kodeLama.includes('-')) {
+            kodeBaru = `${kodeLama}-${rtBaru}`;
+        } else if (kodeLama && kodeLama.includes('-')) {
+            let bagianUtama = kodeLama.split('-')[0];
+            kodeBaru = `${bagianUtama}-${rtBaru}`;
+        }
+        jemaahTarget.kode = kodeBaru;
+
+        // SINKRONISASI: Pindahkan semua rekaman iuran lama ke kode baru
+        if (kodeLama !== kodeBaru) {
+            databaseIuran.forEach(iuran => {
+                if (iuran.kode === kodeLama) iuran.kode = kodeBaru;
+            });
+            localStorage.setItem('soskem_log_iuran', JSON.stringify(databaseIuran));
         }
         
         localStorage.setItem('soskem_master_kk', JSON.stringify(databaseKK));
-        Swal.fire('Berhasil', 'Data Diperbarui!', 'success');
+        Swal.fire('Berhasil', 'Data dan Iuran Tersinkronisasi!', 'success');
         tutupModalEdit();
         jalankanSistemAwal();
     }
@@ -1028,9 +1100,12 @@
     }
 
     function hitungUlangKalkulasiDashboard() {
-        let totalPemasukanLain = databasePemasukanLain.reduce((sum, item) => sum + item.nominal, 0);
-        let totalMasuk = SALDO_AWAL_TERDAHULU + databaseIuran.reduce((sum, item) => sum + item.nominal, 0) + totalPemasukanLain;
-        let totalKeluar = databaseKlaim.reduce((sum, item) => sum + item.nominal, 0);
+        // Memastikan seluruh data dijumlahkan murni sebagai angka matematika (Integer)
+        let totalPemasukanLain = databasePemasukanLain.reduce((sum, item) => sum + (parseInt(item.nominal) || 0), 0);
+        let totalIuranWarga = databaseIuran.reduce((sum, item) => sum + (parseInt(item.nominal) || 0), 0);
+        let totalKeluar = databaseKlaim.reduce((sum, item) => sum + (parseInt(item.nominal) || 0), 0);
+        
+        let totalMasuk = SALDO_AWAL_TERDAHULU + totalIuranWarga + totalPemasukanLain;
         let sisaSaldo = totalMasuk - totalKeluar;
 
         document.getElementById('rekap-kas-masuk').innerText = `Rp ${totalMasuk.toLocaleString('id-ID')}`;
@@ -1085,7 +1160,7 @@
             let indexAsli = databaseKK.findIndex(x => x.kode === warga.kode);
             let namaCetak = warga.nama || "Keluarga " + warga.kode;
             let noWaCetak = warga.wa ? `📱 ${warga.wa}` : '';
-            let infoRtCetak = warga.rt ? `RT ${warga.rt}` : '';
+            let infoRtCetak = warga.rt && warga.rt !== "00" ? `RT ${warga.rt}` : '';
 
             let waButtonHTML = '';
             if (warga.wa) {
@@ -1193,43 +1268,62 @@
         if (!tbody) return;
         tbody.innerHTML = '';
         
-        let totalPemasukanLain = databasePemasukanLain.reduce((sum, item) => sum + item.nominal, 0);
-        let totalMasuk = SALDO_AWAL_TERDAHULU + databaseIuran.reduce((sum, item) => sum + item.nominal, 0) + totalPemasukanLain;
-        
-        // Gabungkan klaim dan pemasukan lain untuk riwayat kas gabungan
+        // 1. Gabungkan SEMUA arus kas (Iuran Rutin, Pemasukan Lain, Pengeluaran/Klaim)
         let gabunganArus = [
-            ...databaseKlaim.map(k => ({ ...k, tipe: 'KELUAR', ket: k.jenis, kategori: 'Klaim/Keluar' })),
-            ...databasePemasukanLain.map(p => ({ ...p, kode: 'MASUK', rw: 'PUSAT', jenis: p.keterangan, tipe: 'MASUK', kategori: 'Pemasukan Lain' }))
+            ...databaseIuran.map(i => ({ 
+                tanggal: i.tanggal, kode: i.kode, rw: i.rw, 
+                jenis: `Iuran ${i.periode}`, nominal: parseInt(i.nominal) || 0, 
+                tipe: 'MASUK', kategori: 'Iuran' 
+            })),
+            ...databasePemasukanLain.map(p => ({ 
+                tanggal: p.tanggal, kode: 'MASUK LAIN', rw: 'PUSAT', 
+                jenis: p.keterangan, nominal: parseInt(p.nominal) || 0, 
+                tipe: 'MASUK', kategori: 'Pemasukan Lain' 
+            })),
+            ...databaseKlaim.map(k => ({ 
+                tanggal: k.tanggal, kode: k.kode, rw: k.rw, 
+                jenis: k.jenis, nominal: parseInt(k.nominal) || 0, 
+                tipe: 'KELUAR', kategori: 'Pengeluaran' 
+            }))
         ];
 
-        let dataSorted = [...gabunganArus].sort((a,b) => new Date(a.tanggal) - new Date(b.tanggal));
-        let saldoBerjalan = SALDO_AWAL_TERDAHULU + databaseIuran.reduce((sum, item) => sum + item.nominal, 0);
-
-        // Jika ingin menghitung saldo berjalan secara kronologis akurat dari awal:
-        let saldoHitung = SALDO_AWAL_TERDAHULU + databaseIuran.reduce((sum, item) => sum + item.nominal, 0);
+        // 2. Urutkan secara kronologis (Tanggal Lama -> Tanggal Baru)
+        let dataSorted = gabunganArus.sort((a,b) => new Date(a.tanggal) - new Date(b.tanggal));
         
-        // Buat array riwayat lengkap termasuk setoran iuran jika ingin digabung, atau khusus Keluar & Masuk Lain
-        // Sesuai UI sebelumnya, ini menampilkan Riwayat Transaksi Non-Rutinitas / Kas Campuran
+        // 3. Tetapkan Saldo Awal Statis
+        let saldoBerjalan = SALDO_AWAL_TERDAHULU;
+
+        // 4. Render dan kalkulasi saldo per baris transaksi
         dataSorted.forEach((item) => {
             if(item.tipe === 'MASUK') {
-                saldoHitung += item.nominal;
+                saldoBerjalan += item.nominal;
             } else {
-                saldoHitung -= item.nominal;
+                saldoBerjalan -= item.nominal;
             }
             
             let badgeStyle = item.tipe === 'MASUK' ? 'badge arus-masuk' : 'badge arus-keluar';
             let nominalTampil = item.tipe === 'MASUK' ? `+ Rp ${item.nominal.toLocaleString('id-ID')}` : `- Rp ${item.nominal.toLocaleString('id-ID')}`;
             let warnaNominal = item.tipe === 'MASUK' ? '#059669' : '#dc2626';
 
+            // Logika tombol hapus disesuaikan dengan sumber data
+            let btnHapus = '';
+            if(item.kategori === 'Pemasukan Lain') {
+                btnHapus = `<button class="btn-hapus" onclick="hapusArusKas('MASUK', '${item.jenis}', '${item.tanggal}', ${item.nominal})">X</button>`;
+            } else if (item.kategori === 'Pengeluaran') {
+                btnHapus = `<button class="btn-hapus" onclick="hapusArusKas('KELUAR', '${item.kode}', '${item.tanggal}', ${item.nominal})">X</button>`;
+            } else if (item.kategori === 'Iuran') {
+                btnHapus = `<span style="font-size:9px; color:#64748b;">Hapus di tab Iuran</span>`; // Iuran lebih aman dihapus dari menu log iuran agar periode tidak berantakan
+            }
+
             tbody.innerHTML += `
                 <tr>
                     <td>${item.tanggal}</td>
                     <td><b>${item.kode}</b></td>
-                    <td class="kolom-layar-normal"><span class="badge rw">${item.rw}</span></td>
+                    <td class="kolom-layar-normal"><span class="badge rw">${item.rw || '-'}</span></td>
                     <td><span class="${badgeStyle}">${item.jenis}</span></td>
                     <td><b style="color:${warnaNominal};">${nominalTampil}</b></td>
-                    <td><b style="color:#2563eb;">Rp ${saldoHitung.toLocaleString('id-ID')}</b></td>
-                    <td class="kolom-layar-normal"><button class="btn-hapus" onclick="hapusArusKas('${item.tipe}', '${item.kode}', '${item.tanggal}', ${item.nominal})">X</button></td>
+                    <td><b style="color:#2563eb;">Rp ${saldoBerjalan.toLocaleString('id-ID')}</b></td>
+                    <td class="kolom-layar-normal">${btnHapus}</td>
                 </tr>
             `;
         });
@@ -1288,14 +1382,51 @@
     }
 
     function siapkanDanCetakSK(kode, rw) {
+        const jemaah = databaseKK.find(item => item.kode === kode);
         const tgl = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+        
         document.getElementById('sk-data-kode').innerText = kode;
         document.getElementById('sk-data-kode2').innerText = kode;
+        document.getElementById('sk-data-nama').innerText = jemaah.nama && !jemaah.nama.startsWith("Keluarga") ? jemaah.nama : "-";
         document.getElementById('sk-data-rw').innerText = rw;
+        document.getElementById('sk-data-rt').innerText = jemaah.rt && jemaah.rt !== "00" ? "RT " + jemaah.rt : "-";
         document.getElementById('sk-tanggal-cetak').innerText = tgl;
 
         document.body.classList.add('mode-cetak-sk-aktif');
         setTimeout(() => { window.print(); document.body.classList.remove('mode-cetak-sk-aktif'); }, 300);
+    }
+    
+    function cetakDataWargaKhusus() {
+        const tbodyCetak = document.getElementById('tbody-cetak-data-warga');
+        tbodyCetak.innerHTML = '';
+        
+        let namaWilayah = document.getElementById('filter-rw-master').value;
+        if(namaWilayah === "SEMUA") namaWilayah = "Seluruh Wilayah (RW 18, 19, 20)";
+        document.getElementById('kop-wilayah-cetak-data').innerText = "Wilayah: " + namaWilayah + " | Periode Status: " + document.getElementById('pilihan-triwulan-cetak').value;
+
+        globalDataMasterFiltered.forEach((warga, idx) => {
+            let namaAman = warga.nama && !warga.nama.startsWith("Keluarga ISK") ? warga.nama : "-";
+            let waAman = warga.wa || "-";
+            let rtAman = warga.rt && warga.rt !== "00" ? "RT " + warga.rt : "-";
+            
+            tbodyCetak.innerHTML += `
+                <tr>
+                    <td style="padding: 6px; border: 1px solid #000; text-align: center;">${idx + 1}</td>
+                    <td style="padding: 6px; border: 1px solid #000; text-align: center; font-weight: bold;">${warga.kode}</td>
+                    <td style="padding: 6px; border: 1px solid #000;">${namaAman}</td>
+                    <td style="padding: 6px; border: 1px solid #000; text-align: center;">${waAman}</td>
+                    <td style="padding: 6px; border: 1px solid #000; text-align: center;">${warga.rw}</td>
+                    <td style="padding: 6px; border: 1px solid #000; text-align: center;">${rtAman}</td>
+                    <td style="padding: 6px; border: 1px solid #000; text-align: center;">${warga.statusKalkulasi}</td>
+                </tr>
+            `;
+        });
+
+        document.body.classList.add('mode-cetak-data-warga-aktif');
+        setTimeout(() => { 
+            window.print(); 
+            document.body.classList.remove('mode-cetak-data-warga-aktif'); 
+        }, 500);
     }
 
     function hapusMasterKK(index) {
