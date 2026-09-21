@@ -25,10 +25,12 @@
         /* TOP APP BAR & RUNNING TEXT */
         .app-bar {
             background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-emerald) 100%);
-            color: white; padding: 14px 16px;
+            color: white; padding: 12px 16px;
             box-shadow: 0 4px 12px rgba(15, 44, 35, 0.15); position: sticky; top: 0; z-index: 100; border-bottom: 3px solid var(--accent-gold);
         }
         .app-bar-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .app-bar-brand { display: flex; align-items: center; gap: 10px; }
+        .app-logo-header { height: 38px; width: auto; object-fit: contain; border-radius: 6px; background: rgba(255, 255, 255, 0.15); padding: 3px; }
         .app-bar-title h1 { font-size: 15px; font-weight: 700; letter-spacing: 0.5px; }
         .app-bar-title p { font-size: 10px; color: #f3e5ab; }
         
@@ -145,23 +147,24 @@
         .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 15px; }
 
         /* PRINT STYLES */
-        #kop-buku-penagihan, #form-sk-print-area, #print-area-header { display: none; }
+        #kop-buku-penagihan, #form-sk-print-area, #print-area-header, #print-log-signatures { display: none; }
         .kolom-cetak-lap { display: none; }
         .kolom-layar-normal { display: table-cell; }
 
         @media print {
-            body { background: white; padding: 0 !important; color: black; }
+            body { background: white !important; padding: 0 !important; color: black !important; font-family: 'Segoe UI', Arial, sans-serif !important; }
             .app-bar, .panel-backup-native, .bottom-nav, .card-native:not(.printable-panel), form, .btn-group-action, .filter-select, .live-search-input, .modal, .pagination-container { display: none !important; }
             .container { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
             
             /* PRINT MASTER KK */
-            body.mode-cetak-buku-aktif #kop-buku-penagihan { display: block !important; text-align: center; border-bottom: 3px double #000; padding-bottom: 10px; margin-bottom: 10px; }
+            body.mode-cetak-buku-aktif #kop-buku-penagihan { display: block !important; text-align: center; margin-bottom: 15px; }
             body.mode-cetak-buku-aktif .card-native.printable-panel { display: block !important; border: none !important; box-shadow: none !important; padding: 0 !important; }
             body.mode-cetak-buku-aktif .kolom-layar-normal { display: none !important; }
             body.mode-cetak-buku-aktif .kolom-cetak-lap { display: table-cell !important; text-align: center !important; vertical-align: middle !important; border: 1px solid #000 !important; color: #000 !important; }
             
-            /* PRINT LOG IURAN */
+            /* PRINT LOG IURAN (SANGAT RAPI & PROFESIONAL) */
             body.mode-cetak-log-aktif #print-area-header { display: block !important; }
+            body.mode-cetak-log-aktif #print-log-signatures { display: flex !important; }
             body.mode-cetak-log-aktif .card-native.printable-panel { display: block !important; border: none !important; box-shadow: none !important; padding: 0 !important; }
             body.mode-cetak-log-aktif .kolom-layar-normal { display: none !important; }
 
@@ -173,21 +176,25 @@
             body.mode-cetak-sk-aktif { background: white !important; padding: 10px !important; }
             body.mode-cetak-sk-aktif #form-sk-print-area { display: block !important; width: 100% !important; position: absolute; left: 0; top: 0; padding: 20px; }
 
-            table { width: 100% !important; border-collapse: collapse !important; border: 1px solid #000 !important; }
-            th, td { padding: 6px !important; border: 1px solid #000 !important; color: #000 !important; font-size: 11px !important; }
-            th { background: #f0f0f0 !important; font-weight: bold !important; text-align: center !important; }
+            table { width: 100% !important; border-collapse: collapse !important; border: 1px solid #1e293b !important; margin-top: 8px; }
+            th, td { padding: 6px 8px !important; border: 1px solid #334155 !important; color: #000 !important; font-size: 11px !important; page-break-inside: avoid; }
+            th { background: #f1f5f9 !important; font-weight: bold !important; text-align: center !important; text-transform: uppercase !important; font-size: 10px !important; color: #0f2c23 !important; }
+            tr:nth-child(even) td { background-color: #fafafa !important; }
             .kotak-kecil { font-size: 12px; } .gari-bawah { font-size: 10px; letter-spacing: 0.5px; }
         }
     </style>
 </head>
 <body>
 
-<!-- TOP APP BAR DENGAN RUNNING TEXT -->
+<!-- TOP APP BAR DENGAN RUNNING TEXT DAN LOGO -->
 <div class="app-bar">
     <div class="app-bar-top-row">
-        <div class="app-bar-title">
-            <h1>SOSKEM Jami Al-Ikhlash</h1>
-            <p>Idarah Sosial Kematian Terintegrasi (Admin)</p>
+        <div class="app-bar-brand">
+            <img src="logo.png" alt="Logo SOSKEM" class="app-logo-header">
+            <div class="app-bar-title">
+                <h1>SOSKEM Jami Al-Ikhlash</h1>
+                <p>Idarah Sosial Kematian Terintegrasi (Admin)</p>
+            </div>
         </div>
     </div>
     <div class="running-text-container">
@@ -352,9 +359,14 @@
 
         <div class="card-native printable-panel">
             <div id="kop-buku-penagihan">
-                <h2>DEWAN KEMAKMURAN MASJID (DKM) JAMI AL-IKHLASH</h2>
-                <p id="kop-sub-judul">BUKU DAFTAR PENAGIHAN IURAN SOSKEM</p>
-                <p id="kop-wilayah-kerja" style="font-size: 11px; font-weight: bold; text-decoration: underline;"></p>
+                <div style="display: flex; align-items: center; justify-content: center; gap: 15px; border-bottom: 3px double #000; padding-bottom: 10px; margin-bottom: 10px;">
+                    <img src="logo.png" alt="Logo Masjid" style="height: 60px; width: auto; object-fit: contain;">
+                    <div style="text-align: center;">
+                        <h2 style="font-size: 16px; font-weight: bold; margin:0;">DEWAN KEMAKMURAN MASJID (DKM) JAMI AL-IKHLASH</h2>
+                        <p id="kop-sub-judul" style="font-size: 12px; font-weight: bold; margin: 3px 0;">BUKU DAFTAR PENAGIHAN IURAN SOSKEM</p>
+                        <p id="kop-wilayah-kerja" style="font-size: 11px; font-weight: bold; margin:0;"></p>
+                    </div>
+                </div>
             </div>
 
             <h3>
@@ -460,9 +472,20 @@
         </div>
 
         <div class="card-native printable-panel">
-            <div id="print-area-header" style="text-align: center; margin-bottom: 15px; border-bottom: 3px double #000; padding-bottom: 8px;">
-                <h2 style="font-size: 15px; font-weight: bold;">REKAPITULASI SETORAN IURAN SOSKEM</h2>
-                <p style="font-size: 12px;" id="nama-wilayah-terpilih">-</p>
+            <!-- KOP CETAK LOG RESMI DENGAN LOGO -->
+            <div id="print-area-header">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 15px; border-bottom: 3px double #000; padding-bottom: 10px; margin-bottom: 12px;">
+                    <img src="logo.png" alt="Logo Masjid" style="height: 65px; width: auto; object-fit: contain;">
+                    <div style="text-align: center;">
+                        <h2 style="font-size: 16px; font-weight: 800; text-transform: uppercase; margin:0;">DEWAN KEMAKMURAN MASJID (DKM) JAMI AL-IKHLASH</h2>
+                        <h3 style="font-size: 13px; font-weight: 700; margin: 3px 0 0 0; text-transform: uppercase; color: #1e293b;">UNIT PENGELOLA IDARAH SOSIAL KEMATIAN (SOSKEM)</h3>
+                        <p style="font-size: 10px; margin: 3px 0 0 0; color: #475569;">Sekretariat: Lingkungan RW 18, RW 19, RW 20, Desa Katapang</p>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-bottom: 15px;">
+                    <h3 style="font-size: 14px; font-weight: 800; text-transform: uppercase; text-decoration: underline; margin:0;">REKAPITULASI & LOG SETORAN IURAN SOSKEM</h3>
+                    <p style="font-size: 11px; margin-top: 4px; font-weight: 600; color: #334155;" id="nama-wilayah-terpilih">-</p>
+                </div>
             </div>
 
             <h3>📋 Log Kas Masuk (Setoran)</h3>
@@ -501,6 +524,20 @@
                 </table>
             </div>
 
+            <!-- TANDA TANGAN DI BAGIAN BAWAH KHUSUS LOG CETAK -->
+            <div id="print-log-signatures" style="display: none; justify-content: space-between; margin-top: 35px; font-size: 11px; page-break-inside: avoid;">
+                <div style="text-align: center; width: 200px;">
+                    <p>Mengetahui,<br><b>Ketua DKM Jami Al-Ikhlash</b></p>
+                    <div style="height: 50px;"></div>
+                    <p style="text-decoration: underline; font-weight: bold;">( ....................................... )</p>
+                </div>
+                <div style="text-align: center; width: 200px;">
+                    <p>Katapang, <span id="tgl-cetak-log-signature"></span><br><b>Bendahara SOSKEM</b></p>
+                    <div style="height: 50px;"></div>
+                    <p style="text-decoration: underline; font-weight: bold;">Ade Harya Rukmana</p>
+                </div>
+            </div>
+
             <div class="pagination-container">
                 <span id="info-hal-iuran">0 Data</span>
                 <div style="display: flex; gap: 4px;">
@@ -533,8 +570,9 @@
 <!-- SURAT KEPUTUSAN (SK) PRINT AREA -->
 <div id="form-sk-print-area" style="font-family: 'Times New Roman', Times, serif; color: black; background: white; padding: 30px;">
     <!-- Kop Surat -->
-    <div style="text-align: center; border-bottom: 4px solid #000; padding-bottom: 10px; margin-bottom: 2px;">
-        <div style="border-bottom: 1px solid #000; padding-bottom: 5px;">
+    <div style="display: flex; align-items: center; justify-content: center; gap: 15px; border-bottom: 4px solid #000; padding-bottom: 10px; margin-bottom: 15px;">
+        <img src="logo.png" alt="Logo DKM" style="height: 65px; width: auto; object-fit: contain;">
+        <div style="text-align: center;">
             <h2 style="font-size: 18px; text-transform: uppercase; font-weight: bold; margin:0;">DEWAN KEMAKMURAN MASJID (DKM) JAMI AL-IKHLASH</h2>
             <h3 style="font-size: 14px; font-weight: bold; margin: 4px 0;">UNIT PENGELOLA IDARAH SOSIAL KEMATIAN (SOSKEM)</h3>
             <p style="font-size: 12px; margin:0;">Sekretariat: Lingkungan RW 18, RW 19, RW 20, Desa Katapang</p>
@@ -695,9 +733,12 @@
 
 <!-- PRINT DATA WARGA -->
 <div id="print-area-data-warga" style="display:none; width:100%; font-family: sans-serif; background:white; color:black; padding:20px;">
-    <div style="text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px;">
-        <h2 style="font-size: 16px; margin:0;">LAPORAN DATA MASTER WARGA SOSKEM</h2>
-        <p style="font-size: 12px; margin: 4px 0 0 0;" id="kop-wilayah-cetak-data"></p>
+    <div style="display: flex; align-items: center; justify-content: center; gap: 15px; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px;">
+        <img src="logo.png" alt="Logo DKM" style="height: 55px; width: auto; object-fit: contain;">
+        <div style="text-align: center;">
+            <h2 style="font-size: 16px; font-weight: bold; margin:0;">LAPORAN DATA MASTER WARGA SOSKEM</h2>
+            <p style="font-size: 12px; margin: 4px 0 0 0;" id="kop-wilayah-cetak-data"></p>
+        </div>
     </div>
     <table style="width: 100%; border-collapse: collapse; font-size: 11px;" border="1">
         <thead>
@@ -1219,7 +1260,6 @@
         
         let dataFiltered = [];
 
-        // 1. Filter data dan simpan indeks asli
         databaseIuran.forEach((item, index) => {
             if (filterRW !== 'SEMUA' && item.rw !== filterRW) return;
             if (filterPeriode !== 'SEMUA' && item.periode !== filterPeriode) return;
@@ -1228,7 +1268,6 @@
             dataFiltered.push({ ...item, indexAsli: index });
         });
 
-        // 2. Urutkan langsung berdasarkan Kode Buku > Tanggal Bayar
         dataFiltered.sort((a, b) => {
             let comp = a.kode.localeCompare(b.kode, undefined, { numeric: true, sensitivity: 'base' });
             if (comp !== 0) return comp;
@@ -1285,7 +1324,7 @@
             `;
         });
 
-        // --- GENERATE KESIMPULAN & DIAGRAM PROFESIONAL KHUSUS MODE CETAK ---
+        // GENERATE KESIMPULAN & STATISTIK KHUSUS CETAK LOG
         if (isSedangPrint && totalData > 0) {
             let totalSumbangan = globalDataIuranFiltered.reduce((sum, item) => sum + parseInt(item.nominal || 0), 0);
             
@@ -1296,7 +1335,6 @@
             let wargaTerkait = databaseKK.filter(w => targetRW === 'SEMUA' || w.rw === targetRW);
             let totalWarga = wargaTerkait.length;
             
-            // Sinkronisasi jumlah lunas dengan total baris/transaksi yang tampil di tabel (95)
             let lunas = globalDataIuranFiltered.length;
             let sisaTunggak = Math.max(0, totalWarga - lunas);
 
@@ -1312,28 +1350,28 @@
 
             tbody.innerHTML += `
                 <tr>
-                    <td colspan="4" style="text-align: right; font-weight: bold; padding: 12px; border-top: 2px solid #000;">
-                        TOTAL KESELURUHAN (${totalData} Transaksi)
+                    <td colspan="4" style="text-align: right; font-weight: bold; padding: 10px; border-top: 2px solid #000;">
+                        TOTAL KESELURUHAN (${totalData} Catatan Setoran)
                     </td>
-                    <td style="text-align: right; font-weight: bold; padding: 12px; border-top: 2px solid #000; white-space: nowrap;">
+                    <td style="text-align: right; font-weight: bold; padding: 10px; border-top: 2px solid #000; white-space: nowrap;">
                         Rp ${totalSumbangan.toLocaleString('id-ID')}
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="5" style="padding: 14px 12px; text-align: left; line-height: 1.6; border-top: 2px solid #000; background-color: #f8fafc;">
-                        <div style="font-size: 12px; font-weight: bold; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; color: #0f2c23;">
-                            📊 Ringkasan & Statistik Kepatuhan Warga
-                        </div>
-                        <div style="font-size: 11px; margin-bottom: 6px; color: #334155;">
-                            Total dana kas masuk yang terhimpun adalah sebesar <b>Rp ${totalSumbangan.toLocaleString('id-ID')}</b> dari ${totalData} catatan transaksi pembayaran.
+                    <td colspan="5" style="padding: 12px; text-align: left; line-height: 1.5; border-top: 2px solid #000; background-color: #f8fafc;">
+                        <div style="font-size: 11px; font-weight: bold; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; color: #0f2c23;">
+                            📊 Ringkasan Statistik Kepatuhan Warga
                         </div>
                         <div style="font-size: 11px; margin-bottom: 4px; color: #334155;">
+                            Total dana kas masuk yang terhimpun adalah sebesar <b>Rp ${totalSumbangan.toLocaleString('id-ID')}</b> dari total ${totalData} transaksi pembayaran.
+                        </div>
+                        <div style="font-size: 10px; margin-bottom: 4px; color: #334155;">
                             <b>Cakupan Area:</b> ${targetRW === 'SEMUA' ? 'Seluruh Wilayah (RW 18, 19, 20)' : targetRW} &nbsp;|&nbsp; <b>Periode:</b> ${targetPeriode}
                         </div>
                         ${progressBarHTML}
-                        <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; margin-top: 4px;">
-                            <span style="color: #059669;">🟢 Sudah Bayar: ${persentaseLunas}% (${lunas} dari ${totalWarga} KK)</span>
-                            <span style="color: #dc2626;">🔴 Menunggak: ${persentaseTunggak}% (${sisaTunggak} KK)</span>
+                        <div style="display: flex; justify-content: space-between; font-size: 10px; font-weight: bold; margin-top: 4px;">
+                            <span style="color: #059669;">🟢 Sudah Bayar: ${persentaseLunas}% (${lunas} KK)</span>
+                            <span style="color: #dc2626;">🔴 Belum Bayar/Tunggak: ${persentaseTunggak}% (${sisaTunggak} KK)</span>
                         </div>
                     </td>
                 </tr>
@@ -1567,7 +1605,12 @@
         if(namaWilayah === "SEMUA") namaWilayah = "Seluruh Wilayah (RW 18, 19, 20)";
         if(namaPeriode === "SEMUA") namaPeriode = "Semua Periode Triwulan";
         
-        document.getElementById('nama-wilayah-terpilih').innerText = "Area: " + namaWilayah + " | Periode: " + namaPeriode;
+        const tglSekarang = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+        document.getElementById('nama-wilayah-terpilih').innerText = "Area: " + namaWilayah + " | Periode: " + namaPeriode + " | Dicetak: " + tglSekarang;
+        if(document.getElementById('tgl-cetak-log-signature')) {
+            document.getElementById('tgl-cetak-log-signature').innerText = tglSekarang;
+        }
+
         renderTabelIuranPagination();
         setTimeout(() => { window.print(); document.body.classList.remove('mode-cetak-log-aktif'); renderTabelIuranPagination(); }, 500);
     }
@@ -1719,11 +1762,12 @@
                 wadah.innerHTML += `
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <span><b>${w.kode}</b> - ${w.nama||'-'}</span>
-                        <button class="btn-action-sm bg-warning" style="padding:4px 8px; font-size:10px; border-radius:4px;" onclick="bukaModalEditKK(${idx})">✏️ Lengkapi</button>
-                    </div>`;
+                        <button class="btn-action-sm bg-warning" style="padding:4px 8px; font-size:10px;" onclick="bukaModalEditKK(${idx})">Lengkapi</button>
+                    </div>
+                `;
             }
         });
-        if(!ada) wadah.innerHTML = `<span style="color:#059669; text-align:center;">Semua data di wilayah ini sudah lengkap!</span>`;
+        if(!ada) wadah.innerHTML = '<span style="color:#059669; text-align:center;">✅ Semua data warga di ' + rw + ' sudah lengkap.</span>';
     }
 
     function bukaModalPemasukan() {
@@ -1732,31 +1776,18 @@
         document.getElementById('pemasukan-nominal').value = '';
         document.getElementById('modalPemasukan').style.display = 'flex';
     }
-
-    function tutupModalPemasukan() {
-        document.getElementById('modalPemasukan').style.display = 'none';
-    }
+    function tutupModalPemasukan() { document.getElementById('modalPemasukan').style.display = 'none'; }
 
     function simpanPemasukanLain() {
-        const tgl = document.getElementById('pemasukan-tanggal').value;
-        const ket = document.getElementById('pemasukan-keterangan').value.trim();
-        const nomStr = document.getElementById('pemasukan-nominal').value;
-        const nominal = bersihkanFormatRupiah(nomStr);
+        const tanggal = document.getElementById('pemasukan-tanggal').value;
+        const keterangan = document.getElementById('pemasukan-keterangan').value.trim();
+        const nominal = bersihkanFormatRupiah(document.getElementById('pemasukan-nominal').value);
 
-        if (!tgl || !ket || nominal <= 0) {
-            Swal.fire('Perhatian', 'Harap isi keterangan dan nominal dengan benar!', 'warning');
-            return;
-        }
+        if (!keterangan || nominal <= 0) { Swal.fire('Error', 'Mohon isi keterangan dan nominal dengan benar!', 'warning'); return; }
 
-        databasePemasukanLain.push({
-            tanggal: tgl,
-            keterangan: ket,
-            nominal: nominal
-        });
-
+        databasePemasukanLain.push({ tanggal, keterangan, nominal });
         localStorage.setItem('soskem_pemasukan_lain', JSON.stringify(databasePemasukanLain));
-        Swal.fire('Berhasil!', 'Pemasukan berhasil dicatat!', 'success');
-        
+        Swal.fire('Berhasil', 'Pemasukan Kas Berhasil Dicatat!', 'success');
         tutupModalPemasukan();
         jalankanSistemAwal();
     }
@@ -1767,60 +1798,42 @@
         document.getElementById('pengeluaran-nominal').value = '';
         document.getElementById('modalPengeluaran').style.display = 'flex';
     }
-
-    function tutupModalPengeluaran() {
-        document.getElementById('modalPengeluaran').style.display = 'none';
-    }
+    function tutupModalPengeluaran() { document.getElementById('modalPengeluaran').style.display = 'none'; }
 
     function simpanPengeluaranLain() {
-        const tgl = document.getElementById('pengeluaran-tanggal').value;
-        const ket = document.getElementById('pengeluaran-keterangan').value.trim();
-        const nomStr = document.getElementById('pengeluaran-nominal').value;
-        const nominal = bersihkanFormatRupiah(nomStr);
+        const tanggal = document.getElementById('pengeluaran-tanggal').value;
+        const keterangan = document.getElementById('pengeluaran-keterangan').value.trim();
+        const nominal = bersihkanFormatRupiah(document.getElementById('pengeluaran-nominal').value);
 
-        if (!tgl || !ket || nominal <= 0) {
-            Swal.fire('Perhatian', 'Harap isi keterangan dan nominal dengan benar!', 'warning');
-            return;
-        }
+        if (!keterangan || nominal <= 0) { Swal.fire('Error', 'Mohon isi keterangan dan nominal pengeluaran!', 'warning'); return; }
 
-        databaseKlaim.push({ 
-            tanggal: tgl, 
-            kode: "OPERASIONAL", 
-            rw: "PUSAT", 
-            jenis: ket, 
-            nominal: nominal 
-        });
-
+        databaseKlaim.push({ tanggal, kode: 'OPERASIONAL', rw: 'PUSAT', jenis: keterangan, nominal });
         localStorage.setItem('soskem_log_klaim', JSON.stringify(databaseKlaim));
-        Swal.fire('Berhasil!', 'Pengeluaran berhasil dicatat!', 'success');
-        
+        Swal.fire('Berhasil', 'Pengeluaran Operasional Dicatat!', 'success');
         tutupModalPengeluaran();
         jalankanSistemAwal();
     }
 
-    async function resetKasSaja() {
-        const { value: konfirmasi } = await Swal.fire({ 
-            title: 'Kosongkan Kas?', 
-            html: "Riwayat saldo, iuran, pemasukan lain, dan pengeluaran akan dihapus.<br><b style='color:#059669;'>Data KK warga Anda TETAP AMAN.</b><br><br>Ketik <b>'reset-kas'</b> untuk konfirmasi.", 
-            input: 'text', 
-            confirmButtonColor: '#d97706',
+    function resetKasSaja() {
+        Swal.fire({
+            title: 'Reset Catatan Kas?',
+            text: "Seluruh riwayat iuran, pemasukan lain, dan santunan akan dikosongkan. Data Warga (Master KK) tetap aman.",
+            icon: 'warning',
             showCancelButton: true,
-            cancelButtonText: 'Batal'
+            confirmButtonColor: '#d97706',
+            confirmButtonText: 'Ya, Reset Kas'
+        }).then((res) => {
+            if (res.isConfirmed) {
+                databaseIuran = [];
+                databaseKlaim = [];
+                databasePemasukanLain = [];
+                localStorage.removeItem('soskem_log_iuran');
+                localStorage.removeItem('soskem_log_klaim');
+                localStorage.removeItem('soskem_pemasukan_lain');
+                jalankanSistemAwal();
+                Swal.fire('Berhasil', 'Catatan Kas telah direset.', 'success');
+            }
         });
-        
-        if (konfirmasi === "reset-kas") { 
-            databaseIuran = [];
-            databaseKlaim = [];
-            databasePemasukanLain = [];
-            
-            localStorage.setItem('soskem_log_iuran', JSON.stringify([]));
-            localStorage.setItem('soskem_log_klaim', JSON.stringify([]));
-            localStorage.setItem('soskem_pemasukan_lain', JSON.stringify([]));
-            
-            Swal.fire('Berhasil!', 'Riwayat kas sudah dikosongkan.', 'success').then(() => {
-                location.reload();
-            });
-        }
     }
 </script>
 </body>
