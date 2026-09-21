@@ -491,10 +491,9 @@
                         <tr>
                             <th style="width: 5%; text-align: center;">No</th>
                             <th style="width: 25%;">Kode Buku</th>
-                            <th style="width: 15%; text-align: center;">Tanggal Bayar</th>
+                            <th style="width: 25%; text-align: center;">Tanggal Bayar</th>
                             <th style="width: 20%;">Triwulan</th>
-                            <th style="width: 15%; text-align: right;">Jumlah</th>
-                            <th style="width: 15%; text-align: right;">Saldo</th>
+                            <th style="width: 20%; text-align: right;">Jumlah</th>
                             <th class="kolom-layar-normal" style="width: 5%; text-align: center;">Aksi</th>
                         </tr>
                     </thead>
@@ -1220,7 +1219,7 @@
         
         let dataFiltered = [];
 
-        // 1. Filter awal dan simpan indeks asli (sebagai tie-breaker & ID unik untuk hapus data)
+        // 1. Filter data dan simpan indeks asli
         databaseIuran.forEach((item, index) => {
             if (filterRW !== 'SEMUA' && item.rw !== filterRW) return;
             if (filterPeriode !== 'SEMUA' && item.periode !== filterPeriode) return;
@@ -1229,32 +1228,15 @@
             dataFiltered.push({ ...item, indexAsli: index });
         });
 
-        // 2. Urutkan berdasarkan urutan kronologis untuk menghitung saldo kumulatif
+        // 2. Urutkan langsung berdasarkan Kode Buku > Tanggal Bayar
         dataFiltered.sort((a, b) => {
-            let dateA = new Date(a.tanggal);
-            let dateB = new Date(b.tanggal);
-            if (dateA - dateB !== 0) return dateA - dateB;
-            return a.indexAsli - b.indexAsli; // Tie-breaker untuk data di hari yang sama
-        });
-
-        let akumulasi = 0;
-        dataFiltered.forEach((item) => {
-            akumulasi += parseInt(item.nominal || 0);
-            item.saldoKumulatifSaatIni = akumulasi;
-        });
-
-        // 3. Urutkan ulang untuk tampilan akhir (Kode Buku > Tanggal > Indeks Asli)
-        dataFiltered.sort((a, b) => {
-            // Natural sort agar ISK18/010 muncul setelah ISK18/002 dan sebelum ISK18/100
             let comp = a.kode.localeCompare(b.kode, undefined, { numeric: true, sensitivity: 'base' });
             if (comp !== 0) return comp;
             
-            // Urutkan tanggal dari terlama ke terbaru jika kodenya sama
             let dateA = new Date(a.tanggal);
             let dateB = new Date(b.tanggal);
             if (dateA - dateB !== 0) return dateA - dateB;
             
-            // Tetapkan indeks asli jika kode dan tanggal sama, agar posisi stabil
             return a.indexAsli - b.indexAsli;
         });
 
@@ -1276,40 +1258,76 @@
         let startInd = (currentPageIuran - 1) * rowsPerPage;
         let isSedangPrint = document.body.classList.contains('mode-cetak-log-aktif');
         
-        // Tampilkan seluruh data saat mode cetak aktif, hindari pagination slice
         let paginatedItems = isSedangPrint ? globalDataIuranFiltered : globalDataIuranFiltered.slice(startInd, startInd + rowsPerPage);
-
         const escapeHTML = (str) => String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 
         paginatedItems.forEach((item, index) => {
-            // Penomoran berlanjut pada tampilan normal, dan dari 1 berurutan saat mode cetak
             let urutAsli = isSedangPrint ? (index + 1) : (startInd + index + 1);
             let twSingkat = item.periode.replace("Triwulan ", "TW "); 
             
-            // Pemformatan tanggal manual (YYYY-MM-DD ke DD-MM-YYYY) menghindari isu timezone
             let tglIndo = item.tanggal;
             if (item.tanggal && item.tanggal.includes('-')) {
                 let parts = item.tanggal.split('-');
                 if (parts.length === 3) tglIndo = `${parts[2]}-${parts[1]}-${parts[0]}`;
             }
 
-            let kodeAman = escapeHTML(item.kode);
-            let twAman = escapeHTML(twSingkat);
-            
             tbody.innerHTML += `
                 <tr>
                     <td style="text-align: center;">${urutAsli}</td>
-                    <td style="font-weight: bold;">${kodeAman}</td>
+                    <td style="font-weight: bold;">${escapeHTML(item.kode)}</td>
                     <td style="text-align: center; font-size:11px;">${tglIndo}</td>
-                    <td style="font-size:11px;">${twAman}</td>
+                    <td style="font-size:11px;">${escapeHTML(twSingkat)}</td>
                     <td style="text-align: right; white-space: nowrap;">Rp ${parseInt(item.nominal || 0).toLocaleString('id-ID')}</td>
-                    <td style="text-align: right; font-weight: bold; white-space: nowrap;">Rp ${(item.saldoKumulatifSaatIni || 0).toLocaleString('id-ID')}</td>
                     <td class="kolom-layar-normal" style="text-align: center;">
                         <button class="btn-hapus" onclick="hapusLogIuranFormated(${item.indexAsli})">X</button>
                     </td>
                 </tr>
             `;
         });
+
+        // --- GENERATE KESIMPULAN & DIAGRAM KHUSUS MODE CETAK ---
+        if (isSedangPrint && totalData > 0) {
+            let totalSumbangan = globalDataIuranFiltered.reduce((sum, item) => sum + parseInt(item.nominal || 0), 0);
+            
+            let targetRW = document.getElementById('filter-cetak-rw-iuran').value;
+            let targetPeriode = document.getElementById('filter-cetak-periode-iuran').value;
+            if (targetPeriode === 'SEMUA') targetPeriode = document.getElementById('pilihan-triwulan-cetak').value || "Triwulan 3 (Jul-Sep)";
+            
+            let wargaTerkait = databaseKK.filter(w => targetRW === 'SEMUA' || w.rw === targetRW);
+            let totalWarga = wargaTerkait.length;
+            let lunas = 0;
+            
+            wargaTerkait.forEach(w => {
+                if (hitungStatusIuranWarga(w.kode, targetPeriode) !== 'TUNGGAK') lunas++;
+            });
+
+            let persentaseLunas = totalWarga === 0 ? 0 : Math.round((lunas / totalWarga) * 100);
+            let persentaseTunggak = totalWarga === 0 ? 0 : (100 - persentaseLunas);
+            
+            let barLunas = "█".repeat(Math.round(persentaseLunas / 10));
+            let barTunggak = "░".repeat(10 - Math.round(persentaseLunas / 10));
+
+            tbody.innerHTML += `
+                <tr>
+                    <td colspan="4" style="text-align: right; font-weight: bold; padding: 12px; border-top: 2px solid #000;">
+                        TOTAL KESELURUHAN (${totalData} Transaksi)
+                    </td>
+                    <td style="text-align: right; font-weight: bold; padding: 12px; border-top: 2px solid #000; white-space: nowrap;">
+                        Rp ${totalSumbangan.toLocaleString('id-ID')}
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="5" style="padding: 15px 10px; text-align: left; line-height: 1.8; border-top: 2px solid #000;">
+                        <b>KESIMPULAN & STATISTIK KEPATUHAN:</b><br>
+                        Dari hasil rekapitulasi data pembayaran di atas, total dana kas masuk adalah sebesar <b>Rp ${totalSumbangan.toLocaleString('id-ID')}</b>.<br><br>
+                        
+                        <b>Status Pembayaran Warga - Area ${targetRW === 'SEMUA' ? 'Seluruh RW' : targetRW} (Periode ${targetPeriode}):</b><br>
+                        <span style="font-family: monospace; font-size: 14px;">[${barLunas}${barTunggak}]</span> <b>${persentaseLunas}% Sudah Bayar</b> (${lunas} dari total ${totalWarga} KK)<br>
+                        <span style="font-family: monospace; font-size: 14px; opacity: 0.6;">[${barTunggak}${barLunas}]</span> <b>${persentaseTunggak}% Menunggak</b> (${totalWarga - lunas} KK Belum Bayar)
+                    </td>
+                </tr>
+            `;
+        }
 
         if(!isSedangPrint){
             document.getElementById('info-hal-iuran').innerText = `${totalData} Data`;
@@ -1508,8 +1526,9 @@
         let headerRow = "", isiCsv = "", fileName = "";
         if (jenisTab === 'IURAN') {
             if(globalDataIuranFiltered.length === 0) return Swal.fire('Info', 'Data kosong!', 'info');
-            headerRow = "TANGGAL,KODE,RW,PERIODE,NOMINAL,SALDO\n";
-            globalDataIuranFiltered.forEach(r => isiCsv += `${r.tanggal},${r.kode},${r.rw},${r.periode},${r.nominal},${r.saldoKumulatifSaatIni}\n`);
+            // Menghapus header saldo dari ekspor Excel jika tidak diperlukan
+            headerRow = "TANGGAL,KODE,RW,PERIODE,NOMINAL\n";
+            globalDataIuranFiltered.forEach(r => isiCsv += `${r.tanggal},${r.kode},${r.rw},${r.periode},${r.nominal}\n`);
             fileName = `Log_Iuran_${new Date().toISOString().split('T')[0]}.csv`;
         } else {
             if(globalDataMasterFiltered.length === 0) return Swal.fire('Info', 'Data kosong!', 'info');
