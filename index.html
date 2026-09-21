@@ -1285,7 +1285,7 @@
             `;
         });
 
-        // --- GENERATE KESIMPULAN & DIAGRAM KHUSUS MODE CETAK ---
+        // --- GENERATE KESIMPULAN & DIAGRAM PROFESIONAL KHUSUS MODE CETAK ---
         if (isSedangPrint && totalData > 0) {
             let totalSumbangan = globalDataIuranFiltered.reduce((sum, item) => sum + parseInt(item.nominal || 0), 0);
             
@@ -1298,14 +1298,19 @@
             let lunas = 0;
             
             wargaTerkait.forEach(w => {
-                if (hitungStatusIuranWarga(w.kode, targetPeriode) !== 'TUNGGAK') lunas++;
+                let sudahBayar = databaseIuran.some(item => item.kode === w.kode && item.periode === targetPeriode);
+                if (sudahBayar) lunas++;
             });
 
             let persentaseLunas = totalWarga === 0 ? 0 : Math.round((lunas / totalWarga) * 100);
             let persentaseTunggak = totalWarga === 0 ? 0 : (100 - persentaseLunas);
             
-            let barLunas = "█".repeat(Math.round(persentaseLunas / 10));
-            let barTunggak = "░".repeat(10 - Math.round(persentaseLunas / 10));
+            let progressBarHTML = `
+                <div style="margin: 8px 0; width: 100%; background-color: #e2e8f0; border-radius: 4px; height: 12px; overflow: hidden; display: flex; border: 1px solid #cbd5e1;">
+                    <div style="width: ${persentaseLunas}%; background-color: #059669; height: 100%;"></div>
+                    <div style="width: ${persentaseTunggak}%; background-color: #dc2626; height: 100%;"></div>
+                </div>
+            `;
 
             tbody.innerHTML += `
                 <tr>
@@ -1317,13 +1322,21 @@
                     </td>
                 </tr>
                 <tr>
-                    <td colspan="5" style="padding: 15px 10px; text-align: left; line-height: 1.8; border-top: 2px solid #000;">
-                        <b>KESIMPULAN & STATISTIK KEPATUHAN:</b><br>
-                        Dari hasil rekapitulasi data pembayaran di atas, total dana kas masuk adalah sebesar <b>Rp ${totalSumbangan.toLocaleString('id-ID')}</b>.<br><br>
-                        
-                        <b>Status Pembayaran Warga - Area ${targetRW === 'SEMUA' ? 'Seluruh RW' : targetRW} (Periode ${targetPeriode}):</b><br>
-                        <span style="font-family: monospace; font-size: 14px;">[${barLunas}${barTunggak}]</span> <b>${persentaseLunas}% Sudah Bayar</b> (${lunas} dari total ${totalWarga} KK)<br>
-                        <span style="font-family: monospace; font-size: 14px; opacity: 0.6;">[${barTunggak}${barLunas}]</span> <b>${persentaseTunggak}% Menunggak</b> (${totalWarga - lunas} KK Belum Bayar)
+                    <td colspan="5" style="padding: 14px 12px; text-align: left; line-height: 1.6; border-top: 2px solid #000; background-color: #f8fafc;">
+                        <div style="font-size: 12px; font-weight: bold; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; color: #0f2c23;">
+                            📊 Ringkasan & Statistik Kepatuhan Warga
+                        </div>
+                        <div style="font-size: 11px; margin-bottom: 6px; color: #334155;">
+                            Total dana kas masuk yang terhimpun adalah sebesar <b>Rp ${totalSumbangan.toLocaleString('id-ID')}</b> dari ${totalData} catatan transaksi pembayaran.
+                        </div>
+                        <div style="font-size: 11px; margin-bottom: 4px; color: #334155;">
+                            <b>Cakupan Area:</b> ${targetRW === 'SEMUA' ? 'Seluruh Wilayah (RW 18, 19, 20)' : targetRW} &nbsp;|&nbsp; <b>Periode:</b> ${targetPeriode}
+                        </div>
+                        ${progressBarHTML}
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: bold; margin-top: 4px;">
+                            <span style="color: #059669;">🟢 Sudah Bayar: ${persentaseLunas}% (${lunas} dari ${totalWarga} KK)</span>
+                            <span style="color: #dc2626;">🔴 Menunggak: ${persentaseTunggak}% (${totalWarga - lunas} KK)</span>
+                        </div>
                     </td>
                 </tr>
             `;
