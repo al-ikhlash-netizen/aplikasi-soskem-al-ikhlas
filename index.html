@@ -472,6 +472,13 @@
             <h3>📋 Log Kas Masuk (Setoran)</h3>
             <div style="display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap;">
                 <input type="text" id="live-search-log" class="live-search-input" placeholder="🔍 Cari Kode..." onkeyup="muatTabelLogIuran()" style="flex:1;">
+                <select id="filter-cetak-periode-iuran" class="filter-select" onchange="muatTabelLogIuran()">
+                    <option value="SEMUA">Semua Periode</option>
+                    <option value="Triwulan 1 (Jan-Mar)">TW 1 (Jan-Mar)</option>
+                    <option value="Triwulan 2 (Apr-Jun)">TW 2 (Apr-Jun)</option>
+                    <option value="Triwulan 3 (Jul-Sep)">TW 3 (Jul-Sep)</option>
+                    <option value="Triwulan 4 (Okt-Des)">TW 4 (Okt-Des)</option>
+                </select>
                 <select id="filter-cetak-rw-iuran" class="filter-select" onchange="muatTabelLogIuran()">
                     <option value="SEMUA">Semua RW</option><option value="RW 18">RW 18</option><option value="RW 19">RW 19</option><option value="RW 20">RW 20</option>
                 </select>
@@ -769,6 +776,10 @@
         
         const dropdown = document.getElementById('pilihan-triwulan-cetak');
         if (dropdown) dropdown.value = targetValue;
+        
+        const dropdownIuran = document.getElementById('filter-cetak-periode-iuran');
+        if (dropdownIuran) dropdownIuran.value = "SEMUA"; // Biarkan iuran diset semua periode default-nya
+
         muatTabelMasterKK();
     }
 
@@ -928,7 +939,7 @@
         
         let nomorWaClean = normalizeWA(wargaWATerpilih.wa);
         let namaWarga = wargaWATerpilih.nama ? wargaWATerpilih.nama : ("Keluarga " + wargaWATerpilih.kode);
-        let infoRt = wargaWATerpilih.rt ? ` RT ${wargaWATerpilih.rt}` : '';
+        let infoRt = wargaWATerpilih.rt && wargaWATerpilih.rt !== "00" ? ` RT ${wargaWATerpilih.rt}` : '';
         let pesanTeks = '';
 
         if (jenis === 'terdaftar') {
@@ -951,7 +962,7 @@
         indeksEditTerpilih = index;
         const dataJemaah = databaseKK[index];
         document.getElementById('modal-label-kode').innerText = `Kode Buku: ${dataJemaah.kode}`;
-        document.getElementById('modal-input-rt').value = dataJemaah.rt || '01';
+        document.getElementById('modal-input-rt').value = dataJemaah.rt || '00';
         document.getElementById('modal-input-nama').value = dataJemaah.nama && !dataJemaah.nama.startsWith("Keluarga ISK") ? dataJemaah.nama : '';
         document.getElementById('modal-input-wa').value = dataJemaah.wa || '';
         document.getElementById('modal-input-jiwa').value = dataJemaah.jiwa || '';
@@ -1199,6 +1210,7 @@
 
     function muatTabelLogIuran() {
         const filterRW = document.getElementById('filter-cetak-rw-iuran').value;
+        const filterPeriode = document.getElementById('filter-cetak-periode-iuran').value;
         const cariKata = document.getElementById('live-search-log').value.trim().toUpperCase();
         
         let dataSorted = [...databaseIuran].sort((a, b) => new Date(a.tanggal) - new Date(b.tanggal));
@@ -1206,7 +1218,9 @@
 
         dataSorted.forEach((item) => {
             if (filterRW !== 'SEMUA' && item.rw !== filterRW) return;
+            if (filterPeriode !== 'SEMUA' && item.periode !== filterPeriode) return;
             if (cariKata && !item.kode.toUpperCase().includes(cariKata)) return;
+            
             akumulasi += parseInt(item.nominal || 0);
             globalDataIuranFiltered.push({ ...item, saldoKumulatifSaatIni: akumulasi });
         });
@@ -1407,7 +1421,7 @@
         globalDataMasterFiltered.forEach((warga, idx) => {
             let namaAman = warga.nama && !warga.nama.startsWith("Keluarga ISK") ? warga.nama : "-";
             let waAman = warga.wa || "-";
-            let rtAman = warga.rt && warga.rt !== "00" ? "RT " + warga.rt : "-";
+            let rtAman = (!warga.rt || warga.rt === "00") ? "-" : "RT " + warga.rt;
             
             tbodyCetak.innerHTML += `
                 <tr>
@@ -1469,8 +1483,12 @@
     function cetakRekapKasMasukPerWilayah() {
         document.body.classList.add('mode-cetak-log-aktif');
         let namaWilayah = document.getElementById('filter-cetak-rw-iuran').value;
+        let namaPeriode = document.getElementById('filter-cetak-periode-iuran').value;
+        
         if(namaWilayah === "SEMUA") namaWilayah = "Seluruh Wilayah (RW 18, 19, 20)";
-        document.getElementById('nama-wilayah-terpilih').innerText = "Area: " + namaWilayah;
+        if(namaPeriode === "SEMUA") namaPeriode = "Semua Periode Triwulan";
+        
+        document.getElementById('nama-wilayah-terpilih').innerText = "Area: " + namaWilayah + " | Periode: " + namaPeriode;
         renderTabelIuranPagination();
         setTimeout(() => { window.print(); document.body.classList.remove('mode-cetak-log-aktif'); renderTabelIuranPagination(); }, 500);
     }
@@ -1513,7 +1531,7 @@
                                 return {
                                     kode: w.kode,
                                     rw: w.rw || "RW 18",
-                                    rt: w.rt || (w.kode.includes('-') ? w.kode.split('-')[1] : "01"),
+                                    rt: w.rt || (w.kode.includes('-') ? w.kode.split('-')[1] : "00"), // Default ke 00 (Belum Diketahui) jika kosong, agar tidak asal asumsikan RT 01
                                     nama: w.nama || "Keluarga " + w.kode,
                                     wa: w.wa || "",
                                     jiwa: jiwaAman
