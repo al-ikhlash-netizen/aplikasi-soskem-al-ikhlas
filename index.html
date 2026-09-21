@@ -165,23 +165,19 @@
             body.mode-cetak-log-aktif .card-native.printable-panel { display: block !important; border: none !important; box-shadow: none !important; padding: 0 !important; }
             body.mode-cetak-log-aktif .kolom-layar-normal { display: none !important; }
 
+            /* PRINT DATA WARGA (BARU & FIX) */
+            body.mode-cetak-data-warga-aktif { background: white !important; padding: 0 !important; }
+            body.mode-cetak-data-warga-aktif #print-area-data-warga { display: block !important; position: absolute; left: 0; top: 0; width: 100%; }
+
+            /* PRINT SK */
+            body.mode-cetak-sk-aktif { background: white !important; padding: 10px !important; }
+            body.mode-cetak-sk-aktif #form-sk-print-area { display: block !important; width: 100% !important; position: absolute; left: 0; top: 0; padding: 20px; }
+
             table { width: 100% !important; border-collapse: collapse !important; border: 1px solid #000 !important; }
             th, td { padding: 6px !important; border: 1px solid #000 !important; color: #000 !important; font-size: 11px !important; }
             th { background: #f0f0f0 !important; font-weight: bold !important; text-align: center !important; }
             .kotak-kecil { font-size: 12px; } .gari-bawah { font-size: 10px; letter-spacing: 0.5px; }
-
-            /* PRINT SK */
-            body.mode-cetak-sk-aktif { background: white !important; padding: 10px !important; }
-            body.mode-cetak-sk-aktif .container, body.mode-cetak-sk-aktif .app-bar, body.mode-cetak-sk-aktif .bottom-nav { display: none !important; }
-            body.mode-cetak-sk-aktif #form-sk-print-area { display: block !important; width: 100% !important; position: absolute; left: 0; top: 0; padding: 20px; }
         }
-        
-        body.mode-cetak-data-warga-aktif { background: white !important; padding: 0 !important; }
-        body.mode-cetak-data-warga-aktif .app-bar, 
-        body.mode-cetak-data-warga-aktif .panel-backup-native, 
-        body.mode-cetak-data-warga-aktif .container, 
-        body.mode-cetak-data-warga-aktif .bottom-nav { display: none !important; }
-        body.mode-cetak-data-warga-aktif #print-area-data-warga { display: block !important; position: absolute; left: 0; top: 0; width: 100%; }
     </style>
 </head>
 <body>
@@ -493,13 +489,13 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>No</th>
-                            <th>Tanggal</th>
-                            <th>Kode</th>
-                            <th>Periode</th>
-                            <th>Jumlah</th>
-                            <th>Akumulasi</th>
-                            <th class="kolom-layar-normal">Aksi</th>
+                            <th style="width: 5%;">No</th>
+                            <th style="width: 15%;">Tgl</th>
+                            <th style="width: 25%;">Kode</th>
+                            <th style="width: 20%;">TW</th>
+                            <th style="width: 15%; text-align: right;">Jumlah</th>
+                            <th style="width: 15%; text-align: right;">Saldo</th>
+                            <th class="kolom-layar-normal" style="width: 5%;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="tabel-log-iuran"></tbody>
@@ -778,7 +774,7 @@
         if (dropdown) dropdown.value = targetValue;
         
         const dropdownIuran = document.getElementById('filter-cetak-periode-iuran');
-        if (dropdownIuran) dropdownIuran.value = "SEMUA"; // Biarkan iuran diset semua periode default-nya
+        if (dropdownIuran) dropdownIuran.value = "SEMUA";
 
         muatTabelMasterKK();
     }
@@ -803,6 +799,20 @@
     }
 
     function jalankanSistemAwal() {
+        // SYSTEM AUTO-FIX: Memperbaiki database RT yang error dari asumsi sebelumnya.
+        let adaPerubahan = false;
+        databaseKK.forEach(w => {
+            let rtAsli = "00";
+            if (w.kode && w.kode.includes('-')) {
+                rtAsli = w.kode.split('-')[1];
+            }
+            if (w.rt !== rtAsli) {
+                w.rt = rtAsli;
+                adaPerubahan = true;
+            }
+        });
+        if (adaPerubahan) localStorage.setItem('soskem_master_kk', JSON.stringify(databaseKK));
+
         hitungUlangKalkulasiDashboard();
         muatTabelMasterKK();
         muatTabelLogIuran();
@@ -924,7 +934,7 @@
 
     function bukaModalWA(index) {
         wargaWATerpilih = databaseKK[index];
-        let namaTampil = wargaWATerpilih.nama ? wargaWATerpilih.nama : ("Keluarga " + wargaWATerpilih.kode);
+        let namaTampil = wargaWATerpilih.nama && !wargaWATerpilih.nama.startsWith("Keluarga") ? wargaWATerpilih.nama : ("Keluarga " + wargaWATerpilih.kode);
         document.getElementById('wa-nama-warga').innerText = `${namaTampil} (${wargaWATerpilih.wa})`;
         document.getElementById('modalWA').style.display = 'flex';
     }
@@ -938,7 +948,7 @@
         if (!wargaWATerpilih) return;
         
         let nomorWaClean = normalizeWA(wargaWATerpilih.wa);
-        let namaWarga = wargaWATerpilih.nama ? wargaWATerpilih.nama : ("Keluarga " + wargaWATerpilih.kode);
+        let namaWarga = wargaWATerpilih.nama && !wargaWATerpilih.nama.startsWith("Keluarga") ? wargaWATerpilih.nama : ("Keluarga " + wargaWATerpilih.kode);
         let infoRt = wargaWATerpilih.rt && wargaWATerpilih.rt !== "00" ? ` RT ${wargaWATerpilih.rt}` : '';
         let pesanTeks = '';
 
@@ -978,7 +988,7 @@
         const jiwaBaru = document.getElementById('modal-input-jiwa').value;
         
         let jemaahTarget = databaseKK[indeksEditTerpilih];
-        let kodeLama = jemaahTarget.kode; // Simpan kode lama sebelum diubah
+        let kodeLama = jemaahTarget.kode;
 
         jemaahTarget.rt = rtBaru;
         jemaahTarget.nama = namaBaru;
@@ -995,12 +1005,17 @@
         }
         jemaahTarget.kode = kodeBaru;
 
-        // SINKRONISASI: Pindahkan semua rekaman iuran lama ke kode baru
+        // SINKRONISASI IURAN
         if (kodeLama !== kodeBaru) {
             databaseIuran.forEach(iuran => {
                 if (iuran.kode === kodeLama) iuran.kode = kodeBaru;
             });
             localStorage.setItem('soskem_log_iuran', JSON.stringify(databaseIuran));
+            
+            databaseKlaim.forEach(klaim => {
+                if (klaim.kode === kodeLama) klaim.kode = kodeBaru;
+            });
+            localStorage.setItem('soskem_log_klaim', JSON.stringify(databaseKlaim));
         }
         
         localStorage.setItem('soskem_master_kk', JSON.stringify(databaseKK));
@@ -1111,7 +1126,6 @@
     }
 
     function hitungUlangKalkulasiDashboard() {
-        // Memastikan seluruh data dijumlahkan murni sebagai angka matematika (Integer)
         let totalPemasukanLain = databasePemasukanLain.reduce((sum, item) => sum + (parseInt(item.nominal) || 0), 0);
         let totalIuranWarga = databaseIuran.reduce((sum, item) => sum + (parseInt(item.nominal) || 0), 0);
         let totalKeluar = databaseKlaim.reduce((sum, item) => sum + (parseInt(item.nominal) || 0), 0);
@@ -1169,7 +1183,7 @@
             let status = warga.statusKalkulasi;
             let badgeClass = status === 'LANCAR' ? 'lancar' : (status === 'BERJALAN' ? 'berjalan' : 'tunggak');
             let indexAsli = databaseKK.findIndex(x => x.kode === warga.kode);
-            let namaCetak = warga.nama || "Keluarga " + warga.kode;
+            let namaCetak = warga.nama && !warga.nama.startsWith("Keluarga ISK") ? warga.nama : "Keluarga " + warga.kode;
             let noWaCetak = warga.wa ? `📱 ${warga.wa}` : '';
             let infoRtCetak = warga.rt && warga.rt !== "00" ? `RT ${warga.rt}` : '';
 
@@ -1246,14 +1260,16 @@
 
         paginatedItems.forEach((item, index) => {
             let urutAsli = startInd + index + 1;
+            let twSingkat = item.periode.replace("Triwulan ", "TW "); 
+            
             tbody.innerHTML += `
                 <tr>
                     <td style="text-align: center;">${urutAsli}</td>
-                    <td style="text-align: center;">${item.tanggal}</td>
+                    <td style="text-align: center; font-size:11px;">${item.tanggal.substring(5)}</td>
                     <td style="text-align: center; font-weight: bold;">${item.kode}</td>
-                    <td>${item.periode}</td>
-                    <td style="text-align: right;">Rp ${parseInt(item.nominal || 0).toLocaleString('id-ID')}</td>
-                    <td style="text-align: right; font-weight: bold;">Rp ${(item.saldoKumulatifSaatIni || 0).toLocaleString('id-ID')}</td>
+                    <td style="font-size:10px;">${twSingkat}</td>
+                    <td style="text-align: right; white-space: nowrap;">Rp ${parseInt(item.nominal || 0).toLocaleString('id-ID')}</td>
+                    <td style="text-align: right; font-weight: bold; white-space: nowrap;">Rp ${(item.saldoKumulatifSaatIni || 0).toLocaleString('id-ID')}</td>
                     <td class="kolom-layar-normal" style="text-align: center;"><button class="btn-hapus" onclick="hapusLogIuranFormated('${item.kode}', '${item.periode}', '${item.tanggal}')">X</button></td>
                 </tr>
             `;
@@ -1282,7 +1298,6 @@
         if (!tbody) return;
         tbody.innerHTML = '';
         
-        // 1. Gabungkan SEMUA arus kas (Iuran Rutin, Pemasukan Lain, Pengeluaran/Klaim)
         let gabunganArus = [
             ...databaseIuran.map(i => ({ 
                 tanggal: i.tanggal, kode: i.kode, rw: i.rw, 
@@ -1301,13 +1316,9 @@
             }))
         ];
 
-        // 2. Urutkan secara kronologis (Tanggal Lama -> Tanggal Baru)
         let dataSorted = gabunganArus.sort((a,b) => new Date(a.tanggal) - new Date(b.tanggal));
-        
-        // 3. Tetapkan Saldo Awal Statis
         let saldoBerjalan = SALDO_AWAL_TERDAHULU;
 
-        // 4. Render dan kalkulasi saldo per baris transaksi
         dataSorted.forEach((item) => {
             if(item.tipe === 'MASUK') {
                 saldoBerjalan += item.nominal;
@@ -1319,14 +1330,13 @@
             let nominalTampil = item.tipe === 'MASUK' ? `+ Rp ${item.nominal.toLocaleString('id-ID')}` : `- Rp ${item.nominal.toLocaleString('id-ID')}`;
             let warnaNominal = item.tipe === 'MASUK' ? '#059669' : '#dc2626';
 
-            // Logika tombol hapus disesuaikan dengan sumber data
             let btnHapus = '';
             if(item.kategori === 'Pemasukan Lain') {
                 btnHapus = `<button class="btn-hapus" onclick="hapusArusKas('MASUK', '${item.jenis}', '${item.tanggal}', ${item.nominal})">X</button>`;
             } else if (item.kategori === 'Pengeluaran') {
                 btnHapus = `<button class="btn-hapus" onclick="hapusArusKas('KELUAR', '${item.kode}', '${item.tanggal}', ${item.nominal})">X</button>`;
             } else if (item.kategori === 'Iuran') {
-                btnHapus = `<span style="font-size:9px; color:#64748b;">Hapus di tab Iuran</span>`; // Iuran lebih aman dihapus dari menu log iuran agar periode tidak berantakan
+                btnHapus = `<span style="font-size:9px; color:#64748b;">Hapus di tab Iuran</span>`;
             }
 
             tbody.innerHTML += `
@@ -1335,8 +1345,8 @@
                     <td><b>${item.kode}</b></td>
                     <td class="kolom-layar-normal"><span class="badge rw">${item.rw || '-'}</span></td>
                     <td><span class="${badgeStyle}">${item.jenis}</span></td>
-                    <td><b style="color:${warnaNominal};">${nominalTampil}</b></td>
-                    <td><b style="color:#2563eb;">Rp ${saldoBerjalan.toLocaleString('id-ID')}</b></td>
+                    <td style="white-space: nowrap;"><b style="color:${warnaNominal};">${nominalTampil}</b></td>
+                    <td style="white-space: nowrap;"><b style="color:#2563eb;">Rp ${saldoBerjalan.toLocaleString('id-ID')}</b></td>
                     <td class="kolom-layar-normal">${btnHapus}</td>
                 </tr>
             `;
@@ -1421,7 +1431,7 @@
         globalDataMasterFiltered.forEach((warga, idx) => {
             let namaAman = warga.nama && !warga.nama.startsWith("Keluarga ISK") ? warga.nama : "-";
             let waAman = warga.wa || "-";
-            let rtAman = (!warga.rt || warga.rt === "00") ? "-" : "RT " + warga.rt;
+            let rtAman = (warga.rt && warga.rt !== "00") ? "RT " + warga.rt : "-";
             
             tbodyCetak.innerHTML += `
                 <tr>
@@ -1531,7 +1541,7 @@
                                 return {
                                     kode: w.kode,
                                     rw: w.rw || "RW 18",
-                                    rt: w.rt || (w.kode.includes('-') ? w.kode.split('-')[1] : "00"), // Default ke 00 (Belum Diketahui) jika kosong, agar tidak asal asumsikan RT 01
+                                    rt: w.rt || (w.kode.includes('-') ? w.kode.split('-')[1] : "00"), 
                                     nama: w.nama || "Keluarga " + w.kode,
                                     wa: w.wa || "",
                                     jiwa: jiwaAman
