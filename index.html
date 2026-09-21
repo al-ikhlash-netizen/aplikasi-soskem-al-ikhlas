@@ -165,7 +165,7 @@
             body.mode-cetak-log-aktif .card-native.printable-panel { display: block !important; border: none !important; box-shadow: none !important; padding: 0 !important; }
             body.mode-cetak-log-aktif .kolom-layar-normal { display: none !important; }
 
-            /* PRINT DATA WARGA (BARU & FIX) */
+            /* PRINT DATA WARGA */
             body.mode-cetak-data-warga-aktif { background: white !important; padding: 0 !important; }
             body.mode-cetak-data-warga-aktif #print-area-data-warga { display: block !important; position: absolute; left: 0; top: 0; width: 100%; }
 
@@ -489,13 +489,12 @@
                 <table>
                     <thead>
                         <tr>
-                            <th style="width: 5%;">No</th>
-                            <th style="width: 15%;">Tgl</th>
-                            <th style="width: 25%;">Kode</th>
-                            <th style="width: 20%;">TW</th>
-                            <th style="width: 15%; text-align: right;">Jumlah</th>
+                            <th style="width: 5%; text-align: center;">No</th>
+                            <th style="width: 30%;">Kode Buku</th>
+                            <th style="width: 25%;">Triwulan</th>
+                            <th style="width: 20%; text-align: right;">Jumlah</th>
                             <th style="width: 15%; text-align: right;">Saldo</th>
-                            <th class="kolom-layar-normal" style="width: 5%;">Aksi</th>
+                            <th class="kolom-layar-normal" style="width: 5%; text-align: center;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="tabel-log-iuran"></tbody>
@@ -799,7 +798,6 @@
     }
 
     function jalankanSistemAwal() {
-        // SYSTEM AUTO-FIX: Memperbaiki database RT yang error dari asumsi sebelumnya.
         let adaPerubahan = false;
         databaseKK.forEach(w => {
             let rtAsli = "00";
@@ -995,7 +993,6 @@
         jemaahTarget.wa = waBaru;
         jemaahTarget.jiwa = jiwaBaru;
 
-        // Logika pembuatan kode baru
         let kodeBaru = kodeLama;
         if (kodeLama && !kodeLama.includes('-')) {
             kodeBaru = `${kodeLama}-${rtBaru}`;
@@ -1005,7 +1002,6 @@
         }
         jemaahTarget.kode = kodeBaru;
 
-        // SINKRONISASI IURAN
         if (kodeLama !== kodeBaru) {
             databaseIuran.forEach(iuran => {
                 if (iuran.kode === kodeLama) iuran.kode = kodeBaru;
@@ -1060,20 +1056,14 @@
         let indeksAwal = susunanPeriode.indexOf(periodeInput);
 
         if (sisaDanaPeta >= TARIF_PER_TRIWULAN) {
-            let cekSudahAda = databaseIuran.some(item => item.kode === kodeLengkap && item.periode === susunanPeriode[indeksAwal]);
-            if (!cekSudahAda) {
-                databaseIuran.push({ tanggal, kode: kodeLengkap, rw, periode: susunanPeriode[indeksAwal], nominal: TARIF_PER_TRIWULAN, signature });
-                sisaDanaPeta -= TARIF_PER_TRIWULAN;
-            }
+            databaseIuran.push({ tanggal, kode: kodeLengkap, rw, periode: susunanPeriode[indeksAwal], nominal: TARIF_PER_TRIWULAN, signature });
+            sisaDanaPeta -= TARIF_PER_TRIWULAN;
         }
 
         for (let i = indeksAwal + 1; i < susunanPeriode.length; i++) {
             if (sisaDanaPeta < TARIF_PER_TRIWULAN) break;
-            let cekSudahAda = databaseIuran.some(item => item.kode === kodeLengkap && item.periode === susunanPeriode[i]);
-            if (!cekSudahAda) {
-                databaseIuran.push({ tanggal, kode: kodeLengkap, rw, periode: susunanPeriode[i], nominal: TARIF_PER_TRIWULAN, signature });
-                sisaDanaPeta -= TARIF_PER_TRIWULAN;
-            }
+            databaseIuran.push({ tanggal, kode: kodeLengkap, rw, periode: susunanPeriode[i], nominal: TARIF_PER_TRIWULAN, signature });
+            sisaDanaPeta -= TARIF_PER_TRIWULAN;
         }
 
         if (sisaDanaPeta > 0) {
@@ -1265,9 +1255,8 @@
             tbody.innerHTML += `
                 <tr>
                     <td style="text-align: center;">${urutAsli}</td>
-                    <td style="text-align: center; font-size:11px;">${item.tanggal.substring(5)}</td>
                     <td style="text-align: center; font-weight: bold;">${item.kode}</td>
-                    <td style="font-size:10px;">${twSingkat}</td>
+                    <td style="font-size:11px;">${twSingkat}</td>
                     <td style="text-align: right; white-space: nowrap;">Rp ${parseInt(item.nominal || 0).toLocaleString('id-ID')}</td>
                     <td style="text-align: right; font-weight: bold; white-space: nowrap;">Rp ${(item.saldoKumulatifSaatIni || 0).toLocaleString('id-ID')}</td>
                     <td class="kolom-layar-normal" style="text-align: center;"><button class="btn-hapus" onclick="hapusLogIuranFormated('${item.kode}', '${item.periode}', '${item.tanggal}')">X</button></td>
@@ -1657,7 +1646,6 @@
         if(!ada) wadah.innerHTML = `<span style="color:#059669; text-align:center;">Semua data di wilayah ini sudah lengkap!</span>`;
     }
 
-    // --- FITUR PEMASUKAN LAIN ---
     function bukaModalPemasukan() {
         document.getElementById('pemasukan-tanggal').value = new Date().toISOString().split('T')[0];
         document.getElementById('pemasukan-keterangan').value = '';
@@ -1693,7 +1681,6 @@
         jalankanSistemAwal();
     }
 
-    // --- FITUR PENGELUARAN OPERASIONAL ---
     function bukaModalPengeluaran() {
         document.getElementById('pengeluaran-tanggal').value = new Date().toISOString().split('T')[0];
         document.getElementById('pengeluaran-keterangan').value = '';
