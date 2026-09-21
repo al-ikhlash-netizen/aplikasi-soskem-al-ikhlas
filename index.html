@@ -491,8 +491,8 @@
                         <tr>
                             <th style="width: 5%; text-align: center;">No</th>
                             <th style="width: 25%;">Kode Buku</th>
-                            <th style="width: 18%; text-align: center;">Tgl Bayar</th>
-                            <th style="width: 22%;">Triwulan</th>
+                            <th style="width: 15%; text-align: center;">Tanggal Bayar</th>
+                            <th style="width: 20%;">Triwulan</th>
                             <th style="width: 15%; text-align: right;">Jumlah</th>
                             <th style="width: 15%; text-align: right;">Saldo</th>
                             <th class="kolom-layar-normal" style="width: 5%; text-align: center;">Aksi</th>
@@ -1218,24 +1218,47 @@
         const filterPeriode = document.getElementById('filter-cetak-periode-iuran').value;
         const cariKata = document.getElementById('live-search-log').value.trim().toUpperCase();
         
-        let dataSorted = [...databaseIuran].sort((a, b) => {
-            let comp = a.kode.localeCompare(b.kode, undefined, { numeric: true });
-            if (comp !== 0) return comp;
-            return new Date(a.tanggal) - new Date(b.tanggal);
-        });
-        
-        globalDataIuranFiltered = []; 
-        let akumulasi = 0;
+        let dataFiltered = [];
 
-        dataSorted.forEach((item) => {
+        // 1. Filter awal dan simpan indeks asli (sebagai tie-breaker & ID unik untuk hapus data)
+        databaseIuran.forEach((item, index) => {
             if (filterRW !== 'SEMUA' && item.rw !== filterRW) return;
             if (filterPeriode !== 'SEMUA' && item.periode !== filterPeriode) return;
-            if (cariKata && !item.kode.toUpperCase().includes(cariKata)) return;
+            if (cariKata && (!item.kode || !item.kode.toUpperCase().includes(cariKata))) return;
             
-            akumulasi += parseInt(item.nominal || 0);
-            globalDataIuranFiltered.push({ ...item, saldoKumulatifSaatIni: akumulasi });
+            dataFiltered.push({ ...item, indexAsli: index });
         });
 
+        // 2. Urutkan berdasarkan urutan kronologis untuk menghitung saldo kumulatif
+        dataFiltered.sort((a, b) => {
+            let dateA = new Date(a.tanggal);
+            let dateB = new Date(b.tanggal);
+            if (dateA - dateB !== 0) return dateA - dateB;
+            return a.indexAsli - b.indexAsli; // Tie-breaker untuk data di hari yang sama
+        });
+
+        let akumulasi = 0;
+        dataFiltered.forEach((item) => {
+            akumulasi += parseInt(item.nominal || 0);
+            item.saldoKumulatifSaatIni = akumulasi;
+        });
+
+        // 3. Urutkan ulang untuk tampilan akhir (Kode Buku > Tanggal > Indeks Asli)
+        dataFiltered.sort((a, b) => {
+            // Natural sort agar ISK18/010 muncul setelah ISK18/002 dan sebelum ISK18/100
+            let comp = a.kode.localeCompare(b.kode, undefined, { numeric: true, sensitivity: 'base' });
+            if (comp !== 0) return comp;
+            
+            // Urutkan tanggal dari terlama ke terbaru jika kodenya sama
+            let dateA = new Date(a.tanggal);
+            let dateB = new Date(b.tanggal);
+            if (dateA - dateB !== 0) return dateA - dateB;
+            
+            // Tetapkan indeks asli jika kode dan tanggal sama, agar posisi stabil
+            return a.indexAsli - b.indexAsli;
+        });
+
+        globalDataIuranFiltered = dataFiltered;
         currentPageIuran = 1;
         renderTabelIuranPagination();
     }
@@ -1252,21 +1275,38 @@
 
         let startInd = (currentPageIuran - 1) * rowsPerPage;
         let isSedangPrint = document.body.classList.contains('mode-cetak-log-aktif');
+        
+        // Tampilkan seluruh data saat mode cetak aktif, hindari pagination slice
         let paginatedItems = isSedangPrint ? globalDataIuranFiltered : globalDataIuranFiltered.slice(startInd, startInd + rowsPerPage);
 
+        const escapeHTML = (str) => String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+
         paginatedItems.forEach((item, index) => {
-            let urutAsli = startInd + index + 1;
+            // Penomoran berlanjut pada tampilan normal, dan dari 1 berurutan saat mode cetak
+            let urutAsli = isSedangPrint ? (index + 1) : (startInd + index + 1);
             let twSingkat = item.periode.replace("Triwulan ", "TW "); 
+            
+            // Pemformatan tanggal manual (YYYY-MM-DD ke DD-MM-YYYY) menghindari isu timezone
+            let tglIndo = item.tanggal;
+            if (item.tanggal && item.tanggal.includes('-')) {
+                let parts = item.tanggal.split('-');
+                if (parts.length === 3) tglIndo = `${parts[2]}-${parts[1]}-${parts[0]}`;
+            }
+
+            let kodeAman = escapeHTML(item.kode);
+            let twAman = escapeHTML(twSingkat);
             
             tbody.innerHTML += `
                 <tr>
                     <td style="text-align: center;">${urutAsli}</td>
-                    <td style="font-weight: bold;">${item.kode}</td>
-                    <td style="text-align: center; font-size:11px;">${item.tanggal}</td>
-                    <td style="font-size:11px;">${twSingkat}</td>
+                    <td style="font-weight: bold;">${kodeAman}</td>
+                    <td style="text-align: center; font-size:11px;">${tglIndo}</td>
+                    <td style="font-size:11px;">${twAman}</td>
                     <td style="text-align: right; white-space: nowrap;">Rp ${parseInt(item.nominal || 0).toLocaleString('id-ID')}</td>
                     <td style="text-align: right; font-weight: bold; white-space: nowrap;">Rp ${(item.saldoKumulatifSaatIni || 0).toLocaleString('id-ID')}</td>
-                    <td class="kolom-layar-normal" style="text-align: center;"><button class="btn-hapus" onclick="hapusLogIuranFormated('${item.kode}', '${item.periode}', '${item.tanggal}')">X</button></td>
+                    <td class="kolom-layar-normal" style="text-align: center;">
+                        <button class="btn-hapus" onclick="hapusLogIuranFormated(${item.indexAsli})">X</button>
+                    </td>
                 </tr>
             `;
         });
@@ -1278,13 +1318,18 @@
             document.getElementById('btn-next-iuran').disabled = currentPageIuran === totalPages || totalPages === 0;
         }
     }
+    
     function ubahHalamanIuran(arah) { currentPageIuran += arah; renderTabelIuranPagination(); }
 
-    function hapusLogIuranFormated(kode, periode, tanggal) {
+    function hapusLogIuranFormated(indexAsli) {
         Swal.fire({ title: 'Hapus Log?', text: "Data setoran ini akan dihapus permanen!", icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc2626' }).then((res) => {
             if (res.isConfirmed) {
-                let idx = databaseIuran.findIndex(x => x.kode === kode && x.periode === periode && x.tanggal === tanggal);
-                if (idx !== -1) { databaseIuran.splice(idx, 1); localStorage.setItem('soskem_log_iuran', JSON.stringify(databaseIuran)); jalankanSistemAwal(); }
+                // Hapus tepat di array utama berdasarkan indeks asli tanpa mencari ulang
+                if (indexAsli !== undefined && databaseIuran[indexAsli]) { 
+                    databaseIuran.splice(indexAsli, 1); 
+                    localStorage.setItem('soskem_log_iuran', JSON.stringify(databaseIuran)); 
+                    jalankanSistemAwal(); 
+                }
             }
         });
     }
