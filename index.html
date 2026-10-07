@@ -1175,6 +1175,7 @@
         document.getElementById('rekap-detail-rw').innerText = `RW 18:${rw18} | 19:${rw19} | 20:${rw20}`;
     }
 
+    // MODIFIKASI DIMULAI DARI SINI 
     function muatTabelMasterKK() {
         const triwulanDropdown = document.getElementById('pilihan-triwulan-cetak').value;
         const filterStatus = document.getElementById('filter-status-cetak').value;
@@ -1207,6 +1208,7 @@
         if(currentPageMaster > totalPages && totalPages > 0) currentPageMaster = totalPages;
 
         let startInd = (currentPageMaster - 1) * rowsPerPage;
+        
         let isSedangPrint = document.body.classList.contains('mode-cetak-buku-aktif');
         let paginatedItems = isSedangPrint ? globalDataMasterFiltered : globalDataMasterFiltered.slice(startInd, startInd + rowsPerPage);
 
@@ -1214,22 +1216,34 @@
             let status = warga.statusKalkulasi;
             let badgeClass = status === 'LANCAR' ? 'lancar' : (status === 'BERJALAN' ? 'berjalan' : 'tunggak');
             let indexAsli = databaseKK.findIndex(x => x.kode === warga.kode);
-            let namaCetak = warga.nama && !warga.nama.startsWith("Keluarga ISK") ? warga.nama : "Keluarga " + warga.kode;
-            let noWaCetak = warga.wa ? `📱 ${warga.wa}` : '';
-            let infoRtCetak = warga.rt && warga.rt !== "00" ? `RT ${warga.rt}` : '';
+            
+            let namaCetak = warga.nama && !warga.nama.startsWith("Keluarga ISK") ? warga.nama : (isSedangPrint ? "........................................." : "Keluarga " + warga.kode);
+            let noWaCetak = warga.wa ? `📱 ${warga.wa}` : (isSedangPrint ? "📱 ...................." : "");
+            let infoRtCetak = warga.rt && warga.rt !== "00" ? `RT ${warga.rt}` : (isSedangPrint ? "RT ........" : "");
+            let jiwaCetak = warga.jiwa ? warga.jiwa : (isSedangPrint ? "......" : "-");
 
             let waButtonHTML = '';
             if (warga.wa) {
                 waButtonHTML = `<button class="btn-wa" onclick="bukaModalWA(${indexAsli})">WA</button>`;
             }
 
+            let rtHtml = "";
+            if (infoRtCetak) {
+                if (isSedangPrint) {
+                    rtHtml = `<span style="font-size:10px; font-weight:bold; margin-left: 5px;">${infoRtCetak}</span>`;
+                } else {
+                    rtHtml = `<span class="badge" style="background:#475569; font-size:9px; margin-left: 5px;">${infoRtCetak}</span>`;
+                }
+            }
+
             const tr = document.createElement('tr');
             tr.className = status === 'LANCAR' ? 'bukan-tunggakan' : 'termasuk-tunggakan';
+            
             tr.innerHTML = `
                 <td style="font-weight: bold; text-align: center;">${warga.kode}</td>
-                <td><b>${namaCetak}</b> ${infoRtCetak ? `<span class="badge" style="background:#475569; font-size:9px;">${infoRtCetak}</span>` : ''}<br><small style="color: #64748b;">Jiwa: ${warga.jiwa || '-'} ${noWaCetak ? '| ' + noWaCetak : ''}</small></td>
+                <td><b>${namaCetak}</b> ${rtHtml}<br><small style="color: ${isSedangPrint ? '#000' : '#64748b'};">Jiwa: ${jiwaCetak} ${noWaCetak ? '| ' + noWaCetak : ''}</small></td>
                 <td class="kolom-layar-normal" style="text-align: center;"><span class="badge rw">${warga.rw}</span></td>
-                <td class="kolom-cetak-lap" style="text-align: center;"><span class="badge ${badgeClass}">${status}</span></td>
+                <td class="kolom-cetak-lap" style="text-align: center;"><span class="${isSedangPrint ? '' : 'badge ' + badgeClass}" style="${isSedangPrint ? 'font-size:10px; font-weight:bold;' : ''}">${status}</span></td>
                 <td class="kolom-cetak-lap kotak-kecil" style="text-align: center;">▢</td>
                 <td class="kolom-cetak-lap gari-bawah" style="text-align: center;">Rp ........</td>
                 <td class="kolom-cetak-lap gari-bawah" style="text-align: center;">..........</td>
@@ -1252,6 +1266,7 @@
     }
     
     function ubahHalamanMaster(arah) { currentPageMaster += arah; renderTabelMasterPagination(); }
+    // MODIFIKASI BERAKHIR DI SINI
 
     function muatTabelLogIuran() {
         const filterRW = document.getElementById('filter-cetak-rw-iuran').value;
