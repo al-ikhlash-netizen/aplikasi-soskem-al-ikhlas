@@ -413,7 +413,6 @@
                 </select>
             </div>
 
-            <!-- PENAMBAHAN TOMBOL CETAK KARTU FISIK -->
             <div class="btn-group-action">
                 <button onclick="unduhLaporanExcel('MASTER')" class="btn-action-sm bg-excel">📊 Export CSV</button>
                 <button onclick="cetakBukuPenagihanMassal()" class="btn-action-sm bg-print">🖨️ Cetak Buku</button>
@@ -1585,12 +1584,6 @@
             let rwAman = warga.rw || ".....";
             let kodeAman = warga.kode || "........................";
             
-            // Generate kotak-kotak untuk NIK
-            let kotakNIK = "";
-            for(let i=0; i<16; i++) {
-                kotakNIK += `<div style="display:inline-block; width:12px; height:12px; border:1px solid #000; margin-right:1px;"></div>`;
-            }
-
             let cardHTML = `
                 <div class="kartu-cetak-item">
                     <!-- Faint Background Logo -->
@@ -1608,8 +1601,7 @@
                         </div>
                         
                         <table style="width:100%; font-size:10px; font-weight:bold; margin-bottom:8px; border:none;">
-                            <tr><td style="width:65px; padding:3px 0; border:none;">Nomor KK</td><td style="width:8px; border:none;">:</td><td style="border:none;">${kotakNIK}</td></tr>
-                            <tr><td style="padding:3px 0; border:none;">Nama</td><td style="border:none;">:</td><td style="border:none; border-bottom:1px dashed #000;">${namaAman}</td></tr>
+                            <tr><td style="width:65px; padding:3px 0; border:none;">Nama</td><td style="width:8px; border:none;">:</td><td style="border:none; border-bottom:1px dashed #000;">${namaAman}</td></tr>
                             <tr><td style="padding:3px 0; border:none;">RT - RW</td><td style="border:none;">:</td><td style="border:none; border-bottom:1px dashed #000;">RT ${rtAman} - ${rwAman}</td></tr>
                             <tr><td style="padding:3px 0; border:none;">Thn/Kode KK</td><td style="border:none;">:</td><td style="border:none; border-bottom:1px dashed #000;">${new Date().getFullYear()} / ${kodeAman}</td></tr>
                         </table>
@@ -1635,7 +1627,7 @@
                         <div style="font-size:8px; line-height:1.2; color:#000;">
                             <b style="font-size:9px;">TATA TERTIB PEMBAYARAN</b>
                             <ul style="padding-left:12px; margin-top:2px; margin-bottom:4px;">
-                                <li>Iuran wajib dibayarkan paling lambat tanggal 15 setiap bulannya.</li>
+                                <li>Iuran dibayarkan paling lambat tanggal 15 setiap bulannya.</li>
                                 <li>Besaran iuran adalah Rp 25.000 per tiga bulan/KK, Infaq (Sukarela)</li>
                                 <li>Serahkan kartu ini setiap melakukan pembayaran untuk divalidasi oleh petugas/bendahara.</li>
                                 <li>Segera Hubungi pengelola dan serahkan kartu iuran agar Penyaluran dana santunan diproses segera setelah pengurus menerima laporan berita duka.</li>
@@ -1664,7 +1656,7 @@
                 text: qrData,
                 width: 50,
                 height: 50,
-                colorDark : "#0f2c23", // QR berwarna hijau gelap agar estetik
+                colorDark : "#0f2c23", 
                 colorLight : "#ffffff",
                 correctLevel : QRCode.CorrectLevel.L
             });
