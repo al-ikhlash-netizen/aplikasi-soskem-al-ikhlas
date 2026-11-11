@@ -1937,111 +1937,55 @@
 
         Swal.fire({
             title: 'Sedang Menganalisis Foto...',
-            text: 'AI sedang membaca tabel buku catatan fisik...',
-            allowOutsideClick: false,
-            didOpen: () => { Swal.showLoading(); }
-        });
+    /* =========================================================
+       FUNGSI AI SMART SCANNER (MENGGUNAKAN GEMINI 3.8 FLASH)
+       ========================================================= */
+    async function panggilGeminiAPIWithRetry(apiKey, promptText, mimeType, base64Data) {
+        // Menggunakan gemini-3.8-flash sebagai utama, serta 3.6-flash & 3.5-flash-lite sebagai cadangan
+        const modelList = ['gemini-3.8-flash', 'gemini-3.6-flash', 'gemini-3.5-flash-lite'];
+        let lastError = null;
 
-        try {
-            const base64Data = await konversiFileKeBase64(file);
-            
-            const promptText = `
-            Anda adalah asisten data entry untuk aplikasi DKM Jami Al-Ikhlash. 
-            Analisis foto halaman buku catatan iuran SOSKEM ini secara cermat. 
-            Ekstraksi setiap baris data keluarga ke dalam format JSON array yang valid.
-            
-            Setiap objek dalam array harus memiliki struktur atribut berikut:
-            - "kode": "Nomor kode buku, contoh 'ISK19/004-00'",
-            - "rw": "Wilayah RW, contoh 'RW 19'",
-            - "rt": "Nomor RT jika tertulis (contoh '01', '02'), jika tidak ada isi '00'",
-            - "nama": "Nama Kepala Keluarga (bersihkan dari nomor HP atau catatan lain)",
-            - "wa": "Nomor HP/WhatsApp jika ada di dalam kurung (contoh '0813321412961'), jika tidak ada isi ''",
-            - "jiwa": "Jumlah jiwa jika tertulis (contoh '3', '4'), jika tidak ada isi ''",
-            - "status": "Status pembayaran tertulis, misal 'BERJALAN' atau 'LANCAR'",
-            - "tanggal_bayar": "Tanggal setoran atau tanggal paraf jika tertulis (misal '27/10', '2/11'), jika tidak ada isi ''"
-            
-            Keluarkan HANYA format JSON mentah tanpa teks pengantar atau penutup. Pastikan valid JSON.
-            `;
-
-            // Panggil API menggunakan fungsi Retry & Fallback
-            const result = await panggilGeminiAPIWithRetry(apiKey, promptText, file.type, base64Data);
-
-            const textResponse = result.candidates[0].content.parts[0].text.trim();
-            let jsonString = textResponse.replace(/```json/g, '').replace(/```/g, '').trim();
-            const match = jsonString.match(/\[[\s\S]*\]/);
-            if (match) {
-                jsonString = match[0];
-            }
-
-            const extractedData = JSON.parse(jsonString);
-
-            let dataBaruMasuk = 0;
-            let setoranBaruMasuk = 0;
-
-            extractedData.forEach(item => {
-                let existingKK = databaseKK.find(k => k.kode === item.kode);
-                if (!existingKK) {
-                    databaseKK.push({
-                        kode: item.kode,
-                        rw: item.rw || "RW 19",
-                        rt: item.rt || "00",
-                        nama: item.nama || ("Keluarga " + item.kode),
-                        wa: item.wa || "",
-                        jiwa: item.jiwa || ""
-                    });
-                    dataBaruMasuk++;
-                } else {
-                    if (!existingKK.nama || existingKK.nama.startsWith("Keluarga")) existingKK.nama = item.nama;
-                    if (!existingKK.wa && item.wa) existingKK.wa = item.wa;
-                    if (!existingKK.jiwa && item.jiwa) existingKK.jiwa = item.jiwa;
-                    if ((!existingKK.rt || existingKK.rt === "00") && item.rt) existingKK.rt = item.rt;
-                }
-
-                if (item.tanggal_bayar) {
-                    let tahunIni = new Date().getFullYear();
-                    let tanggalIso = new Date().toISOString().split('T')[0];
-                    if (item.tanggal_bayar.includes('/')) {
-                        let parts = item.tanggal_bayar.split('/');
-                        if (parts.length === 2) {
-                            let day = parts[0].padStart(2, '0');
-                            let month = parts[1].padStart(2, '0');
-                            tanggalIso = `${tahunIni}-${month}-${day}`;
-                        }
-                    }
-
-                    let periodeTarget = document.getElementById('pilihan-triwulan-cetak').value || "Triwulan 3 (Jul-Sep)";
-                    let isExistLog = databaseIuran.some(i => i.kode === item.kode && i.periode === periodeTarget);
-                    if (!isExistLog) {
-                        databaseIuran.push({
-                            tanggal: tanggalIso,
-                            kode: item.kode,
-                            rw: item.rw || "RW 19",
-                            periode: periodeTarget,
-                            nominal: 25000,
-                            signature: "AI-Scan-Verified"
+        for (const model of modelList) {
+            for (let attempt = 1; attempt <= 2; attempt++) {
+                try {
+                    if (attempt > 1 || model !== modelList[0]) {
+                        Swal.update({
+                            text: `Server padat. Mengalihkan ke model (${model})...`
                         });
-                        setoranBaruMasuk++;
+                        await new Promise(r => setTimeout(r, 1200 * attempt));
                     }
+
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{
+                                parts: [
+                                    { text: promptText },
+                                    { inline_data: { mime_type: mimeType, data: base64Data } }
+                                ]
+                            }]
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    // Jika lonjakan trafik (429/503) atau ada error dari API, lewati ke model berikutnya
+                    if (response.status === 429 || response.status === 503 || data.error) {
+                        console.warn(`Kendala pada model ${model}:`, data.error?.message || response.statusText);
+                        lastError = new Error(data.error?.message || `Model ${model} sedang sibuk.`);
+                        continue;
+                    }
+
+                    if (data.candidates && data.candidates.length > 0) {
+                        return data;
+                    }
+                } catch (err) {
+                    lastError = err;
                 }
-            });
-
-            localStorage.setItem('soskem_master_kk', JSON.stringify(databaseKK));
-            localStorage.setItem('soskem_log_iuran', JSON.stringify(databaseIuran));
-
-            Swal.fire({
-                title: 'Berhasil Diproses AI!',
-                html: `<b>${dataBaruMasuk} Master KK Baru</b> ditambahkan.<br><b>${setoranBaruMasuk} Log Iuran</b> tercatat otomatis.`,
-                icon: 'success'
-            }).then(() => {
-                jalankanSistemAwal();
-            });
-
-        } catch (error) {
-            console.error(error);
-            Swal.fire('Gagal Memproses AI', error.message || 'Terjadi kesalahan saat membaca gambar.', 'error');
+            }
         }
-
-        event.target.value = '';
+        throw lastError || new Error('Gagal menghubungi AI. Silakan coba beberapa saat lagi.');
     }
 
     function konversiFileKeBase64(file) {
