@@ -312,15 +312,16 @@
     <!-- ================= TAB 1: MASTER KK & WARGA ================= -->
     <div id="tab-master" class="tab-content">
         
-        <!-- FITUR AI SMART SCANNER BUKU FISIK -->
+        <!-- AI SMART SCANNER (LANGSUNG BUKA KAMERA) -->
         <div class="card-native" style="background: #f0fdf4; border-color: #bbf7d0;">
-            <h3 style="color: #166534;">🤖 AI Smart Scanner (Scan Buku Manual)</h3>
+            <h3 style="color: #166534;">🤖 AI Smart Scanner (Kamera Langsung)</h3>
             <p style="font-size: 11px; color: #15803d; margin-bottom: 10px;">
-                Unggah foto lembar buku catatan fisik SOSKEM Anda. AI akan otomatis mengekstraksi kode buku, nama KK, RT, jumlah jiwa, nomor WhatsApp, dan status iuran/tanggal.
+                Ketuk tombol di bawah untuk langsung membuka kamera HP dan memotret halaman buku catatan SOSKEM. AI akan langsung membaca datanya.
             </p>
-            <input type="file" id="input-foto-buku-ai" accept="image/*" style="display: none;" onchange="prosesScanBukuAI(event)">
+            <!-- capture="environment" memaksa HP langsung membuka kamera belakang -->
+            <input type="file" id="input-foto-buku-ai" accept="image/*" capture="environment" style="display: none;" onchange="prosesScanBukuAI(event)">
             <button class="btn-native" style="background: #059669;" onclick="document.getElementById('input-foto-buku-ai').click()">
-                📷 Foto / Unggah Halaman Buku Catatan
+                📷 Buka Kamera & Scan Buku
             </button>
         </div>
 
@@ -1862,7 +1863,7 @@
     }
 
     /* =========================================================
-       FUNGSI AI SMART SCANNER BUKU CATATAN FISIK (GEMINI VISION)
+       FUNGSI AI SMART SCANNER (KAMERA LANGSUNG + GEMINI VISION)
        ========================================================= */
     async function prosesScanBukuAI(event) {
         const file = event.target.files[0];
@@ -1872,7 +1873,7 @@
         if (!apiKey) {
             const { value: keyInput } = await Swal.fire({
                 title: 'Masukkan Gemini API Key',
-                text: 'Dapatkan API Key gratis di Google AI Studio untuk mengaktifkan AI Scanner.',
+                text: 'Dapatkan API Key gratis di Google AI Studio.',
                 input: 'text',
                 inputPlaceholder: 'AIzaSy...',
                 showCancelButton: true,
@@ -1884,8 +1885,8 @@
         }
 
         Swal.fire({
-            title: 'Sedang Menganalisis Buku...',
-            text: 'AI sedang membaca kode buku, kepala keluarga, nomor RT, jumlah jiwa, nomor WhatsApp, dan tanggal setoran.',
+            title: 'Sedang Menganalisis Foto...',
+            text: 'AI sedang membaca tabel buku catatan fisik...',
             allowOutsideClick: false,
             didOpen: () => { Swal.showLoading(); }
         });
@@ -1929,10 +1930,11 @@
                 throw new Error(result.error.message || 'Gagal menghubungi Gemini API.');
             }
 
-            const textResponse = result.candidates[0].content.parts[0].text.trim();
-            console.log("Raw AI Response:", textResponse); // Untuk debugging di console browser jika diperlukan
+            if (!result.candidates || result.candidates.length === 0) {
+                throw new Error('AI tidak memberikan respons. Periksa kembali API Key Anda.');
+            }
 
-            // Ekstraksi aman: Cari teks yang berada di antara kurung siku [...]
+            const textResponse = result.candidates[0].content.parts[0].text.trim();
             let jsonString = textResponse.replace(/```json/g, '').replace(/```/g, '').trim();
             const match = jsonString.match(/\[[\s\S]*\]/);
             if (match) {
@@ -2004,12 +2006,12 @@
 
         } catch (error) {
             console.error(error);
-            Swal.fire('Gagal Memproses AI', 'Terjadi kesalahan saat membaca gambar atau format respons AI. Pastikan foto buku terang dan jelas.', 'error');
+            // Menampilkan error asli agar tahu penyebab pastinya
+            Swal.fire('Gagal Memproses AI', error.message || 'Terjadi kesalahan saat membaca gambar.', 'error');
         }
 
         event.target.value = '';
     }
-
 
     function konversiFileKeBase64(file) {
         return new Promise((resolve, reject) => {
