@@ -999,28 +999,43 @@
     }
 
     function kirimPesanWA(jenis) {
-        if (!wargaWATerpilih) return;
-        
-        let nomorWaClean = normalizeWA(wargaWATerpilih.wa);
-        let namaWarga = wargaWATerpilih.nama && !wargaWATerpilih.nama.startsWith("Keluarga") ? wargaWATerpilih.nama : ("Keluarga " + wargaWATerpilih.kode);
-        let infoRt = wargaWATerpilih.rt && wargaWATerpilih.rt !== "00" ? ` RT ${wargaWATerpilih.rt}` : '';
-        let pesanTeks = '';
-
-        if (jenis === 'terdaftar') {
-            pesanTeks = `Assalamu'alaikum Wr. Wb. Bpk/Ibu ${namaWarga},\n\nKami informasikan bahwa keluarga Bapak/Ibu telah tercatat resmi di database program Sosial Kematian (SOSKEM) DKM Masjid Jami Al-Ikhlash.\n\nNomor Buku: *${wargaWATerpilih.kode}*\nWilayah: *${wargaWATerpilih.rw}${infoRt}*\n\nJazakumullah khairan katsiran.`;
-        } 
-        else if (jenis === 'lunas') {
-            const triwulanAktif = document.getElementById('pilihan-triwulan-cetak').value || 'Berjalan';
-            pesanTeks = `Assalamu'alaikum Wr. Wb.\n\nJazakumullah khairan katsiran Bpk/Ibu ${namaWarga}. Pembayaran iuran SOSKEM DKM Jami Al-Ikhlash untuk periode *${triwulanAktif}* telah kami terima dan tercatat di sistem.\n\nSemoga menjadi amal jariyah yang barokah. Aamiin.`;
-        } 
-        else if (jenis === 'tagihan') {
-            pesanTeks = `Assalamu'alaikum Wr. Wb. Bpk/Ibu ${namaWarga},\n\nMohon izin mengingatkan santun untuk iuran program Sosial Kematian (SOSKEM) DKM Jami Al-Ikhlash (Kode Buku: *${wargaWATerpilih.kode}*) untuk periode yang belum terselesaikan.\n\nTerima kasih atas partisipasi dan kepeduliannya.`;
-        }
-
-        let linkWA = `https://wa.me/${nomorWaClean}?text=${encodeURIComponent(pesanTeks)}`;
-        window.open(linkWA, '_blank');
-        tutupModalWA();
+    if (!wargaWATerpilih) return;
+    
+    let nomorWaClean = normalizeWA(wargaWATerpilih.wa);
+    let namaWarga = wargaWATerpilih.nama && !wargaWATerpilih.nama.startsWith("Keluarga") ? wargaWATerpilih.nama : ("Keluarga " + wargaWATerpilih.kode);
+    let infoRt = wargaWATerpilih.rt && wargaWATerpilih.rt !== "00" ? ` RT ${wargaWATerpilih.rt}` : '';
+    
+    // Format Tanggal (Otomatis menjabarkan bulan ke bahasa Indonesia, misal: 12 November 2026)
+    const opsiTgl = { day: 'numeric', month: 'long', year: 'numeric' };
+    const tglDiterimaDKM = new Date().toLocaleDateString('id-ID', opsiTgl);
+    
+    // Tarik tanggal pembayaran langsung dari inputan form setor, jika kosong pakai hari ini
+    let formTglBayar = document.getElementById('setor-tanggal') ? document.getElementById('setor-tanggal').value : '';
+    let tglPembayaran = tglDiterimaDKM;
+    if (formTglBayar) {
+        tglPembayaran = new Date(formTglBayar).toLocaleDateString('id-ID', opsiTgl);
     }
+
+    let pesanTeks = '';
+    
+    // Footer otomatis dengan trik Italic (_) agar terlihat seperti catatan sistem yang samar
+    let footerOtomatis = `\n\n_-- Pesan ini dikirim otomatis dari Server DKM Jami Al-Ikhlash --_`;
+
+    if (jenis === 'terdaftar') {
+        pesanTeks = `Assalamu'alaikum Wr. Wb. Bpk/Ibu ${namaWarga},\n\nKami informasikan bahwa keluarga Bapak/Ibu telah tercatat resmi di database program Sosial Kematian (SOSKEM) DKM Masjid Jami Al-Ikhlash.\n\nNomor Buku: *${wargaWATerpilih.kode}*\nWilayah: *${wargaWATerpilih.rw}${infoRt}*\n\nJazakumullah khairan katsiran.${footerOtomatis}`;
+    } 
+    else if (jenis === 'lunas') {
+        const triwulanAktif = document.getElementById('pilihan-triwulan-cetak').value || 'Berjalan';
+        pesanTeks = `Assalamu'alaikum Wr. Wb.\n\nJazakumullah khairan katsiran Bpk/Ibu ${namaWarga}. Pembayaran iuran SOSKEM DKM Jami Al-Ikhlash untuk periode *${triwulanAktif}* telah kami terima dan tercatat di sistem.\n\n📋 *Rincian Setoran:*\n- Tgl Pembayaran : *${tglPembayaran}*\n- Diterima DKM : *${tglDiterimaDKM}*\n\nSemoga menjadi amal jariyah yang barokah. Aamiin.${footerOtomatis}`;
+    } 
+    else if (jenis === 'tagihan') {
+        pesanTeks = `Assalamu'alaikum Wr. Wb. Bpk/Ibu ${namaWarga},\n\nMohon izin mengingatkan santun untuk iuran program Sosial Kematian (SOSKEM) DKM Jami Al-Ikhlash (Kode Buku: *${wargaWATerpilih.kode}*) untuk periode yang belum terselesaikan.\n\nTerima kasih atas partisipasi dan kepeduliannya.${footerOtomatis}`;
+    }
+
+    let linkWA = `https://wa.me/${nomorWaClean}?text=${encodeURIComponent(pesanTeks)}`;
+    window.open(linkWA, '_blank');
+    tutupModalWA();
+}
 
     function bukaModalEditKK(index) {
         indeksEditTerpilih = index;
