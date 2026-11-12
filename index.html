@@ -1127,7 +1127,25 @@
         }
 
         localStorage.setItem('soskem_log_iuran', JSON.stringify(databaseIuran));
-        Swal.fire('Sukses', `Pembayaran Berhasil Disimpan!<br>Rp ${nominalInput.toLocaleString('id-ID')} dialokasikan.`, 'success');
+        
+        // MODIFIKASI: Memunculkan pop-up WhatsApp otomatis setelah berhasil menyimpan setoran
+        Swal.fire({
+            title: 'Sukses',
+            html: `Pembayaran Berhasil Disimpan!<br>Rp ${nominalInput.toLocaleString('id-ID')} dialokasikan.`,
+            icon: 'success',
+            confirmButtonText: 'Kirim Info via WA',
+            showCancelButton: true,
+            cancelButtonText: 'Tutup'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Temukan index warga di databaseKK untuk memicu fungsi bukaModalWA
+                let indexWarga = databaseKK.findIndex(item => item.kode === kodeLengkap);
+                if(indexWarga !== -1) {
+                    bukaModalWA(indexWarga);
+                }
+            }
+        });
+
         document.getElementById('setor-kode-kk').value = '';
         document.getElementById('setor-nominal').value = 'Rp 25.000';
         document.getElementById('preview-kk').innerHTML = '';
@@ -1579,7 +1597,7 @@
                     
                     <div style="position:relative; z-index:1;">
                         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #d4af37; padding-bottom:8px; margin-bottom:10px;">
-                            <img src="1000026447.png" style="height:55px; width:55px; object-fit:contain;">
+                            <img src="1000026447.jpg" style="height:55px; width:55px; object-fit:contain;">
                             <div style="text-align:center; flex:1;">
                                 <h2 style="font-size:14px; font-weight:bold; margin:0; color:#2c3e50;">KARTU IURAN<br>SOSIAL KEMATIAN</h2>
                                 <p style="font-size:9px; font-weight:bold; margin:3px 0 0 0; color:#2c3e50;">DKM MASJID JAMI AL IKHLASH</p>
@@ -1639,9 +1657,15 @@
             container.innerHTML += cardHTML;
         });
 
-        // Eksekusi Generate QR Code untuk setiap kartu yang dirender (Hanya Kode Buku)
+        // MODIFIKASI: Mengembalikan QR Code ke setelan awal (JSON lengkap)
         dataTercetak.forEach((warga, idx) => {
-            let qrData = warga.kode; // Hanya kode buku agar scan cepat dan ringan
+            let qrData = JSON.stringify({ 
+                kode: warga.kode, 
+                nama: warga.nama || "", 
+                rw: warga.rw || "", 
+                rt: warga.rt || "", 
+                jiwa: warga.jiwa || "" 
+            });
             
             new QRCode(document.getElementById(`qr-kartu-${idx}`), {
                 text: qrData,
