@@ -195,7 +195,7 @@
         </div>
     </div>
     <div class="running-text-container">
-        <span>Sistem Administrasi Sosial Kematian Masjid Jami Al-Ikhlash • Data Sync: FIREBASE CLOUD SERVER 🟢 Aktif</span>
+        <span>Sistem Administrasi Sosial Kematian Masjid Jami Al-Ikhlash •By R&R Software & Data Sync: FIREBASE CLOUD SERVER 🟢 Aktif</span>
     </div>
 </div>
 
@@ -329,7 +329,7 @@
                 </div>
                 <div class="form-group">
                     <label>Nomor WhatsApp</label>
-                    <input type="text" id="kk-wa" class="form-control" placeholder="Contoh: 08123456789">
+                    <input type="tel" id="kk-wa" class="form-control" placeholder="Contoh: 08123456789">
                 </div>
                 <div class="form-group">
                     <label>Jumlah Jiwa</label>
@@ -656,7 +656,7 @@
         </div>
         <div class="form-group">
             <label>Nomor WhatsApp</label>
-            <input type="text" id="modal-input-wa" class="form-control" placeholder="No WhatsApp...">
+            <input type="tel" id="modal-input-wa" class="form-control" placeholder="No WhatsApp...">
         </div>
         <div class="form-group">
             <label>Jumlah Jiwa</label>
@@ -806,7 +806,7 @@
         const hariIni = new Date().toISOString().split('T')[0];
         if(document.getElementById('setor-tanggal')) document.getElementById('setor-tanggal').value = hariIni;
         
-        tarikDataDariFirebase(); // Mengambil alih jalankanSistemAwal()
+        tarikDataDariFirebase();
         
         sinkronisasiPrefixSetoran();
         setelDropdownTriwulanOtomatis();
@@ -815,29 +815,25 @@
 
     // 4. LOGIKA CLOUD SYNC & AUTO MIGRASI
     function tarikDataDariFirebase() {
-        // .on() akan terus menguping perubahan di Cloud. Jika ada perubahan, layar otomatis update.
         db.ref('soskem_data').on('value', (snapshot) => {
             const dataCloud = snapshot.val();
             
             if (dataCloud) {
-                // Tarik data dari awan
                 databaseKK = dataCloud.master_kk || [];
                 databaseIuran = dataCloud.log_iuran || [];
                 databaseKlaim = dataCloud.log_klaim || [];
                 databasePemasukanLain = dataCloud.pemasukan_lain || [];
             } else {
-                // JIKA AWAN KOSONG: Migrasikan data localStorage HP Bapak otomatis ke awan!
                 let localKK = JSON.parse(localStorage.getItem('soskem_master_kk')) || [];
                 if(localKK.length > 0) {
                     databaseKK = localKK;
                     databaseIuran = JSON.parse(localStorage.getItem('soskem_log_iuran')) || [];
                     databaseKlaim = JSON.parse(localStorage.getItem('soskem_log_klaim')) || [];
                     databasePemasukanLain = JSON.parse(localStorage.getItem('soskem_pemasukan_lain')) || [];
-                    simpanKeCloud(); // Lempar ke Firebase
+                    simpanKeCloud();
                 }
             }
 
-            // Normalisasi struktur data
             databaseKK.forEach(w => {
                 let rtAsli = "00";
                 if (w.kode && w.kode.includes('-')) {
@@ -846,7 +842,6 @@
                 if (w.rt !== rtAsli) w.rt = rtAsli;
             });
 
-            // Perbarui seluruh tampilan UI
             hitungUlangKalkulasiDashboard();
             muatTabelMasterKK();
             muatTabelLogIuran();
@@ -856,7 +851,6 @@
         });
     }
 
-    // FUNGSI PENGGANTI LOCALSTORAGE
     function simpanKeCloud() {
         db.ref('soskem_data').set({
             master_kk: databaseKK,
@@ -864,9 +858,7 @@
             log_klaim: databaseKlaim,
             pemasukan_lain: databasePemasukanLain
         });
-        // Tidak perlu lagi memanggil fungsi render ulang, karena db.ref.on('value') otomatis terpancing.
     }
-
 
     function setelDropdownTriwulanOtomatis() {
         const bulanSekarang = new Date().getMonth() + 1;
@@ -900,7 +892,6 @@
             setupSignaturePad();
         }
     }
-
 
     function renderDashboardChart() {
         const ctx = document.getElementById('kepatuhanChart');
@@ -990,9 +981,6 @@
         document.getElementById('kk-kode').value = `${prefixTarget}${String(nomorUrutTerbesar + 1).padStart(3, '0')}-${rtTerpilih}`;
     }
 
-    // ============================================
-    // SIMPAN MASTER KK -> FIREBASE
-    // ============================================
     document.getElementById('form-master-kk').addEventListener('submit', function(e) {
         e.preventDefault();
         const kode = document.getElementById('kk-kode').value.trim().toUpperCase();
@@ -1009,7 +997,7 @@
         }
 
         databaseKK.push({ kode, rt, nama, wa, jiwa, rw });
-        simpanKeCloud(); // PENGGANTI localStorage
+        simpanKeCloud();
         
         Swal.fire('Berhasil!', `Keluarga Disimpan ke Cloud!<br><b>${kode}</b>`, 'success');
         document.getElementById('kk-nama').value = '';
@@ -1109,15 +1097,12 @@
             });
         }
         
-        simpanKeCloud(); // PENGGANTI localStorage
+        simpanKeCloud();
         
         Swal.fire('Berhasil', 'Data tersinkronisasi di Firebase Cloud!', 'success');
         tutupModalEdit();
     }
 
-    // ============================================
-    // SIMPAN SETORAN IURAN -> FIREBASE
-    // ============================================
     document.getElementById('form-setor-iuran').addEventListener('submit', function(e) {
         e.preventDefault();
         const rw = document.getElementById('setor-rw-pilihan').value;
@@ -1168,7 +1153,7 @@
             databaseIuran.push({ tanggal, kode: kodeLengkap, rw, periode: "Kompensasi Tahun Depan", nominal: sisaDanaPeta, signature });
         }
 
-        simpanKeCloud(); // PENGGANTI localStorage
+        simpanKeCloud();
         
         Swal.fire({
             title: 'Sukses',
@@ -1461,7 +1446,7 @@
             if (res.isConfirmed) {
                 if (indexAsli !== undefined && databaseIuran[indexAsli]) { 
                     databaseIuran.splice(indexAsli, 1); 
-                    simpanKeCloud(); // PENGGANTI localStorage
+                    simpanKeCloud();
                 }
             }
         });
@@ -1512,7 +1497,7 @@
                     let idx = databaseKlaim.findIndex(x => x.kode === kode && x.tanggal === tanggal && x.nominal === nominal);
                     if (idx !== -1) { databaseKlaim.splice(idx, 1); }
                 }
-                simpanKeCloud(); // PENGGANTI localStorage
+                simpanKeCloud();
             }
         });
     }
@@ -1547,7 +1532,7 @@
         Swal.fire({ title: 'Cairkan Santunan?', text: `Klaim Rp 850.000 untuk ${kode}?`, icon: 'question', showCancelButton: true }).then((res) => {
             if (res.isConfirmed) {
                 databaseKlaim.push({ tanggal: new Date().toISOString().split('T')[0], kode, rw, jenis: "Santunan & Kafan", nominal: 850000 });
-                simpanKeCloud(); // PENGGANTI localStorage
+                simpanKeCloud();
                 Swal.fire('Berhasil!', 'Pencairan Disimpan ke Cloud!', 'success');
                 lacakKelayakanKK();
             }
@@ -1699,7 +1684,7 @@
         Swal.fire({ title: 'Hapus Jemaah?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc2626' }).then((res) => {
             if (res.isConfirmed) {
                 databaseKK.splice(index, 1);
-                simpanKeCloud(); // PENGGANTI localStorage
+                simpanKeCloud();
             }
         });
     }
@@ -1728,7 +1713,7 @@
         if (konfirmasi === "idarah-masjid") {
             databaseKK = []; databaseIuran = []; databaseKlaim = []; databasePemasukanLain = [];
             simpanKeCloud();
-            localStorage.clear(); // Bersihkan juga sisa di HP
+            localStorage.clear();
             location.reload();
         }
     }
@@ -1809,7 +1794,7 @@
                     });
                 }
 
-                simpanKeCloud(); // PENGGANTI localStorage
+                simpanKeCloud();
                 Swal.fire('Laporan Tersinkronisasi ke Cloud!', `Berhasil menambahkan:<br><b>${iuranMasukCount} Setoran Baru</b><br><b>${wargaUpdateCount} Warga Baru/Diupdate</b>.`, 'success');
             } catch(err) {
                 Swal.fire('Error', 'Gagal membaca data dari petugas.', 'error');
@@ -1873,7 +1858,7 @@
         if (!keterangan || nominal <= 0) { Swal.fire('Error', 'Mohon isi keterangan dan nominal dengan benar!', 'warning'); return; }
 
         databasePemasukanLain.push({ tanggal, keterangan, nominal });
-        simpanKeCloud(); // PENGGANTI localStorage
+        simpanKeCloud();
         
         Swal.fire('Berhasil', 'Pemasukan Kas Masuk Ke Cloud!', 'success');
         tutupModalPemasukan();
@@ -1895,7 +1880,7 @@
         if (!keterangan || nominal <= 0) { Swal.fire('Error', 'Mohon isi keterangan dan nominal pengeluaran!', 'warning'); return; }
 
         databaseKlaim.push({ tanggal, kode: 'OPERASIONAL', rw: 'PUSAT', jenis: keterangan, nominal });
-        simpanKeCloud(); // PENGGANTI localStorage
+        simpanKeCloud();
         
         Swal.fire('Berhasil', 'Pengeluaran Operasional Tersimpan di Cloud!', 'success');
         tutupModalPengeluaran();
@@ -1914,7 +1899,7 @@
                 databaseIuran = [];
                 databaseKlaim = [];
                 databasePemasukanLain = [];
-                simpanKeCloud(); // PENGGANTI localStorage
+                simpanKeCloud();
                 Swal.fire('Berhasil', 'Catatan Kas di Firebase telah direset.', 'success');
             }
         });
