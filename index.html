@@ -8,6 +8,10 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <!-- FIREBASE SDK VERSI 8 (Agar bisa jalan langsung di HTML tanpa Node.js) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
         :root {
@@ -40,8 +44,8 @@
         @keyframes jalanHalus { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
 
         /* PANEL BACKUP & RESTORE */
-        .panel-backup-native { background: #fffdf0; border: 1px solid #f9e8a2; padding: 12px 14px; border-radius: 12px; margin: 12px 15px 0 15px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
-        .panel-backup-native p { font-size: 11px; font-weight: 600; color: #8a6d0b; line-height: 1.3; }
+        .panel-backup-native { background: #e0f2fe; border: 1px solid #bae6fd; padding: 12px 14px; border-radius: 12px; margin: 12px 15px 0 15px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+        .panel-backup-native p { font-size: 11px; font-weight: 600; color: #0284c7; line-height: 1.3; }
         .btn-backup-group { display: flex; gap: 5px; width: 100%; justify-content: space-between; }
         .btn-backup-group button { flex: 1; text-align: center; padding: 8px 4px; font-size: 10px; white-space: nowrap; }
         
@@ -147,47 +151,28 @@
             .app-bar, .panel-backup-native, .bottom-nav, .card-native:not(.printable-panel), form, .btn-group-action, .filter-select, .live-search-input, .modal, .pagination-container { display: none !important; }
             .container { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
             
-            /* PRINT MASTER KK */
             body.mode-cetak-buku-aktif #kop-buku-penagihan { display: block !important; text-align: center; margin-bottom: 15px; }
             body.mode-cetak-buku-aktif .card-native.printable-panel { display: block !important; border: none !important; box-shadow: none !important; padding: 0 !important; }
             body.mode-cetak-buku-aktif .kolom-layar-normal { display: none !important; }
             body.mode-cetak-buku-aktif .kolom-cetak-lap { display: table-cell !important; text-align: center !important; vertical-align: middle !important; border: 1px solid #000 !important; color: #000 !important; }
             
-            /* PRINT LOG IURAN */
             body.mode-cetak-log-aktif #print-area-header { display: block !important; }
             body.mode-cetak-log-aktif #print-log-signatures { display: flex !important; }
             body.mode-cetak-log-aktif .card-native.printable-panel { display: block !important; border: none !important; box-shadow: none !important; padding: 0 !important; }
             body.mode-cetak-log-aktif .kolom-layar-normal { display: none !important; }
 
-            /* PRINT DATA WARGA */
             body.mode-cetak-data-warga-aktif { background: white !important; padding: 0 !important; }
             body.mode-cetak-data-warga-aktif #print-area-data-warga { display: block !important; position: absolute; left: 0; top: 0; width: 100%; }
 
-            /* PRINT SK */
             body.mode-cetak-sk-aktif { background: white !important; padding: 10px !important; }
             body.mode-cetak-sk-aktif #form-sk-print-area { display: block !important; width: 100% !important; position: absolute; left: 0; top: 0; padding: 20px; }
 
-            /* PRINT KARTU IURAN (A4 DIBAGI 4) */
             body.mode-cetak-kartu-aktif { background: white !important; padding: 0 !important; }
             body.mode-cetak-kartu-aktif > *:not(#print-area-kartu-massal) { display: none !important; }
             body.mode-cetak-kartu-aktif #print-area-kartu-massal { display: block !important; position: absolute; left: 0; top: 0; width: 100%; padding: 10px; }
             
-            #grid-kartu-container {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 15px;
-            }
-            .kartu-cetak-item {
-                border: 1px solid #000;
-                padding: 15px;
-                box-sizing: border-box;
-                width: 100%;
-                height: 135mm; 
-                page-break-inside: avoid;
-                position: relative;
-                background: #fff;
-                overflow: hidden;
-            }
+            #grid-kartu-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+            .kartu-cetak-item { border: 1px solid #000; padding: 15px; box-sizing: border-box; width: 100%; height: 135mm; page-break-inside: avoid; position: relative; background: #fff; overflow: hidden; }
 
             table { width: 100% !important; border-collapse: collapse !important; border: 1px solid #1e293b !important; margin-top: 8px; }
             th, td { padding: 6px 8px !important; border: 1px solid #334155 !important; color: #000 !important; font-size: 11px !important; page-break-inside: avoid; }
@@ -210,17 +195,15 @@
         </div>
     </div>
     <div class="running-text-container">
-        <span>Sistem Administrasi Sosial Kematian Masjid Jami Al-Ikhlash • RW 18, RW 19, RW 20 • Secure By : 3R-Software</span>
+        <span>Sistem Administrasi Sosial Kematian Masjid Jami Al-Ikhlash • Data Sync: FIREBASE CLOUD SERVER 🟢 Aktif</span>
     </div>
 </div>
 
 <div class="panel-backup-native">
-    <p>🔒 Proteksi Data & Integrasi Lapangan (Format JSON)</p>
+    <p>☁️ Firebase Cloud Sync Aktif (Data Tersimpan Online)</p>
     <div class="btn-backup-group">
-        <button class="btn-ekspor-nat" onclick="eksporBackupDataSistem()">💾 Ekspor</button>
-        <button class="btn-impor-nat" onclick="pemicuTombolFileImpor()">📂 Pulihkan</button>
-        <button class="btn-impor-lapangan" onclick="pemicuImporLapangan()">📥 Terima Lap.</button>
-        <input type="file" id="input-file-backup-json" accept=".json" style="display: none;" onchange="prosesImporDataSistem(event)">
+        <button class="btn-ekspor-nat" onclick="eksporBackupDataSistem()">💾 Download Backup CSV</button>
+        <button class="btn-impor-lapangan" onclick="pemicuImporLapangan()">📥 Impor Offline Lapangan</button>
         <input type="file" id="input-file-lapangan-json" accept=".json" style="display: none;" onchange="prosesImporLaporanLapangan(event)">
     </div>
 </div>
@@ -228,7 +211,6 @@
 <div class="container">
 
     <div id="tab-home" class="tab-content active">
-        
         <div class="grid-stats">
             <div class="stat-box masuk">
                 <span>📈 Kas Masuk</span>
@@ -292,8 +274,8 @@
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; margin-bottom: 12px;">
                 <h3 style="margin: 0; border: none; padding: 0;">📜 Riwayat Kas & Santunan</h3>
                 <div style="display: flex; gap: 4px;">
-                    <button class="btn-action-sm bg-excel" onclick="bukaModalPemasukan()">➕ Catat Pemasukan</button>
-                    <button class="btn-action-sm bg-warning" onclick="bukaModalPengeluaran()">➖ Catat Pengeluaran</button>
+                    <button class="btn-action-sm bg-excel" onclick="bukaModalPemasukan()">➕ Pemasukan</button>
+                    <button class="btn-action-sm bg-warning" onclick="bukaModalPengeluaran()">➖ Pengeluaran</button>
                 </div>
             </div>
             <div class="table-responsive">
@@ -314,7 +296,7 @@
             </div>
             <div style="margin-top: 15px; border-top: 1px dashed #cbd5e1; padding-top: 10px; display: flex; justify-content: flex-end; gap: 8px;">
                 <button onclick="resetKasSaja()" style="padding: 6px 12px; background: #d97706; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 11px; cursor: pointer;">🔄 RESET KAS SAJA</button>
-                <button onclick="bersihkanSemuaDataMacet()" style="padding: 6px 12px; background: #dc2626; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 11px; cursor: pointer;">⚠️ RESET TOTAL SISTEM</button>
+                <button onclick="bersihkanSemuaDataMacet()" style="padding: 6px 12px; background: #dc2626; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 11px; cursor: pointer;">⚠️ WIPE CLOUD DB</button>
             </div>
         </div>
     </div>
@@ -333,12 +315,8 @@
                 <div class="form-group">
                     <label>Nomor Rukun Tetangga (RT)</label>
                     <select id="kk-rt" class="form-control" required onchange="generateKodeBukuOtomatis()">
-                        <option value="01">RT 1</option>
-                        <option value="02">RT 2</option>
-                        <option value="03">RT 3</option>
-                        <option value="04">RT 4</option>
-                        <option value="05">RT 5</option>
-                        <option value="00">RT Belum Diketahui</option>
+                        <option value="01">RT 1</option><option value="02">RT 2</option><option value="03">RT 3</option>
+                        <option value="04">RT 4</option><option value="05">RT 5</option><option value="00">RT Belum Diketahui</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -668,12 +646,8 @@
         <div class="form-group">
             <label>Nomor Rukun Tetangga (RT)</label>
             <select id="modal-input-rt" class="form-control">
-                <option value="01">RT 1</option>
-                <option value="02">RT 2</option>
-                <option value="03">RT 3</option>
-                <option value="04">RT 4</option>
-                <option value="05">RT 5</option>
-                <option value="00">RT Belum Diketahui</option>
+                <option value="01">RT 1</option><option value="02">RT 2</option><option value="03">RT 3</option>
+                <option value="04">RT 4</option><option value="05">RT 5</option><option value="00">RT Belum Diketahui</option>
             </select>
         </div>
         <div class="form-group">
@@ -771,14 +745,32 @@
     </div>
 </div>
 
+<!-- ============================================== -->
+<!-- SCRIPT UTAMA FIREBASE DAN LOGIKA APLIKASI -->
+<!-- ============================================== -->
 <script>
+    // 1. INISIALISASI FIREBASE CLOUD
+    const firebaseConfig = {
+        apiKey: "AIzaSyAfI2PZ2ByQDoqzpRTCpOkdoYcbTAVBGsE",
+        authDomain: "soskem-alikhlas.firebaseapp.com",
+        databaseURL: "https://soskem-alikhlas-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "soskem-alikhlas",
+        storageBucket: "soskem-alikhlas.firebasestorage.app",
+        messagingSenderId: "661512146062",
+        appId: "1:661512146062:web:7659be94fb9bc39eea0ddf"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // 2. VARIABEL GLOBAL DATABASE
     const SALDO_AWAL_TERDAHULU = 18127500;
     const TARIF_PER_TRIWULAN = 25000;
 
-    let databaseKK = JSON.parse(localStorage.getItem('soskem_master_kk')) || [];
-    let databaseIuran = JSON.parse(localStorage.getItem('soskem_log_iuran')) || [];
-    let databaseKlaim = JSON.parse(localStorage.getItem('soskem_log_klaim')) || [];
-    let databasePemasukanLain = JSON.parse(localStorage.getItem('soskem_pemasukan_lain')) || [];
+    let databaseKK = [];
+    let databaseIuran = [];
+    let databaseKlaim = [];
+    let databasePemasukanLain = [];
     
     let indeksEditTerpilih = null;
     let wargaWATerpilih = null;
@@ -790,6 +782,7 @@
     let globalDataMasterFiltered = [];
     let globalDataIuranFiltered = [];
 
+    // FUNGSI UMUM & FORMAT
     function formatRupiahKetik(angka, prefix) {
         let number_string = angka.replace(/[^,\d]/g, '').toString(),
             split = number_string.split(','),
@@ -808,15 +801,72 @@
         return s.startsWith('0') ? '62' + s.slice(1) : s;
     }
 
+    // 3. AUTO LOAD DARI CLOUD SAAT APLIKASI DIBUKA
     document.addEventListener("DOMContentLoaded", function() {
         const hariIni = new Date().toISOString().split('T')[0];
         if(document.getElementById('setor-tanggal')) document.getElementById('setor-tanggal').value = hariIni;
-        jalankanSistemAwal();
-        generateKodeBukuOtomatis();
+        
+        tarikDataDariFirebase(); // Mengambil alih jalankanSistemAwal()
+        
         sinkronisasiPrefixSetoran();
         setelDropdownTriwulanOtomatis();
         setupSignaturePad();
     });
+
+    // 4. LOGIKA CLOUD SYNC & AUTO MIGRASI
+    function tarikDataDariFirebase() {
+        // .on() akan terus menguping perubahan di Cloud. Jika ada perubahan, layar otomatis update.
+        db.ref('soskem_data').on('value', (snapshot) => {
+            const dataCloud = snapshot.val();
+            
+            if (dataCloud) {
+                // Tarik data dari awan
+                databaseKK = dataCloud.master_kk || [];
+                databaseIuran = dataCloud.log_iuran || [];
+                databaseKlaim = dataCloud.log_klaim || [];
+                databasePemasukanLain = dataCloud.pemasukan_lain || [];
+            } else {
+                // JIKA AWAN KOSONG: Migrasikan data localStorage HP Bapak otomatis ke awan!
+                let localKK = JSON.parse(localStorage.getItem('soskem_master_kk')) || [];
+                if(localKK.length > 0) {
+                    databaseKK = localKK;
+                    databaseIuran = JSON.parse(localStorage.getItem('soskem_log_iuran')) || [];
+                    databaseKlaim = JSON.parse(localStorage.getItem('soskem_log_klaim')) || [];
+                    databasePemasukanLain = JSON.parse(localStorage.getItem('soskem_pemasukan_lain')) || [];
+                    simpanKeCloud(); // Lempar ke Firebase
+                }
+            }
+
+            // Normalisasi struktur data
+            databaseKK.forEach(w => {
+                let rtAsli = "00";
+                if (w.kode && w.kode.includes('-')) {
+                    rtAsli = w.kode.split('-')[1];
+                }
+                if (w.rt !== rtAsli) w.rt = rtAsli;
+            });
+
+            // Perbarui seluruh tampilan UI
+            hitungUlangKalkulasiDashboard();
+            muatTabelMasterKK();
+            muatTabelLogIuran();
+            muatTabelRiwayatSantunan();
+            hitungDanSaringKelengkapan();
+            generateKodeBukuOtomatis();
+        });
+    }
+
+    // FUNGSI PENGGANTI LOCALSTORAGE
+    function simpanKeCloud() {
+        db.ref('soskem_data').set({
+            master_kk: databaseKK,
+            log_iuran: databaseIuran,
+            log_klaim: databaseKlaim,
+            pemasukan_lain: databasePemasukanLain
+        });
+        // Tidak perlu lagi memanggil fungsi render ulang, karena db.ref.on('value') otomatis terpancing.
+    }
+
 
     function setelDropdownTriwulanOtomatis() {
         const bulanSekarang = new Date().getMonth() + 1;
@@ -830,8 +880,6 @@
         
         const dropdownIuran = document.getElementById('filter-cetak-periode-iuran');
         if (dropdownIuran) dropdownIuran.value = "SEMUA";
-
-        muatTabelMasterKK();
     }
 
     function pindahTabNative(indexTab, elBtn) {
@@ -853,26 +901,6 @@
         }
     }
 
-    function jalankanSistemAwal() {
-        let adaPerubahan = false;
-        databaseKK.forEach(w => {
-            let rtAsli = "00";
-            if (w.kode && w.kode.includes('-')) {
-                rtAsli = w.kode.split('-')[1];
-            }
-            if (w.rt !== rtAsli) {
-                w.rt = rtAsli;
-                adaPerubahan = true;
-            }
-        });
-        if (adaPerubahan) localStorage.setItem('soskem_master_kk', JSON.stringify(databaseKK));
-
-        hitungUlangKalkulasiDashboard();
-        muatTabelMasterKK();
-        muatTabelLogIuran();
-        muatTabelRiwayatSantunan();
-        hitungDanSaringKelengkapan();
-    }
 
     function renderDashboardChart() {
         const ctx = document.getElementById('kepatuhanChart');
@@ -944,6 +972,7 @@
     function generateKodeBukuOtomatis() {
         const rwTerpilih = document.getElementById('kk-rw').value;
         const rtTerpilih = document.getElementById('kk-rt').value;
+        if (!rwTerpilih) return;
         const angkaRW = rwTerpilih.replace(/\D/g, '');
         const prefixTarget = `ISK${angkaRW}/`;
         
@@ -961,6 +990,9 @@
         document.getElementById('kk-kode').value = `${prefixTarget}${String(nomorUrutTerbesar + 1).padStart(3, '0')}-${rtTerpilih}`;
     }
 
+    // ============================================
+    // SIMPAN MASTER KK -> FIREBASE
+    // ============================================
     document.getElementById('form-master-kk').addEventListener('submit', function(e) {
         e.preventDefault();
         const kode = document.getElementById('kk-kode').value.trim().toUpperCase();
@@ -977,13 +1009,12 @@
         }
 
         databaseKK.push({ kode, rt, nama, wa, jiwa, rw });
-        localStorage.setItem('soskem_master_kk', JSON.stringify(databaseKK));
-        Swal.fire('Berhasil!', `Keluarga Disimpan!<br><b>${kode}</b>`, 'success');
+        simpanKeCloud(); // PENGGANTI localStorage
+        
+        Swal.fire('Berhasil!', `Keluarga Disimpan ke Cloud!<br><b>${kode}</b>`, 'success');
         document.getElementById('kk-nama').value = '';
         document.getElementById('kk-wa').value = '';
         document.getElementById('kk-jiwa').value = '';
-        jalankanSistemAwal();
-        generateKodeBukuOtomatis();
     });
 
     function bukaModalWA(index) {
@@ -999,43 +1030,39 @@
     }
 
     function kirimPesanWA(jenis) {
-    if (!wargaWATerpilih) return;
-    
-    let nomorWaClean = normalizeWA(wargaWATerpilih.wa);
-    let namaWarga = wargaWATerpilih.nama && !wargaWATerpilih.nama.startsWith("Keluarga") ? wargaWATerpilih.nama : ("Keluarga " + wargaWATerpilih.kode);
-    let infoRt = wargaWATerpilih.rt && wargaWATerpilih.rt !== "00" ? ` RT ${wargaWATerpilih.rt}` : '';
-    
-    // Format Tanggal (Otomatis menjabarkan bulan ke bahasa Indonesia, misal: 12 November 2026)
-    const opsiTgl = { day: 'numeric', month: 'long', year: 'numeric' };
-    const tglDiterimaDKM = new Date().toLocaleDateString('id-ID', opsiTgl);
-    
-    // Tarik tanggal pembayaran langsung dari inputan form setor, jika kosong pakai hari ini
-    let formTglBayar = document.getElementById('setor-tanggal') ? document.getElementById('setor-tanggal').value : '';
-    let tglPembayaran = tglDiterimaDKM;
-    if (formTglBayar) {
-        tglPembayaran = new Date(formTglBayar).toLocaleDateString('id-ID', opsiTgl);
+        if (!wargaWATerpilih) return;
+        
+        let nomorWaClean = normalizeWA(wargaWATerpilih.wa);
+        let namaWarga = wargaWATerpilih.nama && !wargaWATerpilih.nama.startsWith("Keluarga") ? wargaWATerpilih.nama : ("Keluarga " + wargaWATerpilih.kode);
+        let infoRt = wargaWATerpilih.rt && wargaWATerpilih.rt !== "00" ? ` RT ${wargaWATerpilih.rt}` : '';
+        
+        const opsiTgl = { day: 'numeric', month: 'long', year: 'numeric' };
+        const tglDiterimaDKM = new Date().toLocaleDateString('id-ID', opsiTgl);
+        
+        let formTglBayar = document.getElementById('setor-tanggal') ? document.getElementById('setor-tanggal').value : '';
+        let tglPembayaran = tglDiterimaDKM;
+        if (formTglBayar) {
+            tglPembayaran = new Date(formTglBayar).toLocaleDateString('id-ID', opsiTgl);
+        }
+
+        let pesanTeks = '';
+        let footerOtomatis = `\n\n_-- Pesan ini dikirim otomatis dari Server DKM Jami Al-Ikhlash --_`;
+
+        if (jenis === 'terdaftar') {
+            pesanTeks = `Assalamu'alaikum Wr. Wb. Bpk/Ibu ${namaWarga},\n\nKami informasikan bahwa keluarga Bapak/Ibu telah tercatat resmi di database program Sosial Kematian (SOSKEM) DKM Masjid Jami Al-Ikhlash.\n\nNomor Buku: *${wargaWATerpilih.kode}*\nWilayah: *${wargaWATerpilih.rw}${infoRt}*\n\nJazakumullah khairan katsiran.${footerOtomatis}`;
+        } 
+        else if (jenis === 'lunas') {
+            const triwulanAktif = document.getElementById('pilihan-triwulan-cetak').value || 'Berjalan';
+            pesanTeks = `Assalamu'alaikum Wr. Wb.\n\nJazakumullah khairan katsiran Bpk/Ibu ${namaWarga}. Pembayaran iuran SOSKEM DKM Jami Al-Ikhlash untuk periode *${triwulanAktif}* telah kami terima dan tercatat di sistem cloud kami.\n\n📋 *Rincian Setoran:*\n- Tgl Pembayaran : *${tglPembayaran}*\n- Diterima DKM : *${tglDiterimaDKM}*\n\nSemoga menjadi amal jariyah yang barokah. Aamiin.${footerOtomatis}`;
+        } 
+        else if (jenis === 'tagihan') {
+            pesanTeks = `Assalamu'alaikum Wr. Wb. Bpk/Ibu ${namaWarga},\n\nMohon izin mengingatkan santun untuk iuran program Sosial Kematian (SOSKEM) DKM Jami Al-Ikhlash (Kode Buku: *${wargaWATerpilih.kode}*) untuk periode yang belum terselesaikan.\n\nTerima kasih atas partisipasi dan kepeduliannya.${footerOtomatis}`;
+        }
+
+        let linkWA = `https://wa.me/${nomorWaClean}?text=${encodeURIComponent(pesanTeks)}`;
+        window.open(linkWA, '_blank');
+        tutupModalWA();
     }
-
-    let pesanTeks = '';
-    
-    // Footer otomatis dengan trik Italic (_) agar terlihat seperti catatan sistem yang samar
-    let footerOtomatis = `\n\n_-- Pesan ini dikirim otomatis dari Server DKM Jami Al-Ikhlash --_`;
-
-    if (jenis === 'terdaftar') {
-        pesanTeks = `Assalamu'alaikum Wr. Wb. Bpk/Ibu ${namaWarga},\n\nKami informasikan bahwa keluarga Bapak/Ibu telah tercatat resmi di database program Sosial Kematian (SOSKEM) DKM Masjid Jami Al-Ikhlash.\n\nNomor Buku: *${wargaWATerpilih.kode}*\nWilayah: *${wargaWATerpilih.rw}${infoRt}*\n\nJazakumullah khairan katsiran.${footerOtomatis}`;
-    } 
-    else if (jenis === 'lunas') {
-        const triwulanAktif = document.getElementById('pilihan-triwulan-cetak').value || 'Berjalan';
-        pesanTeks = `Assalamu'alaikum Wr. Wb.\n\nJazakumullah khairan katsiran Bpk/Ibu ${namaWarga}. Pembayaran iuran SOSKEM DKM Jami Al-Ikhlash untuk periode *${triwulanAktif}* telah kami terima dan tercatat di sistem.\n\n📋 *Rincian Setoran:*\n- Tgl Pembayaran : *${tglPembayaran}*\n- Diterima DKM : *${tglDiterimaDKM}*\n\nSemoga menjadi amal jariyah yang barokah. Aamiin.${footerOtomatis}`;
-    } 
-    else if (jenis === 'tagihan') {
-        pesanTeks = `Assalamu'alaikum Wr. Wb. Bpk/Ibu ${namaWarga},\n\nMohon izin mengingatkan santun untuk iuran program Sosial Kematian (SOSKEM) DKM Jami Al-Ikhlash (Kode Buku: *${wargaWATerpilih.kode}*) untuk periode yang belum terselesaikan.\n\nTerima kasih atas partisipasi dan kepeduliannya.${footerOtomatis}`;
-    }
-
-    let linkWA = `https://wa.me/${nomorWaClean}?text=${encodeURIComponent(pesanTeks)}`;
-    window.open(linkWA, '_blank');
-    tutupModalWA();
-}
 
     function bukaModalEditKK(index) {
         indeksEditTerpilih = index;
@@ -1077,20 +1104,20 @@
             databaseIuran.forEach(iuran => {
                 if (iuran.kode === kodeLama) iuran.kode = kodeBaru;
             });
-            localStorage.setItem('soskem_log_iuran', JSON.stringify(databaseIuran));
-            
             databaseKlaim.forEach(klaim => {
                 if (klaim.kode === kodeLama) klaim.kode = kodeBaru;
             });
-            localStorage.setItem('soskem_log_klaim', JSON.stringify(databaseKlaim));
         }
         
-        localStorage.setItem('soskem_master_kk', JSON.stringify(databaseKK));
-        Swal.fire('Berhasil', 'Data dan Iuran Tersinkronisasi!', 'success');
+        simpanKeCloud(); // PENGGANTI localStorage
+        
+        Swal.fire('Berhasil', 'Data tersinkronisasi di Firebase Cloud!', 'success');
         tutupModalEdit();
-        jalankanSistemAwal();
     }
 
+    // ============================================
+    // SIMPAN SETORAN IURAN -> FIREBASE
+    // ============================================
     document.getElementById('form-setor-iuran').addEventListener('submit', function(e) {
         e.preventDefault();
         const rw = document.getElementById('setor-rw-pilihan').value;
@@ -1141,19 +1168,17 @@
             databaseIuran.push({ tanggal, kode: kodeLengkap, rw, periode: "Kompensasi Tahun Depan", nominal: sisaDanaPeta, signature });
         }
 
-        localStorage.setItem('soskem_log_iuran', JSON.stringify(databaseIuran));
+        simpanKeCloud(); // PENGGANTI localStorage
         
-        // MODIFIKASI: Memunculkan pop-up WhatsApp otomatis setelah berhasil menyimpan setoran
         Swal.fire({
             title: 'Sukses',
-            html: `Pembayaran Berhasil Disimpan!<br>Rp ${nominalInput.toLocaleString('id-ID')} dialokasikan.`,
+            html: `Pembayaran Berhasil Tersimpan di Cloud!<br>Rp ${nominalInput.toLocaleString('id-ID')} dialokasikan.`,
             icon: 'success',
             confirmButtonText: 'Kirim Info via WA',
             showCancelButton: true,
             cancelButtonText: 'Tutup'
         }).then((result) => {
             if (result.isConfirmed) {
-                // Temukan index warga di databaseKK untuk memicu fungsi bukaModalWA
                 let indexWarga = databaseKK.findIndex(item => item.kode === kodeLengkap);
                 if(indexWarga !== -1) {
                     bukaModalWA(indexWarga);
@@ -1164,11 +1189,9 @@
         document.getElementById('setor-kode-kk').value = '';
         document.getElementById('setor-nominal').value = 'Rp 25.000';
         document.getElementById('preview-kk').innerHTML = '';
-        
         const canvas = document.getElementById('signatureCanvas');
         canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
         document.getElementById('signatureInput').value = '';
-        jalankanSistemAwal();
     });
 
     function setupSignaturePad() {
@@ -1332,11 +1355,9 @@
         dataFiltered.sort((a, b) => {
             let comp = a.kode.localeCompare(b.kode, undefined, { numeric: true, sensitivity: 'base' });
             if (comp !== 0) return comp;
-            
             let dateA = new Date(a.tanggal);
             let dateB = new Date(b.tanggal);
             if (dateA - dateB !== 0) return dateA - dateB;
-            
             return a.indexAsli - b.indexAsli;
         });
 
@@ -1436,12 +1457,11 @@
     function ubahHalamanIuran(arah) { currentPageIuran += arah; renderTabelIuranPagination(); }
 
     function hapusLogIuranFormated(indexAsli) {
-        Swal.fire({ title: 'Hapus Log?', text: "Data setoran ini akan dihapus permanen!", icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc2626' }).then((res) => {
+        Swal.fire({ title: 'Hapus Log?', text: "Data setoran ini akan dihapus dari Cloud!", icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc2626' }).then((res) => {
             if (res.isConfirmed) {
                 if (indexAsli !== undefined && databaseIuran[indexAsli]) { 
                     databaseIuran.splice(indexAsli, 1); 
-                    localStorage.setItem('soskem_log_iuran', JSON.stringify(databaseIuran)); 
-                    jalankanSistemAwal(); 
+                    simpanKeCloud(); // PENGGANTI localStorage
                 }
             }
         });
@@ -1483,16 +1503,16 @@
     }
 
     function hapusArusKas(tipe, kode, tanggal, nominal) {
-        Swal.fire({ title: 'Hapus Catatan?', icon: 'warning', showCancelButton: true }).then((res) => {
+        Swal.fire({ title: 'Hapus dari Cloud?', icon: 'warning', showCancelButton: true }).then((res) => {
             if (res.isConfirmed) {
                 if(tipe === 'MASUK') {
                     let idx = databasePemasukanLain.findIndex(x => x.tanggal === tanggal && x.keterangan === kode && x.nominal === nominal);
-                    if (idx !== -1) { databasePemasukanLain.splice(idx, 1); localStorage.setItem('soskem_pemasukan_lain', JSON.stringify(databasePemasukanLain)); }
+                    if (idx !== -1) { databasePemasukanLain.splice(idx, 1); }
                 } else {
                     let idx = databaseKlaim.findIndex(x => x.kode === kode && x.tanggal === tanggal && x.nominal === nominal);
-                    if (idx !== -1) { databaseKlaim.splice(idx, 1); localStorage.setItem('soskem_log_klaim', JSON.stringify(databaseKlaim)); }
+                    if (idx !== -1) { databaseKlaim.splice(idx, 1); }
                 }
-                jalankanSistemAwal();
+                simpanKeCloud(); // PENGGANTI localStorage
             }
         });
     }
@@ -1527,9 +1547,9 @@
         Swal.fire({ title: 'Cairkan Santunan?', text: `Klaim Rp 850.000 untuk ${kode}?`, icon: 'question', showCancelButton: true }).then((res) => {
             if (res.isConfirmed) {
                 databaseKlaim.push({ tanggal: new Date().toISOString().split('T')[0], kode, rw, jenis: "Santunan & Kafan", nominal: 850000 });
-                localStorage.setItem('soskem_log_klaim', JSON.stringify(databaseKlaim));
-                Swal.fire('Berhasil!', 'Pencairan Disimpan!', 'success');
-                jalankanSistemAwal(); lacakKelayakanKK();
+                simpanKeCloud(); // PENGGANTI localStorage
+                Swal.fire('Berhasil!', 'Pencairan Disimpan ke Cloud!', 'success');
+                lacakKelayakanKK();
             }
         });
     }
@@ -1582,9 +1602,6 @@
         }, 500);
     }
 
-    /* -----------------------------------------------------
-       FUNGSI BARU: CETAK KARTU FISIK MASSAL
-       ----------------------------------------------------- */
     function cetakKartuPesertaMassal() {
         const container = document.getElementById('grid-kartu-container');
         container.innerHTML = '';
@@ -1596,7 +1613,6 @@
             return;
         }
 
-        // Hitung tahun cetak otomatis untuk siklus tahun depan
         let tahunCetak = new Date().getFullYear() + 1;
 
         dataTercetak.forEach((warga, idx) => {
@@ -1607,7 +1623,6 @@
             
             let cardHTML = `
                 <div class="kartu-cetak-item">
-                    <!-- Faint Background Logo -->
                     <div style="position: absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:120px; height:120px; background-image:url('1000026447.png'); background-size:contain; background-repeat:no-repeat; background-position:center; opacity:0.1; z-index:0; pointer-events:none;"></div>
                     
                     <div style="position:relative; z-index:1;">
@@ -1617,8 +1632,10 @@
                                 <h2 style="font-size:14px; font-weight:bold; margin:0; color:#2c3e50;">KARTU IURAN<br>SOSIAL & KEMATIAN</h2>
                                 <p style="font-size:9px; font-weight:bold; margin:3px 0 0 0; color:#2c3e50;">DKM MASJID JAMI AL IKHLASH</p>
                             </div>
-                            <!-- Wadah QR Code -->
-                            <div id="qr-kartu-${idx}" style="height:50px; width:50px; padding:2px; background:#fff;"></div>
+                            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                                <div id="qr-kartu-${idx}" style="height:50px; width:50px; background:#fff; margin-bottom: 2px;"></div>
+                                <span style="font-size:6.5px; font-weight:bold; color:#0f2c23; background:#fef08a; padding:2px 4px; border-radius:3px; border:1px solid #fde047; letter-spacing:0.5px;">🔍 CEK STATUS</span>
+                            </div>
                         </div>
                         
                         <table style="width:100%; font-size:10px; font-weight:bold; margin-bottom:8px; border:none;">
@@ -1630,11 +1647,11 @@
                         <table style="width:100%; border-collapse:collapse; text-align:center; font-size:10px; border:1px solid #000; margin-bottom:8px;">
                             <thead>
                                 <tr>
-                                    <th style="background:#c0392b !important; color:white !important; border:1px solid #000; padding:4px; -webkit-print-color-adjust: exact; print-color-adjust: exact;">BULAN</th>
-                                    <th style="background:#c0392b !important; color:white !important; border:1px solid #000; padding:4px; -webkit-print-color-adjust: exact; print-color-adjust: exact;">TGL</th>
-                                    <th style="background:#c0392b !important; color:white !important; border:1px solid #000; padding:4px; -webkit-print-color-adjust: exact; print-color-adjust: exact;">IURAN</th>
-                                    <th style="background:#c0392b !important; color:white !important; border:1px solid #000; padding:4px; -webkit-print-color-adjust: exact; print-color-adjust: exact;">Infaq</th>
-                                    <th style="background:#f39c12 !important; color:white !important; border:1px solid #000; padding:4px; -webkit-print-color-adjust: exact; print-color-adjust: exact;">Paraf</th>
+                                    <th style="background:#c0392b !important; color:white !important; border:1px solid #000; padding:4px;">BULAN</th>
+                                    <th style="background:#c0392b !important; color:white !important; border:1px solid #000; padding:4px;">TGL</th>
+                                    <th style="background:#c0392b !important; color:white !important; border:1px solid #000; padding:4px;">IURAN</th>
+                                    <th style="background:#c0392b !important; color:white !important; border:1px solid #000; padding:4px;">Infaq</th>
+                                    <th style="background:#f39c12 !important; color:white !important; border:1px solid #000; padding:4px;">Paraf</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -1646,7 +1663,6 @@
                         </table>
                         
                         <div style="display:flex; justify-content:space-between; gap:6px; font-size:7.5px; line-height:1.2; color:#000;">
-                            <!-- Bagian Kiri: Tata Tertib Padat -->
                             <div style="flex:1;">
                                 <b style="font-size:8.5px;">TATA TERTIB IURAN:</b>
                                 <ul style="padding-left:10px; margin-top:2px; margin-bottom:0;">
@@ -1654,8 +1670,6 @@
                                     <li>Segera hubungi pengelola jika ada berita duka agar dana/pelayanan diproses.</li>
                                 </ul>
                             </div>
-                            
-                            <!-- Bagian Kanan: Manfaat & Kegunaan -->
                             <div style="flex:1.2; background:#f8fafc; border:1px solid #cbd5e1; padding:3px; border-radius:4px;">
                                 <b style="font-size:8px; color:#0f2c23;">MANFAAT & KEGUNAAN IURAN:</b>
                                 <ul style="padding-left:10px; margin-top:2px; margin-bottom:0;">
@@ -1672,39 +1686,20 @@
             container.innerHTML += cardHTML;
         });
 
-        // MODIFIKASI: Mengembalikan QR Code ke setelan awal (JSON lengkap)
         dataTercetak.forEach((warga, idx) => {
-            let qrData = JSON.stringify({ 
-                kode: warga.kode, 
-                nama: warga.nama || "", 
-                rw: warga.rw || "", 
-                rt: warga.rt || "", 
-                jiwa: warga.jiwa || "" 
-            });
-            
-            new QRCode(document.getElementById(`qr-kartu-${idx}`), {
-                text: qrData,
-                width: 50,
-                height: 50,
-                colorDark : "#0f2c23", 
-                colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.L
-            });
+            let qrData = JSON.stringify({ kode: warga.kode, nama: warga.nama || "", rw: warga.rw || "", rt: warga.rt || "", jiwa: warga.jiwa || "" });
+            new QRCode(document.getElementById(`qr-kartu-${idx}`), { text: qrData, width: 50, height: 50, colorDark : "#0f2c23", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.L });
         });
 
         document.body.classList.add('mode-cetak-kartu-aktif');
-        setTimeout(() => {
-            window.print();
-            document.body.classList.remove('mode-cetak-kartu-aktif');
-        }, 1000); 
+        setTimeout(() => { window.print(); document.body.classList.remove('mode-cetak-kartu-aktif'); }, 1000); 
     }
 
     function hapusMasterKK(index) {
         Swal.fire({ title: 'Hapus Jemaah?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc2626' }).then((res) => {
             if (res.isConfirmed) {
                 databaseKK.splice(index, 1);
-                localStorage.setItem('soskem_master_kk', JSON.stringify(databaseKK));
-                jalankanSistemAwal();
+                simpanKeCloud(); // PENGGANTI localStorage
             }
         });
     }
@@ -1715,12 +1710,12 @@
             if(globalDataIuranFiltered.length === 0) return Swal.fire('Info', 'Data kosong!', 'info');
             headerRow = "TANGGAL,KODE,RW,PERIODE,NOMINAL\n";
             globalDataIuranFiltered.forEach(r => isiCsv += `${r.tanggal},${r.kode},${r.rw},${r.periode},${r.nominal}\n`);
-            fileName = `Log_Iuran_${new Date().toISOString().split('T')[0]}.csv`;
+            fileName = `Log_Iuran_Cloud_${new Date().toISOString().split('T')[0]}.csv`;
         } else {
             if(globalDataMasterFiltered.length === 0) return Swal.fire('Info', 'Data kosong!', 'info');
             headerRow = "KODE,NAMA,WHATSAPP,JIWA,RW,RT,STATUS\n";
             globalDataMasterFiltered.forEach(r => isiCsv += `${r.kode},"${r.nama || '-'}",${r.wa || '-'},${r.jiwa || '-'},${r.rw},${r.rt || '-'},\n`);
-            fileName = `Master_KK_${new Date().toISOString().split('T')[0]}.csv`;
+            fileName = `Master_KK_Cloud_${new Date().toISOString().split('T')[0]}.csv`;
         }
         let link = document.createElement("a");
         link.setAttribute("href", encodeURI("data:text/csv;charset=utf-8," + headerRow + isiCsv));
@@ -1729,9 +1724,11 @@
     }
 
     async function bersihkanSemuaDataMacet() {
-        const { value: konfirmasi } = await Swal.fire({ title: 'RESET TOTAL!', text: "Ketik 'idarah-masjid' untuk konfirmasi.", input: 'text', confirmButtonColor: '#dc2626' });
+        const { value: konfirmasi } = await Swal.fire({ title: 'HAPUS DATABASE CLOUD!', text: "Ketik 'idarah-masjid' untuk mengosongkan seluruh database di Firebase secara permanen.", input: 'text', confirmButtonColor: '#dc2626' });
         if (konfirmasi === "idarah-masjid") {
-            localStorage.clear();
+            databaseKK = []; databaseIuran = []; databaseKlaim = []; databasePemasukanLain = [];
+            simpanKeCloud();
+            localStorage.clear(); // Bersihkan juga sisa di HP
             location.reload();
         }
     }
@@ -1767,55 +1764,8 @@
         const data = { master_kk: databaseKK, log_iuran: databaseIuran, log_klaim: databaseKlaim, pemasukan_lain: databasePemasukanLain, waktu: new Date().toISOString() };
         let link = document.createElement("a");
         link.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }));
-        link.download = `Backup_Soskem_${new Date().toISOString().split('T')[0]}.json`;
+        link.download = `Backup_Cloud_Soskem_${new Date().toISOString().split('T')[0]}.json`;
         document.body.appendChild(link); link.click(); document.body.removeChild(link);
-    }
-
-    function pemicuTombolFileImpor() { document.getElementById('input-file-backup-json').click(); }
-
-    function prosesImporDataSistem(event) {
-        const fileTarget = event.target.files[0];
-        if (!fileTarget) return;
-        const pembacaFile = new FileReader();
-        pembacaFile.onload = function(e) {
-            try {
-                let hasil = JSON.parse(e.target.result);
-                if (hasil.master_kk && hasil.log_iuran && hasil.log_klaim) {
-                    Swal.fire({ title: 'Pulihkan Data?', text: "Data lama akan ditimpa dengan data backup.", icon: 'warning', showCancelButton: true, confirmButtonText: 'Ya, Pulihkan!' }).then((res) => {
-                        if (res.isConfirmed) {
-                            databaseKK = hasil.master_kk.map(w => {
-                                let jiwaAman = w.jiwa || "";
-                                if (!w.jiwa && w.nomor) {
-                                    if (w.nomor.length > 3 || w.nomor.includes("0000")) jiwaAman = ""; 
-                                    else jiwaAman = w.nomor; 
-                                }
-                                return {
-                                    kode: w.kode,
-                                    rw: w.rw || "RW 18",
-                                    rt: w.rt || (w.kode.includes('-') ? w.kode.split('-')[1] : "00"), 
-                                    nama: w.nama || "Keluarga " + w.kode,
-                                    wa: w.wa || "",
-                                    jiwa: jiwaAman
-                                };
-                            });
-
-                            databaseIuran = hasil.log_iuran;
-                            databaseKlaim = hasil.log_klaim;
-                            databasePemasukanLain = hasil.pemasukan_lain || [];
-                            
-                            localStorage.setItem('soskem_master_kk', JSON.stringify(databaseKK));
-                            localStorage.setItem('soskem_log_iuran', JSON.stringify(databaseIuran));
-                            localStorage.setItem('soskem_log_klaim', JSON.stringify(databaseKlaim));
-                            localStorage.setItem('soskem_pemasukan_lain', JSON.stringify(databasePemasukanLain));
-                            
-                            Swal.fire('Sukses', 'Data Berhasil Dipulihkan!', 'success').then(() => jalankanSistemAwal());
-                        }
-                    });
-                } else { Swal.fire('Error', 'Format file backup tidak valid.', 'error'); }
-            } catch (err) { Swal.fire('Error', 'Gagal Membaca File.', 'error'); }
-        };
-        pembacaFile.readAsText(fileTarget);
-        event.target.value = '';
     }
 
     function pemicuImporLapangan() { document.getElementById('input-file-lapangan-json').click(); }
@@ -1859,10 +1809,8 @@
                     });
                 }
 
-                localStorage.setItem('soskem_log_iuran', JSON.stringify(databaseIuran));
-                localStorage.setItem('soskem_master_kk', JSON.stringify(databaseKK));
-                Swal.fire('Laporan Diterima!', `Berhasil menambahkan:<br><b>${iuranMasukCount} Setoran Baru</b><br><b>${wargaUpdateCount} Warga Baru/Diupdate</b>.`, 'success')
-                .then(() => jalankanSistemAwal());
+                simpanKeCloud(); // PENGGANTI localStorage
+                Swal.fire('Laporan Tersinkronisasi ke Cloud!', `Berhasil menambahkan:<br><b>${iuranMasukCount} Setoran Baru</b><br><b>${wargaUpdateCount} Warga Baru/Diupdate</b>.`, 'success');
             } catch(err) {
                 Swal.fire('Error', 'Gagal membaca data dari petugas.', 'error');
             }
@@ -1925,10 +1873,10 @@
         if (!keterangan || nominal <= 0) { Swal.fire('Error', 'Mohon isi keterangan dan nominal dengan benar!', 'warning'); return; }
 
         databasePemasukanLain.push({ tanggal, keterangan, nominal });
-        localStorage.setItem('soskem_pemasukan_lain', JSON.stringify(databasePemasukanLain));
-        Swal.fire('Berhasil', 'Pemasukan Kas Berhasil Dicatat!', 'success');
+        simpanKeCloud(); // PENGGANTI localStorage
+        
+        Swal.fire('Berhasil', 'Pemasukan Kas Masuk Ke Cloud!', 'success');
         tutupModalPemasukan();
-        jalankanSistemAwal();
     }
 
     function bukaModalPengeluaran() {
@@ -1947,30 +1895,27 @@
         if (!keterangan || nominal <= 0) { Swal.fire('Error', 'Mohon isi keterangan dan nominal pengeluaran!', 'warning'); return; }
 
         databaseKlaim.push({ tanggal, kode: 'OPERASIONAL', rw: 'PUSAT', jenis: keterangan, nominal });
-        localStorage.setItem('soskem_log_klaim', JSON.stringify(databaseKlaim));
-        Swal.fire('Berhasil', 'Pengeluaran Operasional Dicatat!', 'success');
+        simpanKeCloud(); // PENGGANTI localStorage
+        
+        Swal.fire('Berhasil', 'Pengeluaran Operasional Tersimpan di Cloud!', 'success');
         tutupModalPengeluaran();
-        jalankanSistemAwal();
     }
 
     function resetKasSaja() {
         Swal.fire({
-            title: 'Reset Catatan Kas?',
-            text: "Seluruh riwayat iuran, pemasukan lain, dan santunan akan dikosongkan. Data Warga (Master KK) tetap aman.",
+            title: 'Reset Kas di Cloud?',
+            text: "Seluruh riwayat iuran, pemasukan lain, dan santunan akan dihapus dari awan. Data Warga tetap aman.",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d97706',
-            confirmButtonText: 'Ya, Reset Kas'
+            confirmButtonText: 'Ya, Kosongkan'
         }).then((res) => {
             if (res.isConfirmed) {
                 databaseIuran = [];
                 databaseKlaim = [];
                 databasePemasukanLain = [];
-                localStorage.removeItem('soskem_log_iuran');
-                localStorage.removeItem('soskem_log_klaim');
-                localStorage.removeItem('soskem_pemasukan_lain');
-                jalankanSistemAwal();
-                Swal.fire('Berhasil', 'Catatan Kas telah direset.', 'success');
+                simpanKeCloud(); // PENGGANTI localStorage
+                Swal.fire('Berhasil', 'Catatan Kas di Firebase telah direset.', 'success');
             }
         });
     }
